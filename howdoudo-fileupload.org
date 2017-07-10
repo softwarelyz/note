@@ -1,7 +1,7 @@
 #+TITLE: 文件上传
 
 
-* 文件上传
+* 前言
 
 如果要选择一个文件并上传到服务器, 你需要在 =<form>= 中添加 =<input type=“file”>= 字段.
 根据 [[https://www.w3.org/TR/html4/interact/forms.html][HTML规范]], 你需要为 =form= 使用 =POST= 方法进行提交, 并需要将编码方式 =enctype= 设置为 =multipart/form-data=:
@@ -17,7 +17,7 @@
 这样的表单提交的时候, 会在请求体(request body)中保存二进制的 =multipart= 数据, 这跟不设置 =enctype= 是完全不同的。
 
 
-PS, =multipart= 编码的数据大致是这个样子的:
+PS: =multipart= 编码的数据大致是这个样子的:
 #+BEGIN_HTML
 <pre>
 ------WebKitFormBoundaryrGKCBY7qhFd3TrwA
@@ -34,17 +34,17 @@ Content-Type: image/png
 #+END_HTML
 
 
-
-** 服务端
+* 服务端
 
 在 Servlet 3.0 以前, Servlet API 本身不支持 =multipart/form-data=,
 它只支持表单默认的 =application/x-www-form-urlencoded= 编码.
 当提交 =multipart= 类型数据的时候, 在服务端, 调用 =HttpServletRequest#getParameter()= 会得到 =null= 值.
 特别不方便.
+
 这就是 [[http://commons.apache.org/fileupload][Apache Commons FileUpload]] 出现的原因。
 
 
-*不要手动解析！*
+*1. 不要手动解析！*
 
 理论上，你可以自己通过 =ServletRequest#getInputStream()= 手动解析数据,
 但这是个细致并且繁琐的任务, 需要你对 HTML 规范有一定了解.
@@ -52,12 +52,13 @@ Content-Type: image/png
 最好的方式, 是选择一个成熟靠谱的实现.
 
 
-*如果你使用的是 Servlet 3.0 或以后的版本，使用内置的 MultiPart API ！！！*
+*2. 如果你使用的是 Servlet 3.0 或以后的版本，使用内置的 MultiPart API ！！！*
 
 如果你使用 Servlet 3.0 以上(Tomcat 7.0), 就可以使用标准 API 中提供的 =HttpServletRequest#getPart()= 获取文件数据.
 同时, 可以使用 =getParameter()= 获取同一表单中其他的 *非文件* 字段的值。
 
-要接收上传的数据, 你只需要做 *两件事*:
+
+要接收上传的数据, *总共分两步*:
 
 【首先】 在你的 Servlet 上面标注 =@MultipartConfig=, 使你的 Servlet 有处理 =multipart/form-data= 的能力, 并使 =getPart()= 方法生效:
 
@@ -78,7 +79,7 @@ Content-Type: image/png
       String description = request.getParameter("description");
 
       // 获取 <input type="file" name="file"> 的值
-      Part filePart = request.getPart("file");
+      Part part = request.getPart("file");
       
       // 常用属性
       System.out.printf(
@@ -91,10 +92,10 @@ Content-Type: image/png
                         part.getHeader("content-disposition"));
 
       // 得到文件名
-      String fileName = filePart.getSubmittedFileName();
+      String fileName = part.getSubmittedFileName();
 
       // 处理文件
-      filePart.write(你的保存路径);
+      part.write(你的保存路径);
       
       // 其他操作 ...
   }
@@ -113,7 +114,7 @@ Servlet 3.1 新增了 =Part#getSubmittedFileName()= 方法, 它用来得到文�
 
 
 
-*如果你使用的是 Servlet 3.0 以前的版本, 请使用 Apache Commons FileUpload !*
+*3. 如果你使用的是 Servlet 3.0 以前的版本, 请使用 Apache Commons FileUpload !*
 
 这是当前最流行, 也是最成熟的第三方库, 你需要将两个 jar 包放到你的 lib 包下:
 - commons-fileupload.jar
@@ -151,19 +152,31 @@ Servlet 3.1 新增了 =Part#getSubmittedFileName()= 方法, 它用来得到文�
   }
 #+END_SRC
 
-** 客户端
+就这么简单。
+
+* 客户端
 
 不管在 IE/Firefox 还是 Chrome 浏览器上, 上传按钮的样式都很丑, 所以, 我们需要:
 
-*自定义上传按钮的样式!*
+*1. 自定义上传按钮的样式!*
 
 怎么搞呢? 一般的手段是: 通过 css 将上传按钮变透明(opacity), 并放到其他元素上面(position).
 
+在 html5 中，也可以使用 label 配合 input 的 =display:none= 实现：
+#+BEGIN_SRC html
+  <label style="我的样式">
+    选择图片
+    <input type="file" style="display:none" />
+  </label>
+#+END_SRC
 
 
-除了样式好看, 另外一个重要的用户体验是: *选择文件后给我一个预览图吧！*:
+除了样式要好看, 另外一个重要的用户体验是:
+
+*2. 选择文件后给我一个预览图吧！*:
+
 #+BEGIN_QUOTE
-在图片上传中, 如果选中后, 能够预览图片, 那是极好的啊！
+在图片上传中, 如果选中后, 能够预览图片, 那是极好的啊！  -- by 牛顿
 #+END_QUOTE
 
 可怎么实现呢? 方法很多, 但这样是不行的:
@@ -174,14 +187,13 @@ Servlet 3.1 新增了 =Part#getSubmittedFileName()= 方法, 它用来得到文�
 怎么办呢? 使用 html5 的 =URL#createObjectURL()= 是一种选择, 也可以使用 =FileReader= 进行更复杂的处理.
 
 
-*下面是一个样式+预览的示例:*
+*3. 下面是一个样式+预览的示例:*
 
 #+BEGIN_SRC html
   <body>
     <!-- 设置样式 -->
     <style>
       .filewrapper {
-          position: relative;
           padding: 8px 12px;
           font-size: 1.2em;
           background: #333;
@@ -194,10 +206,10 @@ Servlet 3.1 新增了 =Part#getSubmittedFileName()= 方法, 它用来得到文�
       }
     </style>
 
-    <!-- 用 label 将 input 覆盖，并赋予漂亮的样式 -->
+    <!-- 将 input 隐藏，给 label 一个美丽的外观。点击 label 的时候，会激活相对应的 input -->
     <label class="filewrapper">
       点击选择图片
-      <input id="b" name="b" style="position: absolute; opacity: 0;" type="file" />
+      <input id="b" name="b" style="display:none" type="file" />
     </label>
 
     <!-- 选择图片后的预览图 -->
@@ -222,11 +234,11 @@ Servlet 3.1 新增了 =Part#getSubmittedFileName()= 方法, 它用来得到文�
 
 效果图为:
 
-[[file:res/images/fileupload/5233708_2017-07-06_00-21-36.png]]
+[[file:res/images/howdoudo-fileupload/5233708_2017-07-06_00-21-36_2017-07-10_13-40-26.png]]
 
 
 
-*另一个重点, 是实现异步上传:*
+*4. 另一个重点, 是实现异步上传:*
 
 话不多说，代码在此:
 #+BEGIN_SRC js
@@ -272,7 +284,7 @@ Servlet 3.1 新增了 =Part#getSubmittedFileName()= 方法, 它用来得到文�
 #+END_SRC
 
 
-*最后, 我们可以选择一些上传插件, 为项目快速增加上传功能.*
+*z. 最后, 我们可以选择一些上传插件, 为项目快速增加上传功能.*
 - [[https://github.com/blueimp/jQuery-File-Upload][jQuery-File-Upload]]
 - [[http://www.dropzonejs.com/][Dropzone JS]]
 - 其他

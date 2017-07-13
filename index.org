@@ -1,4 +1,5 @@
 #+TITLE: IMFINEANDU
 
+   + [[file:howdoudo-pagination.org][分页(Pagination)]]
    + [[file:howdoudo-fileupload.org][文件上传]]
    + [[file:howdoudo-captcha.org][验证码]]

@@ -1,0 +1,261 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>分页(Pagination)</title>
+<!-- 2017-07-13 Thu 18:56 -->
+<meta  charset="utf-8">
+<meta  name="generator" content="Org-mode">
+<meta  name="author" content="imfine">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<link rel="stylesheet" href="res/nnn.css">
+<script src="res/iii.js">
+/**
+org_html_manager.set("TOC_DEPTH", "3");
+org_html_manager.set("LINK_HOME", "index.html");
+org_html_manager.set("LINK_UP", "index.html");
+org_html_manager.set("LOCAL_TOC", "1");
+org_html_manager.set("VIEW_BUTTONS", "0");
+org_html_manager.set("MOUSE_HINT", "underline");
+org_html_manager.set("FIXED_TOC", "0");
+org_html_manager.set("TOC", "3");
+org_html_manager.set("VIEW", "info");
+**/
+</script>
+</head>
+<body>
+<div id="org-div-home-and-up">
+ <a accesskey="h" href="index.html"> UP </a>
+ |
+ <a accesskey="H" href="index.html"> HOME </a>
+</div><div id="content">
+<h1 class="title">分页(Pagination)</h1>
+<nav id="table-of-contents">
+<h2>Table of Contents</h2>
+<div id="text-table-of-contents">
+<ul>
+<li><a href="#sec-1">1. Paginator 使用</a></li>
+<li><a href="#sec-2">2. Paginator 封装步骤</a></li>
+</ul>
+</div>
+</nav>
+
+
+
+
+<section id="outline-container-sec-1" class="outline-2">
+<h2 id="sec-1"><span class="section-number-2">1</span> Paginator 使用</h2>
+<div class="outline-text-2" id="text-1">
+<p>
+这是我们的<a href="https://github.com/13431/cases/blob/master/src/com/nf/howdoyoudo/pagination/Paginator.java">自己定义的分页类</a>, 我们必须要了解如何使用它。
+</p>
+
+
+<p>
+<b>首先，在服务端，创建分页对象，将所有跟分页相关的参数和数据都封装到分页对象里：</b>
+</p>
+
+<div class="org-src-container">
+
+<pre class="src src-java"><span style="color: #2aa1ae; background-color: #292e34;">// </span><span style="color: #2aa1ae; background-color: #292e34;">1. &#20174;&#29992;&#25143;&#35831;&#27714;&#20013;&#33719;&#21462;&#30456;&#24212;&#30340;&#20998;&#39029;&#21442;&#25968;</span>
+<span style="color: #2aa1ae; background-color: #292e34;">//    </span><span style="color: #2aa1ae; background-color: #292e34;">&#26368;&#37325;&#35201;&#30340;&#26159; pageNumber(&#31532;&#20960;&#39029;), &#20854;&#27425;&#21487;&#36873;&#30340;&#26159; pageSize(&#27599;&#39029;&#22810;&#23569;&#26465;), linkSize(&#20998;&#39029;&#23548;&#33322;&#26174;&#31034;&#22810;&#23569;&#39029;&#30721;)</span>
+<span style="color: #2aa1ae; background-color: #292e34;">//    </span><span style="color: #2aa1ae; background-color: #292e34;">&#22914;&#26524;&#29992;&#25143;&#27809;&#26377;&#20256;&#36882;&#26469;&#36825;&#26679;&#30340;&#21442;&#25968;&#65292;&#21021;&#22987;&#21270;&#20026;&#40664;&#35748;&#20540;</span>
+<span style="color: #ce537a; font-weight: bold;">int</span> <span style="color: #7590db;">pageNumber</span> = request.getParameter<span style="color: #4f97d7;">(</span><span style="color: #2d9574;">"pageno"</span><span style="color: #4f97d7;">)</span> == <span style="color: #a45bad;">null</span> ? 1 : Integer.parseInt<span style="color: #4f97d7;">(</span>request.getParameter<span style="color: #bc6ec5;">(</span><span style="color: #2d9574;">"pageno"</span><span style="color: #bc6ec5;">)</span><span style="color: #4f97d7;">)</span>;
+<span style="color: #ce537a; font-weight: bold;">int</span> <span style="color: #7590db;">pageSize</span> = 9;
+<span style="color: #ce537a; font-weight: bold;">int</span> <span style="color: #7590db;">linkSize</span> = 7;
+
+<span style="color: #2aa1ae; background-color: #292e34;">// </span><span style="color: #2aa1ae; background-color: #292e34;">2. &#20351;&#29992;&#19978;&#38754;&#33719;&#21462;&#30340;&#21442;&#25968;&#65292;&#21019;&#24314;&#25105;&#20204;&#30340;&#20998;&#39029;&#23545;&#35937;</span>
+<span style="color: #ce537a; font-weight: bold;">Paginator</span><span style="color: #4f97d7;">&lt;</span><span style="color: #ce537a; font-weight: bold;">Person</span><span style="color: #4f97d7;">&gt;</span> <span style="color: #7590db;">paginator</span> = <span style="color: #4f97d7; font-weight: bold;">new</span> <span style="color: #ce537a; font-weight: bold;">Paginator</span><span style="color: #4f97d7;">&lt;&gt;(</span>pageNumber, pageSize, linkSize<span style="color: #4f97d7;">)</span>;
+
+<span style="color: #2aa1ae; background-color: #292e34;">// </span><span style="color: #2aa1ae; background-color: #292e34;">3. &#20174;&#25968;&#25454;&#24211;&#37324;&#65292;&#26597;&#35810;&#35760;&#24405;&#24635;&#25968;&#12290;&#28982;&#21518;&#23558;&#32467;&#26524;&#20445;&#23384;&#21040;&#20998;&#39029;&#23545;&#35937;&#20013;</span>
+<span style="color: #ce537a; font-weight: bold;">int</span> <span style="color: #7590db;">personCount</span> = personDAO.getPersonCount<span style="color: #4f97d7;">()</span>;
+paginator.setRowCount<span style="color: #4f97d7;">(</span>personCount<span style="color: #4f97d7;">)</span>;
+
+<span style="color: #2aa1ae; background-color: #292e34;">// </span><span style="color: #2aa1ae; background-color: #292e34;">4. &#20174;&#25968;&#25454;&#24211;&#37324;&#65292;&#26597;&#35810;&#20998;&#39029;&#25968;&#25454;&#12290;&#28982;&#21518;&#23558;&#32467;&#26524;&#20445;&#23384;&#21040;&#20998;&#39029;&#23545;&#35937;&#20013;</span>
+<span style="color: #ce537a; font-weight: bold;">int</span> <span style="color: #7590db;">offset</span> = paginator.getOffset<span style="color: #4f97d7;">()</span>;   <span style="color: #2aa1ae; background-color: #292e34;">// </span><span style="color: #2aa1ae; background-color: #292e34;">&#35745;&#31639;&#25968;&#25454;&#30340;&#24207;&#21495;</span>
+<span style="color: #ce537a; font-weight: bold;">List</span><span style="color: #4f97d7;">&lt;</span><span style="color: #ce537a; font-weight: bold;">Person</span><span style="color: #4f97d7;">&gt;</span> <span style="color: #7590db;">persons</span> = personDAO.findPersonsByPage<span style="color: #4f97d7;">(</span>offset, pageSize<span style="color: #4f97d7;">)</span>;
+paginator.setData<span style="color: #4f97d7;">(</span>persons<span style="color: #4f97d7;">)</span>;
+
+<span style="color: #2aa1ae; background-color: #292e34;">// </span><span style="color: #2aa1ae; background-color: #292e34;">5. &#23558;&#20998;&#39029;&#23545;&#35937;&#20445;&#23384;&#36215;&#26469;&#65292;&#29992;&#20110;&#39029;&#30721;&#28210;&#26579;</span>
+req.setAttribute<span style="color: #4f97d7;">(</span><span style="color: #2d9574;">"paginator"</span>, paginator<span style="color: #4f97d7;">)</span>;
+req.getRequestDispatcher<span style="color: #4f97d7;">(</span><span style="color: #2d9574;">"pages/pagination.jsp"</span><span style="color: #4f97d7;">)</span>.forward<span style="color: #4f97d7;">(</span>req, resp<span style="color: #4f97d7;">)</span>;
+</pre>
+</div>
+
+
+<p>
+在方法 <code>PersonDAO#findPersonsByPage()</code> 里，我们将进行分页查询。
+这里给提供了一个示例方法，可以将普通的查询语句包装为分页查询语句。
+</p>
+<div class="org-src-container">
+
+<pre class="src src-java"><span style="color: #2aa1ae; background-color: #292e34;">// </span><span style="color: #2aa1ae; background-color: #292e34;">&#23558;&#26222;&#36890;&#30340;&#26597;&#35810;&#35821;&#21477;&#65292;&#36716;&#25442;&#20026;&#19968;&#20010;&#20998;&#39029;&#26597;&#35810;&#35821;&#21477;</span>
+<span style="color: #2aa1ae; background-color: #292e34;">// </span><span style="color: #2aa1ae; background-color: #292e34;">MSSQL &#20013;&#30340;&#19968;&#20010;&#31616;&#21333;&#31034;&#20363;, [&#29992;&#27861;&#31034;&#20363;]:</span>
+<span style="color: #2aa1ae; background-color: #292e34;">//    </span><span style="color: #2aa1ae; background-color: #292e34;">String pagedSQL = pageLimitSQL("select id, name, weixin from person where id &gt; ?", "id", 200, 10);</span>
+<span style="color: #2aa1ae; background-color: #292e34;">//    </span><span style="color: #2aa1ae; background-color: #292e34;">ps = conn.prepareStatement(pageLimitSQL);</span>
+<span style="color: #2aa1ae; background-color: #292e34;">//    </span><span style="color: #2aa1ae; background-color: #292e34;">ps.setInteger(1, 33);</span>
+<span style="color: #2aa1ae; background-color: #292e34;">//    </span><span style="color: #2aa1ae; background-color: #292e34;">...</span>
+<span style="color: #4f97d7; font-weight: bold;">public</span> <span style="color: #4f97d7; font-weight: bold;">static</span> <span style="color: #ce537a; font-weight: bold;">String</span> <span style="color: #bc6ec5; font-weight: bold;">pageLimitSQL</span><span style="color: #4f97d7;">(</span><span style="color: #ce537a; font-weight: bold;">String</span> <span style="color: #7590db;">sql</span>, <span style="color: #ce537a; font-weight: bold;">String</span> <span style="color: #7590db;">orderBy</span>, <span style="color: #ce537a; font-weight: bold;">int</span> <span style="color: #7590db;">offset</span>, <span style="color: #ce537a; font-weight: bold;">int</span> <span style="color: #7590db;">size</span><span style="color: #4f97d7;">)</span> <span style="color: #4f97d7;">{</span>
+    <span style="color: #ce537a; font-weight: bold;">String</span> <span style="color: #7590db;">sql_temp</span> = <span style="color: #2d9574;">"select * from ( select *, ROW_NUMBER() over (order by %s) _rn from ( %s ) as __o ) as __p where _rn &gt;= %d and _rn &lt; %d"</span>;
+    <span style="color: #4f97d7; font-weight: bold;">return</span> String.format<span style="color: #bc6ec5;">(</span>sql_temp, orderBy, sql, offset, offset + size<span style="color: #bc6ec5;">)</span>;
+<span style="color: #4f97d7;">}</span>
+</pre>
+</div>
+
+
+<p>
+<b>其次，在 JSP 页码中，大致分为三部分：</b>
+</p>
+<ol class="org-ol">
+<li>头部导航(header: <code>总共 m 页，当前 n 页</code>)
+</li>
+<li>分页数据列表(table)
+</li>
+<li>分页导航(nav: <code>Pre |1 | 2 | 3 | 4 | 5 | Next</code>)
+</li>
+</ol>
+
+<div class="org-src-container">
+
+<pre class="src src-html">&lt;<span style="color: #bc6ec5; font-weight: bold;">body</span>&gt;
+
+  &lt;<span style="color: #bc6ec5; font-weight: bold;">div</span> <span style="color: #7590db;">id</span>=<span style="color: #2d9574;">"main"</span>&gt;
+
+    <span style="color: #2aa1ae; background-color: #292e34;">&lt;!-- </span><span style="color: #2aa1ae; background-color: #292e34;">&#31532;&#19968;&#37096;&#20998;&#65292;&#22836;&#37096;&#23548;&#33322; </span><span style="color: #2aa1ae; background-color: #292e34;">--&gt;</span>
+    &lt;<span style="color: #bc6ec5; font-weight: bold;">header</span>&gt;&#24403;&#21069; ${pager.current} &#39029;&#65292;&#24635;&#20849; ${pager.pageCount} &#39029; &lt;/<span style="color: #bc6ec5; font-weight: bold;">header</span>&gt;
+
+    <span style="color: #2aa1ae; background-color: #292e34;">&lt;!-- </span><span style="color: #2aa1ae; background-color: #292e34;">&#31532;&#20108;&#37096;&#20998;&#65292;&#25968;&#25454;&#23637;&#31034; </span><span style="color: #2aa1ae; background-color: #292e34;">--&gt;</span>
+    &lt;<span style="color: #bc6ec5; font-weight: bold;">table</span>&gt;
+      &lt;<span style="color: #bc6ec5; font-weight: bold;">tr</span>&gt;
+        &lt;<span style="color: #bc6ec5; font-weight: bold;">th</span>&gt;ID&lt;/<span style="color: #bc6ec5; font-weight: bold;">th</span>&gt; &lt;<span style="color: #bc6ec5; font-weight: bold;">th</span>&gt;&#21517;&#23383;&lt;/<span style="color: #bc6ec5; font-weight: bold;">th</span>&gt; &lt;<span style="color: #bc6ec5; font-weight: bold;">th</span>&gt;&#24494;&#20449;&lt;/<span style="color: #bc6ec5; font-weight: bold;">th</span>&gt;
+      &lt;/<span style="color: #bc6ec5; font-weight: bold;">tr</span>&gt;
+      &lt;<span style="color: #4f97d7;">c</span>:<span style="color: #bc6ec5; font-weight: bold;">forEach</span> <span style="color: #7590db;">items</span>=<span style="color: #2d9574;">"${pager.data}"</span> <span style="color: #7590db;">var</span>=<span style="color: #2d9574;">"i"</span>&gt;
+        &lt;<span style="color: #bc6ec5; font-weight: bold;">tr</span>&gt;
+          &lt;<span style="color: #bc6ec5; font-weight: bold;">td</span>&gt;${i.id}&lt;/<span style="color: #bc6ec5; font-weight: bold;">td</span>&gt; &lt;<span style="color: #bc6ec5; font-weight: bold;">td</span>&gt;${i.name}&lt;/<span style="color: #bc6ec5; font-weight: bold;">td</span>&gt; &lt;<span style="color: #bc6ec5; font-weight: bold;">td</span>&gt;${i.weixin}&lt;/<span style="color: #bc6ec5; font-weight: bold;">td</span>&gt;
+        &lt;/<span style="color: #bc6ec5; font-weight: bold;">tr</span>&gt;
+      &lt;/<span style="color: #4f97d7;">c</span>:<span style="color: #bc6ec5; font-weight: bold;">forEach</span>&gt;
+    &lt;/<span style="color: #bc6ec5; font-weight: bold;">table</span>&gt;
+
+    <span style="color: #2aa1ae; background-color: #292e34;">&lt;!-- </span><span style="color: #2aa1ae; background-color: #292e34;">&#31532;&#19977;&#37096;&#20998;&#65292;&#39029;&#30721;&#23548;&#33322; </span><span style="color: #2aa1ae; background-color: #292e34;">--&gt;</span>
+    &lt;<span style="color: #bc6ec5; font-weight: bold;">nav</span> <span style="color: #7590db;">style</span>=<span style="color: #2d9574;">"text-align: center"</span>&gt;
+      ${pager.outputPageNav(<span style="color: #2d9574;">"/url"</span>, <span style="color: #2d9574;">"pageno"</span>, true, true);
+    &lt;/<span style="color: #bc6ec5; font-weight: bold;">nav</span>&gt;
+
+&lt;/<span style="color: #bc6ec5; font-weight: bold;">body</span>&gt;
+</pre>
+</div>
+
+<p>
+因为 <b>页码导航栏</b> 的 html 基本是一致的，并且里面的计算逻辑有些无聊，所以最好单独封装在分页对象里。
+</p>
+
+<p>
+这里，我们封装到了 <code>Paginator#outputPageNav()</code> 方法里，在 jsp 页码里直接使用 el 表达式调用就行了 <code>${pager.outputPageNav("/url", "pageno", true, true)</code>:
+</p>
+<ul class="org-ul">
+<li>第一个参数代表分页的链接
+</li>
+<li>第二个参数代表用户链接中代表分页的字段的名字
+</li>
+<li>第三个参数代表是否要生成“首页/末页”
+</li>
+<li>第四个参数代表是否要生成“上页/下页”。
+</li>
+</ul>
+</div>
+</section>
+
+<section id="outline-container-sec-2" class="outline-2">
+<h2 id="sec-2"><span class="section-number-2">2</span> Paginator 封装步骤</h2>
+<div class="outline-text-2" id="text-2">
+<p>
+如果数据量大的时候，如果全部取出来显示在页面上基本是不可能的。
+</p>
+
+<p>
+所以需要一点一点显示，这就需要 <b>分页</b> 。分页是 web 开发需要掌握的基本技能。
+</p>
+
+<p>
+如果要分页，作为服务器，需要掌握用户的下面几个需求，这是基本需求：
+</p>
+<ol class="org-ol">
+<li>要看第几页
+</li>
+<li>每页显示多少条
+</li>
+<li>分页导航栏怎么显示，显示多少页码
+</li>
+</ol>
+
+<p>
+所有这些参数需要用户通过请求的方式告知服务器。
+</p>
+<pre class="example">
+/myrequest?pageNumber=x&amp;pageSize=y&amp;linkSize=z
+</pre>
+
+<p>
+当然，不可能强制要求用户将这些参数全都传递给服务器。如果没有传递的话，服务器需要自己给这些参数初始值。
+比如， <code>pageNumber</code> 的初始值为 1。
+</p>
+
+<p>
+然后，我们需要使用这些参数查询数据库：
+</p>
+<ol class="org-ol">
+<li>数据的总条数 rowCount: <code>select count(*) from table</code>
+</li>
+<li>分页的数据 dataList: <code>select top 20 * from table</code>
+</li>
+</ol>
+
+<p>
+而且，我们需要计算出分页导航栏要显示的页码，这需要一定的计算。
+</p>
+
+<p>
+按照 OO 思想，上面的一切，最好封装起来：即方便使用，又清晰明了，而且封装好了可以随时复用。
+</p>
+
+<p>
+比如，我们封装到一个类里，名字叫 <code>Paginator</code>:
+</p>
+<ol class="org-ol">
+<li>我们需要将所有跟分页相关的参数放进去
+</li>
+<li>我们需要将查询到的记录总数放进去
+</li>
+<li>我们需要将数据库查询所用的页码计算放进去
+</li>
+<li>我们需要将分页查询得到的数据放进去
+</li>
+<li>我们需要将计算总页数，计算导航栏页码等也放进去
+</li>
+</ol>
+
+<p>
+总之，跟分页相关的一切，我们都可以封装到里面。
+</p>
+
+<p>
+如果封装好了，剩下就是使用了。
+</p>
+
+<p>
+先说这么多吧，累了，休息了。
+</p>
+
+<p>
+看代码，不懂问。
+</p>
+</div>
+</section>
+</div>
+<div id="postamble" class="status">
+<p class="author">Author: imfine</p>
+<p class="date">Created: 2017-07-13 Thu 18:56</p>
+<p class="creator"><a href="http://www.gnu.org/software/emacs/">Emacs</a> 25.1.1 (<a href="http://orgmode.org">Org</a> mode 8.2.10)</p>
+<p class="validation">Go ahead, never stop.</p>
+</div>
+</body>
+</html>

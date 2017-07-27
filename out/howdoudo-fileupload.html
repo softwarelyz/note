@@ -2,25 +2,13 @@
 <html>
 <head>
 <title>文件上传</title>
-<!-- 2017-07-13 Thu 18:56 -->
+<!-- 2017-08-02 Wed 16:51 -->
 <meta  charset="utf-8">
 <meta  name="generator" content="Org-mode">
 <meta  name="author" content="imfine">
-<meta name="viewport" content="width=device-width,initial-scale=1">
-<link rel="stylesheet" href="res/nnn.css">
-<script src="res/iii.js">
-/**
-org_html_manager.set("TOC_DEPTH", "3");
-org_html_manager.set("LINK_HOME", "index.html");
-org_html_manager.set("LINK_UP", "index.html");
-org_html_manager.set("LOCAL_TOC", "1");
-org_html_manager.set("VIEW_BUTTONS", "0");
-org_html_manager.set("MOUSE_HINT", "underline");
-org_html_manager.set("FIXED_TOC", "0");
-org_html_manager.set("TOC", "3");
-org_html_manager.set("VIEW", "info");
-**/
-</script>
+<meta name='viewport' content='width=device-width,initial-scale=1'>
+<link rel='stylesheet' href='res/imorg.css'>
+<script src='res/imorg.js'></script>
 </head>
 <body>
 <div id="org-div-home-and-up">
@@ -51,11 +39,11 @@ org_html_manager.set("VIEW", "info");
 
 <div class="org-src-container">
 
-<pre class="src src-html">&lt;<span style="color: #bc6ec5; font-weight: bold;">form</span> <span style="color: #7590db;">action</span>=<span style="color: #2d9574;">"upload"</span> <span style="color: #7590db;">method</span>=<span style="color: #2d9574;">"post"</span> <span style="color: #7590db;">enctype</span>=<span style="color: #2d9574;">"multipart/form-data"</span>&gt;
-  &lt;<span style="color: #bc6ec5; font-weight: bold;">input</span> <span style="color: #7590db;">type</span>=<span style="color: #2d9574;">"text"</span> <span style="color: #7590db;">name</span>=<span style="color: #2d9574;">"description"</span> <span style="color: #7590db;">placeholder</span>=<span style="color: #2d9574;">"&#25991;&#20214;&#25551;&#36848;"</span> /&gt;
-  &lt;<span style="color: #bc6ec5; font-weight: bold;">input</span> <span style="color: #7590db;">type</span>=<span style="color: #2d9574;">"file"</span> <span style="color: #7590db;">name</span>=<span style="color: #2d9574;">"file"</span> /&gt;
-  &lt;<span style="color: #bc6ec5; font-weight: bold;">input</span> <span style="color: #7590db;">type</span>=<span style="color: #2d9574;">"submit"</span> /&gt;
-&lt;/<span style="color: #bc6ec5; font-weight: bold;">form</span>&gt;
+<pre class="src src-html">&lt;<span class="org-function-name">form</span> <span class="org-variable-name">action</span>=<span class="org-string">"upload"</span> <span class="org-variable-name">method</span>=<span class="org-string">"post"</span> <span class="org-variable-name">enctype</span>=<span class="org-string">"multipart/form-data"</span>&gt;
+  &lt;<span class="org-function-name">input</span> <span class="org-variable-name">type</span>=<span class="org-string">"text"</span> <span class="org-variable-name">name</span>=<span class="org-string">"description"</span> <span class="org-variable-name">placeholder</span>=<span class="org-string">"&#25991;&#20214;&#25551;&#36848;"</span> /&gt;
+  &lt;<span class="org-function-name">input</span> <span class="org-variable-name">type</span>=<span class="org-string">"file"</span> <span class="org-variable-name">name</span>=<span class="org-string">"file"</span> /&gt;
+  &lt;<span class="org-function-name">input</span> <span class="org-variable-name">type</span>=<span class="org-string">"submit"</span> /&gt;
+&lt;/<span class="org-function-name">form</span>&gt;
 </pre>
 </div>
 
@@ -81,7 +69,6 @@ Content-Type: image/png
 </pre>
 </div>
 </section>
-
 
 <section id="outline-container-sec-2" class="outline-2">
 <h2 id="sec-2"><span class="section-number-2">2</span> 服务端</h2>
@@ -130,11 +117,11 @@ Content-Type: image/png
 
 <div class="org-src-container">
 
-<pre class="src src-java"><span style="color: #a45bad;">@WebServlet</span><span style="color: #4f97d7;">(</span><span style="color: #2d9574;">"/upload"</span><span style="color: #4f97d7;">)</span>
-<span style="color: #a45bad;">@MultipartConfig</span>
-<span style="color: #4f97d7; font-weight: bold;">public</span> <span style="color: #4f97d7; font-weight: bold;">class</span> <span style="color: #ce537a; font-weight: bold;">UploadServlet</span> <span style="color: #4f97d7; font-weight: bold;">extends</span> <span style="color: #ce537a; font-weight: bold;">HttpServlet</span> <span style="color: #4f97d7;">{</span>
-    <span style="color: #2aa1ae; background-color: #292e34;">// </span><span style="color: #2aa1ae; background-color: #292e34;">...</span>
-<span style="color: #4f97d7;">}</span>
+<pre class="src src-java"><span class="org-c-annotation">@WebServlet</span><span class="org-rainbow-delimiters-depth-1">(</span><span class="org-string">"/upload"</span><span class="org-rainbow-delimiters-depth-1">)</span>
+<span class="org-c-annotation">@MultipartConfig</span>
+<span class="org-keyword">public</span> <span class="org-keyword">class</span> <span class="org-type">UploadServlet</span> <span class="org-keyword">extends</span> <span class="org-type">HttpServlet</span> <span class="org-rainbow-delimiters-depth-1">{</span>
+    <span class="org-comment-delimiter">// </span><span class="org-comment">...</span>
+<span class="org-rainbow-delimiters-depth-1">}</span>
 </pre>
 </div>
 
@@ -147,31 +134,31 @@ Content-Type: image/png
 </p>
 <div class="org-src-container">
 
-<pre class="src src-java"><span style="color: #4f97d7; font-weight: bold;">protected</span> <span style="color: #ce537a; font-weight: bold;">void</span> <span style="color: #bc6ec5; font-weight: bold;">doPost</span><span style="color: #4f97d7;">(</span><span style="color: #ce537a; font-weight: bold;">HttpServletRequest</span> <span style="color: #7590db;">request</span>, <span style="color: #ce537a; font-weight: bold;">HttpServletResponse</span> <span style="color: #7590db;">response</span><span style="color: #4f97d7;">)</span> <span style="color: #4f97d7; font-weight: bold;">throws</span> <span style="color: #ce537a; font-weight: bold;">ServletException</span>, <span style="color: #ce537a; font-weight: bold;">IOException</span> <span style="color: #4f97d7;">{</span>
-    <span style="color: #2aa1ae; background-color: #292e34;">// </span><span style="color: #2aa1ae; background-color: #292e34;">&#33719;&#21462; &lt;input type="text" name="description"&gt; &#30340;&#20540;</span>
-    <span style="color: #ce537a; font-weight: bold;">String</span> <span style="color: #7590db;">description</span> = request.getParameter<span style="color: #bc6ec5;">(</span><span style="color: #2d9574;">"description"</span><span style="color: #bc6ec5;">)</span>;
+<pre class="src src-java"><span class="org-keyword">protected</span> <span class="org-type">void</span> <span class="org-function-name">doPost</span><span class="org-rainbow-delimiters-depth-1">(</span><span class="org-type">HttpServletRequest</span> <span class="org-variable-name">request</span>, <span class="org-type">HttpServletResponse</span> <span class="org-variable-name">response</span><span class="org-rainbow-delimiters-depth-1">)</span> <span class="org-keyword">throws</span> <span class="org-type">ServletException</span>, <span class="org-type">IOException</span> <span class="org-rainbow-delimiters-depth-1">{</span>
+    <span class="org-comment-delimiter">// </span><span class="org-comment">&#33719;&#21462; &lt;input type="text" name="description"&gt; &#30340;&#20540;</span>
+    <span class="org-type">String</span> <span class="org-variable-name">description</span> = request.getParameter<span class="org-rainbow-delimiters-depth-2">(</span><span class="org-string">"description"</span><span class="org-rainbow-delimiters-depth-2">)</span>;
 
-    <span style="color: #2aa1ae; background-color: #292e34;">// </span><span style="color: #2aa1ae; background-color: #292e34;">&#33719;&#21462; &lt;input type="file" name="file"&gt; &#30340;&#20540;</span>
-    <span style="color: #ce537a; font-weight: bold;">Part</span> <span style="color: #7590db;">part</span> = request.getPart<span style="color: #bc6ec5;">(</span><span style="color: #2d9574;">"file"</span><span style="color: #bc6ec5;">)</span>;
+    <span class="org-comment-delimiter">// </span><span class="org-comment">&#33719;&#21462; &lt;input type="file" name="file"&gt; &#30340;&#20540;</span>
+    <span class="org-type">Part</span> <span class="org-variable-name">part</span> = request.getPart<span class="org-rainbow-delimiters-depth-2">(</span><span class="org-string">"file"</span><span class="org-rainbow-delimiters-depth-2">)</span>;
 
-    <span style="color: #2aa1ae; background-color: #292e34;">// </span><span style="color: #2aa1ae; background-color: #292e34;">&#24120;&#29992;&#23646;&#24615;</span>
-    System.out.printf<span style="color: #bc6ec5;">(</span>
-                      <span style="color: #2d9574;">"Part &#23545;&#35937;&#23646;&#24615;&#26041;&#27861;&#65306;\n&gt; Name: %s\n&gt; Size: %d\n&gt; ContentType: %s\n&gt; getSubmittedFileName: %s\n&gt; HeaderNames: %s\n&gt; disposition: %s\n"</span>,
-                      part.getName<span style="color: #2d9574;">()</span>,
-                      part.getSize<span style="color: #2d9574;">()</span>,
-                      part.getContentType<span style="color: #2d9574;">()</span>,
-                      part.getSubmittedFileName<span style="color: #2d9574;">()</span>,
-                      part.getHeaderNames<span style="color: #2d9574;">()</span>,
-                      part.getHeader<span style="color: #2d9574;">(</span><span style="color: #2d9574;">"content-disposition"</span><span style="color: #2d9574;">)</span><span style="color: #bc6ec5;">)</span>;
+    <span class="org-comment-delimiter">// </span><span class="org-comment">&#24120;&#29992;&#23646;&#24615;</span>
+    System.out.printf<span class="org-rainbow-delimiters-depth-2">(</span>
+                      <span class="org-string">"Part &#23545;&#35937;&#23646;&#24615;&#26041;&#27861;&#65306;\n&gt; Name: %s\n&gt; Size: %d\n&gt; ContentType: %s\n&gt; getSubmittedFileName: %s\n&gt; HeaderNames: %s\n&gt; disposition: %s\n"</span>,
+                      part.getName<span class="org-rainbow-delimiters-depth-3">()</span>,
+                      part.getSize<span class="org-rainbow-delimiters-depth-3">()</span>,
+                      part.getContentType<span class="org-rainbow-delimiters-depth-3">()</span>,
+                      part.getSubmittedFileName<span class="org-rainbow-delimiters-depth-3">()</span>,
+                      part.getHeaderNames<span class="org-rainbow-delimiters-depth-3">()</span>,
+                      part.getHeader<span class="org-rainbow-delimiters-depth-3">(</span><span class="org-string">"content-disposition"</span><span class="org-rainbow-delimiters-depth-3">)</span><span class="org-rainbow-delimiters-depth-2">)</span>;
 
-    <span style="color: #2aa1ae; background-color: #292e34;">// </span><span style="color: #2aa1ae; background-color: #292e34;">&#24471;&#21040;&#25991;&#20214;&#21517;</span>
-    <span style="color: #ce537a; font-weight: bold;">String</span> <span style="color: #7590db;">fileName</span> = part.getSubmittedFileName<span style="color: #bc6ec5;">()</span>;
+    <span class="org-comment-delimiter">// </span><span class="org-comment">&#24471;&#21040;&#25991;&#20214;&#21517;</span>
+    <span class="org-type">String</span> <span class="org-variable-name">fileName</span> = part.getSubmittedFileName<span class="org-rainbow-delimiters-depth-2">()</span>;
 
-    <span style="color: #2aa1ae; background-color: #292e34;">// </span><span style="color: #2aa1ae; background-color: #292e34;">&#22788;&#29702;&#25991;&#20214;</span>
-    part.write<span style="color: #bc6ec5;">(</span>&#20320;&#30340;&#20445;&#23384;&#36335;&#24452;<span style="color: #bc6ec5;">)</span>;
+    <span class="org-comment-delimiter">// </span><span class="org-comment">&#22788;&#29702;&#25991;&#20214;</span>
+    part.write<span class="org-rainbow-delimiters-depth-2">(</span>&#20320;&#30340;&#20445;&#23384;&#36335;&#24452;<span class="org-rainbow-delimiters-depth-2">)</span>;
 
-    <span style="color: #2aa1ae; background-color: #292e34;">// </span><span style="color: #2aa1ae; background-color: #292e34;">&#20854;&#20182;&#25805;&#20316; ...</span>
-<span style="color: #4f97d7;">}</span>
+    <span class="org-comment-delimiter">// </span><span class="org-comment">&#20854;&#20182;&#25805;&#20316; ...</span>
+<span class="org-rainbow-delimiters-depth-1">}</span>
 </pre>
 </div>
 
@@ -187,7 +174,7 @@ Servlet 3.1 新增了 <code>Part#getSubmittedFileName()</code> 方法, 它用来
 
 <div class="org-src-container">
 
-<pre class="src src-java"><span style="color: #ce537a; font-weight: bold;">String</span> <span style="color: #7590db;">fileName</span> = part.getHeader<span style="color: #4f97d7;">(</span><span style="color: #2d9574;">"content-disposition"</span><span style="color: #4f97d7;">)</span>.split<span style="color: #4f97d7;">(</span><span style="color: #2d9574;">"filename="</span><span style="color: #4f97d7;">)[</span>1<span style="color: #4f97d7;">]</span>.replace<span style="color: #4f97d7;">(</span><span style="color: #2d9574;">"\""</span>, <span style="color: #2d9574;">""</span><span style="color: #4f97d7;">)</span>;
+<pre class="src src-java"><span class="org-type">String</span> <span class="org-variable-name">fileName</span> = part.getHeader<span class="org-rainbow-delimiters-depth-1">(</span><span class="org-string">"content-disposition"</span><span class="org-rainbow-delimiters-depth-1">)</span>.split<span class="org-rainbow-delimiters-depth-1">(</span><span class="org-string">"filename="</span><span class="org-rainbow-delimiters-depth-1">)[</span>1<span class="org-rainbow-delimiters-depth-1">]</span>.replace<span class="org-rainbow-delimiters-depth-1">(</span><span class="org-string">"\""</span>, <span class="org-string">""</span><span class="org-rainbow-delimiters-depth-1">)</span>;
 </pre>
 </div>
 
@@ -214,33 +201,33 @@ Servlet 3.1 新增了 <code>Part#getSubmittedFileName()</code> 方法, 它用来
 
 <div class="org-src-container">
 
-<pre class="src src-java"><span style="color: #4f97d7; font-weight: bold;">protected</span> <span style="color: #ce537a; font-weight: bold;">void</span> <span style="color: #bc6ec5; font-weight: bold;">doPost</span><span style="color: #4f97d7;">(</span><span style="color: #ce537a; font-weight: bold;">HttpServletRequest</span> <span style="color: #7590db;">request</span>, <span style="color: #ce537a; font-weight: bold;">HttpServletResponse</span> <span style="color: #7590db;">response</span><span style="color: #4f97d7;">)</span> <span style="color: #4f97d7; font-weight: bold;">throws</span> <span style="color: #ce537a; font-weight: bold;">ServletException</span>, <span style="color: #ce537a; font-weight: bold;">IOException</span> <span style="color: #4f97d7;">{</span>
-    <span style="color: #4f97d7; font-weight: bold;">try</span> <span style="color: #bc6ec5;">{</span>
-        <span style="color: #2aa1ae; background-color: #292e34;">// </span><span style="color: #2aa1ae; background-color: #292e34;">&#21021;&#22987;&#21270; uploader &#23545;&#35937;, &#38656;&#35201;&#19968;&#20010; FileItemFactory &#21442;&#25968;, &#29992;&#26469;&#37197;&#32622;&#23545;&#19978;&#20256;&#25991;&#20214;&#30340;&#38480;&#21046;</span>
-        <span style="color: #ce537a; font-weight: bold;">ServletFileUpload</span> <span style="color: #7590db;">uploader</span> = <span style="color: #4f97d7; font-weight: bold;">new</span> <span style="color: #ce537a; font-weight: bold;">ServletFileUpload</span><span style="color: #2d9574;">(</span><span style="color: #4f97d7; font-weight: bold;">new</span> <span style="color: #ce537a; font-weight: bold;">DiskFileItemFactory</span><span style="color: #67b11d;">()</span><span style="color: #2d9574;">)</span>;
+<pre class="src src-java"><span class="org-keyword">protected</span> <span class="org-type">void</span> <span class="org-function-name">doPost</span><span class="org-rainbow-delimiters-depth-1">(</span><span class="org-type">HttpServletRequest</span> <span class="org-variable-name">request</span>, <span class="org-type">HttpServletResponse</span> <span class="org-variable-name">response</span><span class="org-rainbow-delimiters-depth-1">)</span> <span class="org-keyword">throws</span> <span class="org-type">ServletException</span>, <span class="org-type">IOException</span> <span class="org-rainbow-delimiters-depth-1">{</span>
+    <span class="org-keyword">try</span> <span class="org-rainbow-delimiters-depth-2">{</span>
+        <span class="org-comment-delimiter">// </span><span class="org-comment">&#21021;&#22987;&#21270; uploader &#23545;&#35937;, &#38656;&#35201;&#19968;&#20010; FileItemFactory &#21442;&#25968;, &#29992;&#26469;&#37197;&#32622;&#23545;&#19978;&#20256;&#25991;&#20214;&#30340;&#38480;&#21046;</span>
+        <span class="org-type">ServletFileUpload</span> <span class="org-variable-name">uploader</span> = <span class="org-keyword">new</span> <span class="org-type">ServletFileUpload</span><span class="org-rainbow-delimiters-depth-3">(</span><span class="org-keyword">new</span> <span class="org-type">DiskFileItemFactory</span><span class="org-rainbow-delimiters-depth-4">()</span><span class="org-rainbow-delimiters-depth-3">)</span>;
 
-        <span style="color: #2aa1ae; background-color: #292e34;">// </span><span style="color: #2aa1ae; background-color: #292e34;">&#35843;&#29992; parseRequest &#26041;&#27861;, &#23558; multipart &#25152;&#26377;&#30340;&#25968;&#25454;&#23553;&#35013;&#21040; list &#20013;</span>
-        <span style="color: #ce537a; font-weight: bold;">List</span><span style="color: #2d9574;">&lt;</span><span style="color: #ce537a; font-weight: bold;">FileItem</span><span style="color: #2d9574;">&gt;</span> <span style="color: #7590db;">items</span> = uploader.parseRequest<span style="color: #2d9574;">(</span>request<span style="color: #2d9574;">)</span>;
+        <span class="org-comment-delimiter">// </span><span class="org-comment">&#35843;&#29992; parseRequest &#26041;&#27861;, &#23558; multipart &#25152;&#26377;&#30340;&#25968;&#25454;&#23553;&#35013;&#21040; list &#20013;</span>
+        <span class="org-type">List</span><span class="org-rainbow-delimiters-depth-3">&lt;</span><span class="org-type">FileItem</span><span class="org-rainbow-delimiters-depth-3">&gt;</span> <span class="org-variable-name">items</span> = uploader.parseRequest<span class="org-rainbow-delimiters-depth-3">(</span>request<span class="org-rainbow-delimiters-depth-3">)</span>;
 
-        <span style="color: #2aa1ae; background-color: #292e34;">// </span><span style="color: #2aa1ae; background-color: #292e34;">&#24490;&#29615;&#22788;&#29702;</span>
-        <span style="color: #4f97d7; font-weight: bold;">for</span> <span style="color: #2d9574;">(</span><span style="color: #ce537a; font-weight: bold;">FileItem</span> <span style="color: #7590db;">item</span> : items<span style="color: #2d9574;">)</span> <span style="color: #2d9574;">{</span>
-            <span style="color: #4f97d7; font-weight: bold;">if</span> <span style="color: #67b11d;">(</span>item.isFormField<span style="color: #b1951d;">()</span><span style="color: #67b11d;">)</span> <span style="color: #67b11d;">{</span> <span style="color: #2aa1ae; background-color: #292e34;">// </span><span style="color: #2aa1ae; background-color: #292e34;">&#22788;&#29702;&#26222;&#36890;&#23383;&#27573; (input type="text|radio|checkbox|etc", select, &#31561;).</span>
-                <span style="color: #ce537a; font-weight: bold;">String</span> <span style="color: #7590db;">fieldName</span> = item.getFieldName<span style="color: #b1951d;">()</span>;
-                <span style="color: #ce537a; font-weight: bold;">String</span> <span style="color: #7590db;">fieldValue</span> = item.getString<span style="color: #b1951d;">()</span>;
-                <span style="color: #2aa1ae; background-color: #292e34;">// </span><span style="color: #2aa1ae; background-color: #292e34;">... (&#20854;&#20182;&#25805;&#20316;)</span>
-            <span style="color: #67b11d;">}</span> <span style="color: #4f97d7; font-weight: bold;">else</span> <span style="color: #67b11d;">{</span> <span style="color: #2aa1ae; background-color: #292e34;">// </span><span style="color: #2aa1ae; background-color: #292e34;">&#22788;&#29702;&#25991;&#20214;&#25968;&#25454; (input type="file").</span>
-                <span style="color: #ce537a; font-weight: bold;">String</span> <span style="color: #7590db;">fieldName</span> = item.getFieldName<span style="color: #b1951d;">()</span>;
-                <span style="color: #ce537a; font-weight: bold;">String</span> <span style="color: #7590db;">fileName</span> = FilenameUtils.getName<span style="color: #b1951d;">(</span>item.getName<span style="color: #4f97d7;">()</span><span style="color: #b1951d;">)</span>;
-                item.write<span style="color: #b1951d;">(</span>&#25105;&#30340;&#20445;&#23384;&#36335;&#24452;<span style="color: #b1951d;">)</span>;
-                <span style="color: #2aa1ae; background-color: #292e34;">// </span><span style="color: #2aa1ae; background-color: #292e34;">... (&#20854;&#20182;&#25805;&#20316;)</span>
-            <span style="color: #67b11d;">}</span>
-        <span style="color: #2d9574;">}</span>
-    <span style="color: #bc6ec5;">}</span> <span style="color: #4f97d7; font-weight: bold;">catch</span> <span style="color: #bc6ec5;">(</span><span style="color: #ce537a; font-weight: bold;">FileUploadException</span> <span style="color: #7590db;">e</span><span style="color: #bc6ec5;">)</span> <span style="color: #bc6ec5;">{</span>
-        <span style="color: #4f97d7; font-weight: bold;">throw</span> <span style="color: #4f97d7; font-weight: bold;">new</span> <span style="color: #ce537a; font-weight: bold;">ServletException</span><span style="color: #2d9574;">(</span><span style="color: #2d9574;">"&#35299;&#26512;&#25991;&#20214;&#20986;&#38169;."</span>, e<span style="color: #2d9574;">)</span>;
-    <span style="color: #bc6ec5;">}</span>
+        <span class="org-comment-delimiter">// </span><span class="org-comment">&#24490;&#29615;&#22788;&#29702;</span>
+        <span class="org-keyword">for</span> <span class="org-rainbow-delimiters-depth-3">(</span><span class="org-type">FileItem</span> <span class="org-variable-name">item</span> : items<span class="org-rainbow-delimiters-depth-3">)</span> <span class="org-rainbow-delimiters-depth-3">{</span>
+            <span class="org-keyword">if</span> <span class="org-rainbow-delimiters-depth-4">(</span>item.isFormField<span class="org-rainbow-delimiters-depth-5">()</span><span class="org-rainbow-delimiters-depth-4">)</span> <span class="org-rainbow-delimiters-depth-4">{</span> <span class="org-comment-delimiter">// </span><span class="org-comment">&#22788;&#29702;&#26222;&#36890;&#23383;&#27573; (input type="text|radio|checkbox|etc", select, &#31561;).</span>
+                <span class="org-type">String</span> <span class="org-variable-name">fieldName</span> = item.getFieldName<span class="org-rainbow-delimiters-depth-5">()</span>;
+                <span class="org-type">String</span> <span class="org-variable-name">fieldValue</span> = item.getString<span class="org-rainbow-delimiters-depth-5">()</span>;
+                <span class="org-comment-delimiter">// </span><span class="org-comment">... (&#20854;&#20182;&#25805;&#20316;)</span>
+            <span class="org-rainbow-delimiters-depth-4">}</span> <span class="org-keyword">else</span> <span class="org-rainbow-delimiters-depth-4">{</span> <span class="org-comment-delimiter">// </span><span class="org-comment">&#22788;&#29702;&#25991;&#20214;&#25968;&#25454; (input type="file").</span>
+                <span class="org-type">String</span> <span class="org-variable-name">fieldName</span> = item.getFieldName<span class="org-rainbow-delimiters-depth-5">()</span>;
+                <span class="org-type">String</span> <span class="org-variable-name">fileName</span> = FilenameUtils.getName<span class="org-rainbow-delimiters-depth-5">(</span>item.getName<span class="org-rainbow-delimiters-depth-6">()</span><span class="org-rainbow-delimiters-depth-5">)</span>;
+                item.write<span class="org-rainbow-delimiters-depth-5">(</span>&#25105;&#30340;&#20445;&#23384;&#36335;&#24452;<span class="org-rainbow-delimiters-depth-5">)</span>;
+                <span class="org-comment-delimiter">// </span><span class="org-comment">... (&#20854;&#20182;&#25805;&#20316;)</span>
+            <span class="org-rainbow-delimiters-depth-4">}</span>
+        <span class="org-rainbow-delimiters-depth-3">}</span>
+    <span class="org-rainbow-delimiters-depth-2">}</span> <span class="org-keyword">catch</span> <span class="org-rainbow-delimiters-depth-2">(</span><span class="org-type">FileUploadException</span> <span class="org-variable-name">e</span><span class="org-rainbow-delimiters-depth-2">)</span> <span class="org-rainbow-delimiters-depth-2">{</span>
+        <span class="org-keyword">throw</span> <span class="org-keyword">new</span> <span class="org-type">ServletException</span><span class="org-rainbow-delimiters-depth-3">(</span><span class="org-string">"&#35299;&#26512;&#25991;&#20214;&#20986;&#38169;."</span>, e<span class="org-rainbow-delimiters-depth-3">)</span>;
+    <span class="org-rainbow-delimiters-depth-2">}</span>
 
-    <span style="color: #2aa1ae; background-color: #292e34;">// </span><span style="color: #2aa1ae; background-color: #292e34;">...</span>
-<span style="color: #4f97d7;">}</span>
+    <span class="org-comment-delimiter">// </span><span class="org-comment">...</span>
+<span class="org-rainbow-delimiters-depth-1">}</span>
 </pre>
 </div>
 
@@ -270,10 +257,10 @@ Servlet 3.1 新增了 <code>Part#getSubmittedFileName()</code> 方法, 它用来
 </p>
 <div class="org-src-container">
 
-<pre class="src src-html">&lt;<span style="color: #bc6ec5; font-weight: bold;">label</span> <span style="color: #7590db;">style</span>=<span style="color: #2d9574;">"&#25105;&#30340;&#26679;&#24335;"</span>&gt;
+<pre class="src src-html">&lt;<span class="org-function-name">label</span> <span class="org-variable-name">style</span>=<span class="org-string">"&#25105;&#30340;&#26679;&#24335;"</span>&gt;
   &#36873;&#25321;&#22270;&#29255;
-  &lt;<span style="color: #bc6ec5; font-weight: bold;">input</span> <span style="color: #7590db;">type</span>=<span style="color: #2d9574;">"file"</span> <span style="color: #7590db;">style</span>=<span style="color: #2d9574;">"display:none"</span> /&gt;
-&lt;/<span style="color: #bc6ec5; font-weight: bold;">label</span>&gt;
+  &lt;<span class="org-function-name">input</span> <span class="org-variable-name">type</span>=<span class="org-string">"file"</span> <span class="org-variable-name">style</span>=<span class="org-string">"display:none"</span> /&gt;
+&lt;/<span class="org-function-name">label</span>&gt;
 </pre>
 </div>
 
@@ -314,9 +301,9 @@ $('#preview').attrib('src', $(':file').val())
 
 <div class="org-src-container">
 
-<pre class="src src-html">&lt;<span style="color: #bc6ec5; font-weight: bold;">body</span>&gt;
-  <span style="color: #2aa1ae; background-color: #292e34;">&lt;!-- </span><span style="color: #2aa1ae; background-color: #292e34;">&#35774;&#32622;&#26679;&#24335; </span><span style="color: #2aa1ae; background-color: #292e34;">--&gt;</span>
-  &lt;<span style="color: #bc6ec5; font-weight: bold;">style</span>&gt;
+<pre class="src src-html">&lt;<span class="org-function-name">body</span>&gt;
+  <span class="org-comment-delimiter">&lt;!-- </span><span class="org-comment">&#35774;&#32622;&#26679;&#24335; </span><span class="org-comment-delimiter">--&gt;</span>
+  &lt;<span class="org-function-name">style</span>&gt;
     .filewrapper {
         padding: 8px 12px;
         font-size: 1.2em;
@@ -328,32 +315,32 @@ $('#preview').attrib('src', $(':file').val())
     .filewrapper:hover {
         background: #000;
     }
-  &lt;/<span style="color: #bc6ec5; font-weight: bold;">style</span>&gt;
+  &lt;/<span class="org-function-name">style</span>&gt;
 
-  <span style="color: #2aa1ae; background-color: #292e34;">&lt;!-- </span><span style="color: #2aa1ae; background-color: #292e34;">&#23558; input &#38544;&#34255;&#65292;&#32473; label &#19968;&#20010;&#32654;&#20029;&#30340;&#22806;&#35266;&#12290;&#28857;&#20987; label &#30340;&#26102;&#20505;&#65292;&#20250;&#28608;&#27963;&#30456;&#23545;&#24212;&#30340; input </span><span style="color: #2aa1ae; background-color: #292e34;">--&gt;</span>
-  &lt;<span style="color: #bc6ec5; font-weight: bold;">label</span> <span style="color: #7590db;">class</span>=<span style="color: #2d9574;">"filewrapper"</span>&gt;
+  <span class="org-comment-delimiter">&lt;!-- </span><span class="org-comment">&#23558; input &#38544;&#34255;&#65292;&#32473; label &#19968;&#20010;&#32654;&#20029;&#30340;&#22806;&#35266;&#12290;&#28857;&#20987; label &#30340;&#26102;&#20505;&#65292;&#20250;&#28608;&#27963;&#30456;&#23545;&#24212;&#30340; input </span><span class="org-comment-delimiter">--&gt;</span>
+  &lt;<span class="org-function-name">label</span> <span class="org-variable-name">class</span>=<span class="org-string">"filewrapper"</span>&gt;
     &#28857;&#20987;&#36873;&#25321;&#22270;&#29255;
-    &lt;<span style="color: #bc6ec5; font-weight: bold;">input</span> <span style="color: #7590db;">id</span>=<span style="color: #2d9574;">"b"</span> <span style="color: #7590db;">name</span>=<span style="color: #2d9574;">"b"</span> <span style="color: #7590db;">style</span>=<span style="color: #2d9574;">"display:none"</span> <span style="color: #7590db;">type</span>=<span style="color: #2d9574;">"file"</span> /&gt;
-  &lt;/<span style="color: #bc6ec5; font-weight: bold;">label</span>&gt;
+    &lt;<span class="org-function-name">input</span> <span class="org-variable-name">id</span>=<span class="org-string">"b"</span> <span class="org-variable-name">name</span>=<span class="org-string">"b"</span> <span class="org-variable-name">style</span>=<span class="org-string">"display:none"</span> <span class="org-variable-name">type</span>=<span class="org-string">"file"</span> /&gt;
+  &lt;/<span class="org-function-name">label</span>&gt;
 
-  <span style="color: #2aa1ae; background-color: #292e34;">&lt;!-- </span><span style="color: #2aa1ae; background-color: #292e34;">&#36873;&#25321;&#22270;&#29255;&#21518;&#30340;&#39044;&#35272;&#22270; </span><span style="color: #2aa1ae; background-color: #292e34;">--&gt;</span>
-  &lt;<span style="color: #bc6ec5; font-weight: bold;">div</span>&gt;
-    &lt;<span style="color: #bc6ec5; font-weight: bold;">img</span> <span style="color: #7590db;">id</span>=<span style="color: #2d9574;">"preview"</span> <span style="color: #7590db;">src</span>=<span style="color: #2d9574;">""</span> <span style="color: #7590db;">style</span>=<span style="color: #2d9574;">"width: 200px; height: 200px; margin: 20px auto;"</span>&gt;
-  &lt;/<span style="color: #bc6ec5; font-weight: bold;">div</span>&gt;
+  <span class="org-comment-delimiter">&lt;!-- </span><span class="org-comment">&#36873;&#25321;&#22270;&#29255;&#21518;&#30340;&#39044;&#35272;&#22270; </span><span class="org-comment-delimiter">--&gt;</span>
+  &lt;<span class="org-function-name">div</span>&gt;
+    &lt;<span class="org-function-name">img</span> <span class="org-variable-name">id</span>=<span class="org-string">"preview"</span> <span class="org-variable-name">src</span>=<span class="org-string">""</span> <span class="org-variable-name">style</span>=<span class="org-string">"width: 200px; height: 200px; margin: 20px auto;"</span>&gt;
+  &lt;/<span class="org-function-name">div</span>&gt;
 
-  <span style="color: #2aa1ae; background-color: #292e34;">&lt;!-- </span><span style="color: #2aa1ae; background-color: #292e34;">&#36873;&#25321;&#25991;&#20214;&#21518;, &#22312; preview &#21306;&#22495;&#26174;&#31034;&#22270;&#29255;&#39044;&#35272; </span><span style="color: #2aa1ae; background-color: #292e34;">--&gt;</span>
-  <span style="color: #2aa1ae; background-color: #292e34;">&lt;!-- </span><span style="color: #2aa1ae; background-color: #292e34;">&#20351;&#29992;&#20102; html5 &#30340; FileReader &#23545;&#35937; </span><span style="color: #2aa1ae; background-color: #292e34;">--&gt;</span>
-  &lt;<span style="color: #bc6ec5; font-weight: bold;">script</span>&gt;
-    $(<span style="color: #2d9574;">"#b"</span>).change(function (event) {
-        var file = $(<span style="color: #2d9574;">"#b"</span>)[0].files[0];
+  <span class="org-comment-delimiter">&lt;!-- </span><span class="org-comment">&#36873;&#25321;&#25991;&#20214;&#21518;, &#22312; preview &#21306;&#22495;&#26174;&#31034;&#22270;&#29255;&#39044;&#35272; </span><span class="org-comment-delimiter">--&gt;</span>
+  <span class="org-comment-delimiter">&lt;!-- </span><span class="org-comment">&#20351;&#29992;&#20102; html5 &#30340; FileReader &#23545;&#35937; </span><span class="org-comment-delimiter">--&gt;</span>
+  &lt;<span class="org-function-name">script</span>&gt;
+    $(<span class="org-string">"#b"</span>).change(function (event) {
+        var file = $(<span class="org-string">"#b"</span>)[0].files[0];
         var reader = new FileReader();
         reader.onload = function (e) {
-            $(<span style="color: #2d9574;">"#preview"</span>).attr(<span style="color: #2d9574;">"src"</span>, this.result);
+            $(<span class="org-string">"#preview"</span>).attr(<span class="org-string">"src"</span>, this.result);
         };
         reader.readAsDataURL(file);
     });
-  &lt;/<span style="color: #bc6ec5; font-weight: bold;">script</span>&gt;
-&lt;/<span style="color: #bc6ec5; font-weight: bold;">body</span>&gt;
+  &lt;/<span class="org-function-name">script</span>&gt;
+&lt;/<span class="org-function-name">body</span>&gt;
 </pre>
 </div>
 
@@ -378,45 +365,45 @@ $('#preview').attrib('src', $(':file').val())
 </p>
 <div class="org-src-container">
 
-<pre class="src src-js"><span style="color: #2aa1ae; background-color: #292e34;">// </span><span style="color: #2aa1ae; background-color: #292e34;">&#34920;&#21333;&#25552;&#20132;&#65292;&#20132;&#32473; submitForm &#20989;&#25968;&#22788;&#29702;</span>
-$<span style="color: #4f97d7;">(</span><span style="color: #2d9574;">'form'</span><span style="color: #4f97d7;">)</span>.on<span style="color: #4f97d7;">(</span><span style="color: #2d9574;">'submit'</span>, submitForm<span style="color: #4f97d7;">)</span>;
+<pre class="src src-js"><span class="org-comment-delimiter">// </span><span class="org-comment">&#34920;&#21333;&#25552;&#20132;&#65292;&#20132;&#32473; submitForm &#20989;&#25968;&#22788;&#29702;</span>
+$<span class="org-rainbow-delimiters-depth-1">(</span><span class="org-string">'form'</span><span class="org-rainbow-delimiters-depth-1">)</span>.on<span class="org-rainbow-delimiters-depth-1">(</span><span class="org-string">'submit'</span>, submitForm<span class="org-rainbow-delimiters-depth-1">)</span>;
 
-<span style="color: #2aa1ae; background-color: #292e34;">// </span><span style="color: #2aa1ae; background-color: #292e34;">&#36890;&#36807; jQuery &#36827;&#34892;&#24322;&#27493;&#25552;&#20132;</span>
-<span style="color: #4f97d7; font-weight: bold;">function</span> <span style="color: #bc6ec5; font-weight: bold;">submitForm</span><span style="color: #4f97d7;">()</span> <span style="color: #4f97d7;">{</span>
-    <span style="color: #2aa1ae; background-color: #292e34;">// </span><span style="color: #2aa1ae; background-color: #292e34;">&#20351;&#29992; html5 &#30340; FormData &#23553;&#35013;&#34920;&#21333;&#25968;&#25454;</span>
-    <span style="color: #4f97d7; font-weight: bold;">let</span> <span style="color: #7590db;">formData</span> = <span style="color: #4f97d7; font-weight: bold;">new</span> <span style="color: #ce537a; font-weight: bold;">FormData</span><span style="color: #bc6ec5;">(</span>$<span style="color: #2d9574;">(</span><span style="color: #2d9574;">'form'</span><span style="color: #2d9574;">)[</span>0<span style="color: #2d9574;">]</span><span style="color: #bc6ec5;">)</span>;
+<span class="org-comment-delimiter">// </span><span class="org-comment">&#36890;&#36807; jQuery &#36827;&#34892;&#24322;&#27493;&#25552;&#20132;</span>
+<span class="org-keyword">function</span> <span class="org-function-name">submitForm</span><span class="org-rainbow-delimiters-depth-1">()</span> <span class="org-rainbow-delimiters-depth-1">{</span>
+    <span class="org-comment-delimiter">// </span><span class="org-comment">&#20351;&#29992; html5 &#30340; FormData &#23553;&#35013;&#34920;&#21333;&#25968;&#25454;</span>
+    <span class="org-keyword">let</span> <span class="org-variable-name">formData</span> = <span class="org-keyword">new</span> <span class="org-type">FormData</span><span class="org-rainbow-delimiters-depth-2">(</span>$<span class="org-rainbow-delimiters-depth-3">(</span><span class="org-string">'form'</span><span class="org-rainbow-delimiters-depth-3">)[</span>0<span class="org-rainbow-delimiters-depth-3">]</span><span class="org-rainbow-delimiters-depth-2">)</span>;
 
-    $.ajax<span style="color: #bc6ec5;">(</span><span style="color: #2d9574;">{</span>
-        url : <span style="color: #2d9574;">'/upload'</span>,
-        method : <span style="color: #2d9574;">'POST'</span>,
+    $.ajax<span class="org-rainbow-delimiters-depth-2">(</span><span class="org-rainbow-delimiters-depth-3">{</span>
+        url : <span class="org-string">'/upload'</span>,
+        method : <span class="org-string">'POST'</span>,
         data : formData,
-        cache : <span style="color: #a45bad;">false</span>,
-        processData : <span style="color: #a45bad;">false</span>,   <span style="color: #2aa1ae; background-color: #292e34;">// </span><span style="color: #2aa1ae; background-color: #292e34;">jQuery &#21834;&#65292;&#20320;&#19981;&#35201;&#20462;&#25913;&#25105;&#19978;&#20256;&#30340;&#25968;&#25454;</span>
-        contentType : <span style="color: #a45bad;">false</span>,   <span style="color: #2aa1ae; background-color: #292e34;">// </span><span style="color: #2aa1ae; background-color: #292e34;">jQuery &#21834;&#65292;&#20320;&#19981;&#35201;&#31169;&#33258;&#35774;&#32622; Content-Type</span>
-        <span style="color: #bc6ec5; font-weight: bold;">xhr</span>: <span style="color: #4f97d7; font-weight: bold;">function</span> <span style="color: #67b11d;">()</span> <span style="color: #67b11d;">{</span>     <span style="color: #2aa1ae; background-color: #292e34;">// </span><span style="color: #2aa1ae; background-color: #292e34;">&#22914;&#26524;&#38656;&#35201;&#36827;&#24230;&#26465;&#30340;&#35805;&#65292;&#21487;&#20197;&#20026; xhr &#23545;&#35937;&#30340; upload &#32465;&#23450; progress &#20107;&#20214;&#65307;&#22914;&#26524;&#19981;&#38656;&#35201;&#36827;&#24230;&#26465;&#65292;&#36825;&#37324;&#21487;&#30465;&#30053;</span>
-            <span style="color: #4f97d7; font-weight: bold;">let</span> <span style="color: #7590db;">xhr</span> = <span style="color: #4f97d7; font-weight: bold;">new</span> <span style="color: #ce537a; font-weight: bold;">window.XMLHttpRequest</span><span style="color: #b1951d;">()</span>;
-            xhr.upload.addEventListener<span style="color: #b1951d;">(</span><span style="color: #2d9574;">"progress"</span>, processHandler, <span style="color: #a45bad;">false</span><span style="color: #b1951d;">)</span>;
-            <span style="color: #4f97d7; font-weight: bold;">return</span> xhr;
-        <span style="color: #67b11d;">}</span>
+        cache : <span class="org-constant">false</span>,
+        processData : <span class="org-constant">false</span>,   <span class="org-comment-delimiter">// </span><span class="org-comment">jQuery &#21834;&#65292;&#20320;&#19981;&#35201;&#20462;&#25913;&#25105;&#19978;&#20256;&#30340;&#25968;&#25454;</span>
+        contentType : <span class="org-constant">false</span>,   <span class="org-comment-delimiter">// </span><span class="org-comment">jQuery &#21834;&#65292;&#20320;&#19981;&#35201;&#31169;&#33258;&#35774;&#32622; Content-Type</span>
+        <span class="org-function-name">xhr</span>: <span class="org-keyword">function</span> <span class="org-rainbow-delimiters-depth-4">()</span> <span class="org-rainbow-delimiters-depth-4">{</span>     <span class="org-comment-delimiter">// </span><span class="org-comment">&#22914;&#26524;&#38656;&#35201;&#36827;&#24230;&#26465;&#30340;&#35805;&#65292;&#21487;&#20197;&#20026; xhr &#23545;&#35937;&#30340; upload &#32465;&#23450; progress &#20107;&#20214;&#65307;&#22914;&#26524;&#19981;&#38656;&#35201;&#36827;&#24230;&#26465;&#65292;&#36825;&#37324;&#21487;&#30465;&#30053;</span>
+            <span class="org-keyword">let</span> <span class="org-variable-name">xhr</span> = <span class="org-keyword">new</span> <span class="org-type">window.XMLHttpRequest</span><span class="org-rainbow-delimiters-depth-5">()</span>;
+            xhr.upload.addEventListener<span class="org-rainbow-delimiters-depth-5">(</span><span class="org-string">"progress"</span>, processHandler, <span class="org-constant">false</span><span class="org-rainbow-delimiters-depth-5">)</span>;
+            <span class="org-keyword">return</span> xhr;
+        <span class="org-rainbow-delimiters-depth-4">}</span>
 
-    <span style="color: #2d9574;">}</span><span style="color: #bc6ec5;">)</span>.done<span style="color: #bc6ec5;">(</span><span style="color: #4f97d7; font-weight: bold;">function</span><span style="color: #2d9574;">(</span><span style="color: #7590db;">data</span><span style="color: #2d9574;">)</span> <span style="color: #2d9574;">{</span>
-        console.log<span style="color: #67b11d;">(</span>data<span style="color: #67b11d;">)</span>;
-        alert<span style="color: #67b11d;">(</span>data<span style="color: #67b11d;">)</span>;
-    <span style="color: #2d9574;">}</span><span style="color: #bc6ec5;">)</span>;
-    <span style="color: #4f97d7; font-weight: bold;">return</span> <span style="color: #a45bad;">false</span>;
-<span style="color: #4f97d7;">}</span>
+    <span class="org-rainbow-delimiters-depth-3">}</span><span class="org-rainbow-delimiters-depth-2">)</span>.done<span class="org-rainbow-delimiters-depth-2">(</span><span class="org-keyword">function</span><span class="org-rainbow-delimiters-depth-3">(</span><span class="org-variable-name">data</span><span class="org-rainbow-delimiters-depth-3">)</span> <span class="org-rainbow-delimiters-depth-3">{</span>
+        console.log<span class="org-rainbow-delimiters-depth-4">(</span>data<span class="org-rainbow-delimiters-depth-4">)</span>;
+        alert<span class="org-rainbow-delimiters-depth-4">(</span>data<span class="org-rainbow-delimiters-depth-4">)</span>;
+    <span class="org-rainbow-delimiters-depth-3">}</span><span class="org-rainbow-delimiters-depth-2">)</span>;
+    <span class="org-keyword">return</span> <span class="org-constant">false</span>;
+<span class="org-rainbow-delimiters-depth-1">}</span>
 
-<span style="color: #2aa1ae; background-color: #292e34;">// </span><span style="color: #2aa1ae; background-color: #292e34;">&#36827;&#24230;&#30417;&#21548;&#20989;&#25968;&#65292;&#21487;&#20197;&#33258;&#23450;&#20041;&#36827;&#24230;&#26465;&#21464;&#21270;&#31561;&#25928;&#26524;</span>
-<span style="color: #4f97d7; font-weight: bold;">function</span> <span style="color: #bc6ec5; font-weight: bold;">processHandler</span><span style="color: #4f97d7;">(</span><span style="color: #7590db;">event</span><span style="color: #4f97d7;">)</span> <span style="color: #4f97d7;">{</span>
-    <span style="color: #4f97d7; font-weight: bold;">if</span> <span style="color: #bc6ec5;">(</span>event.lengthComputable<span style="color: #bc6ec5;">)</span> <span style="color: #bc6ec5;">{</span>
-        <span style="color: #2aa1ae; background-color: #292e34;">// </span><span style="color: #2aa1ae; background-color: #292e34;">&#33719;&#21462;&#36827;&#24230;</span>
-        <span style="color: #4f97d7; font-weight: bold;">var</span> <span style="color: #7590db;">percent</span> = parseInt<span style="color: #2d9574;">(</span>100 * event.loaded / event.total<span style="color: #2d9574;">)</span>;
-        <span style="color: #2aa1ae; background-color: #292e34;">// </span><span style="color: #2aa1ae; background-color: #292e34;">&#26681;&#25454;&#36827;&#24230;&#26356;&#26032;&#26174;&#31034;</span>
-        console.log<span style="color: #2d9574;">(</span>percent<span style="color: #2d9574;">)</span>;
-        <span style="color: #2aa1ae; background-color: #292e34;">// </span><span style="color: #2aa1ae; background-color: #292e34;">&#23436;&#25104;&#20043;&#21518;...</span>
-        <span style="color: #4f97d7; font-weight: bold;">if</span> <span style="color: #2d9574;">(</span>percent === 100<span style="color: #2d9574;">)</span> <span style="color: #2d9574;">{}</span>
-    <span style="color: #bc6ec5;">}</span>
-<span style="color: #4f97d7;">}</span>
+<span class="org-comment-delimiter">// </span><span class="org-comment">&#36827;&#24230;&#30417;&#21548;&#20989;&#25968;&#65292;&#21487;&#20197;&#33258;&#23450;&#20041;&#36827;&#24230;&#26465;&#21464;&#21270;&#31561;&#25928;&#26524;</span>
+<span class="org-keyword">function</span> <span class="org-function-name">processHandler</span><span class="org-rainbow-delimiters-depth-1">(</span><span class="org-variable-name">event</span><span class="org-rainbow-delimiters-depth-1">)</span> <span class="org-rainbow-delimiters-depth-1">{</span>
+    <span class="org-keyword">if</span> <span class="org-rainbow-delimiters-depth-2">(</span>event.lengthComputable<span class="org-rainbow-delimiters-depth-2">)</span> <span class="org-rainbow-delimiters-depth-2">{</span>
+        <span class="org-comment-delimiter">// </span><span class="org-comment">&#33719;&#21462;&#36827;&#24230;</span>
+        <span class="org-keyword">var</span> <span class="org-variable-name">percent</span> = parseInt<span class="org-rainbow-delimiters-depth-3">(</span>100 * event.loaded / event.total<span class="org-rainbow-delimiters-depth-3">)</span>;
+        <span class="org-comment-delimiter">// </span><span class="org-comment">&#26681;&#25454;&#36827;&#24230;&#26356;&#26032;&#26174;&#31034;</span>
+        console.log<span class="org-rainbow-delimiters-depth-3">(</span>percent<span class="org-rainbow-delimiters-depth-3">)</span>;
+        <span class="org-comment-delimiter">// </span><span class="org-comment">&#23436;&#25104;&#20043;&#21518;...</span>
+        <span class="org-keyword">if</span> <span class="org-rainbow-delimiters-depth-3">(</span>percent === 100<span class="org-rainbow-delimiters-depth-3">)</span> <span class="org-rainbow-delimiters-depth-3">{}</span>
+    <span class="org-rainbow-delimiters-depth-2">}</span>
+<span class="org-rainbow-delimiters-depth-1">}</span>
 </pre>
 </div>
 
@@ -437,8 +424,8 @@ $<span style="color: #4f97d7;">(</span><span style="color: #2d9574;">'form'</spa
 </div>
 <div id="postamble" class="status">
 <p class="author">Author: imfine</p>
-<p class="date">Created: 2017-07-13 Thu 18:56</p>
-<p class="creator"><a href="http://www.gnu.org/software/emacs/">Emacs</a> 25.1.1 (<a href="http://orgmode.org">Org</a> mode 8.2.10)</p>
+<p class="date">Created: 2017-08-02 Wed 16:51</p>
+<p class="creator"><a href="http://www.gnu.org/software/emacs/">Emacs</a> 25.2.1 (<a href="http://orgmode.org">Org</a> mode 8.2.10)</p>
 <p class="validation">Go ahead, never stop.</p>
 </div>
 </body>

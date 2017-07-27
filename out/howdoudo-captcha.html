@@ -2,25 +2,13 @@
 <html>
 <head>
 <title>验证码</title>
-<!-- 2017-07-13 Thu 18:56 -->
+<!-- 2017-08-02 Wed 16:40 -->
 <meta  charset="utf-8">
 <meta  name="generator" content="Org-mode">
 <meta  name="author" content="imfine">
-<meta name="viewport" content="width=device-width,initial-scale=1">
-<link rel="stylesheet" href="res/nnn.css">
-<script src="res/iii.js">
-/**
-org_html_manager.set("TOC_DEPTH", "3");
-org_html_manager.set("LINK_HOME", "index.html");
-org_html_manager.set("LINK_UP", "index.html");
-org_html_manager.set("LOCAL_TOC", "1");
-org_html_manager.set("VIEW_BUTTONS", "0");
-org_html_manager.set("MOUSE_HINT", "underline");
-org_html_manager.set("FIXED_TOC", "0");
-org_html_manager.set("TOC", "3");
-org_html_manager.set("VIEW", "info");
-**/
-</script>
+<meta name='viewport' content='width=device-width,initial-scale=1'>
+<link rel='stylesheet' href='res/imorg.css'>
+<script src='res/imorg.js'></script>
 </head>
 <body>
 <div id="org-div-home-and-up">
@@ -195,8 +183,8 @@ Java 中，绘制图片，需要用到 <code>awt</code> 包的 <code>BufferedIma
 </p>
 <div class="org-src-container">
 
-<pre class="src src-html">&lt;<span style="color: #bc6ec5; font-weight: bold;">img</span> <span style="color: #7590db;">src</span>=<span style="color: #2d9574;">"/captcha"</span> <span style="color: #7590db;">title</span>=<span style="color: #2d9574;">"&#39564;&#35777;&#30721;"</span> /&gt;
-&lt;<span style="color: #bc6ec5; font-weight: bold;">input</span> <span style="color: #7590db;">name</span>=<span style="color: #2d9574;">"captcha"</span> /&gt;
+<pre class="src src-html">&lt;<span class="org-function-name">img</span> <span class="org-variable-name">src</span>=<span class="org-string">"/captcha"</span> <span class="org-variable-name">title</span>=<span class="org-string">"&#39564;&#35777;&#30721;"</span> /&gt;
+&lt;<span class="org-function-name">input</span> <span class="org-variable-name">name</span>=<span class="org-string">"captcha"</span> /&gt;
 </pre>
 </div>
 
@@ -205,52 +193,52 @@ Java 中，绘制图片，需要用到 <code>awt</code> 包的 <code>BufferedIma
 </p>
 <div class="org-src-container">
 
-<pre class="src src-java"><span style="color: #a45bad;">@WebServlet</span><span style="color: #4f97d7;">(</span><span style="color: #2d9574;">"/captcha"</span><span style="color: #4f97d7;">)</span>
-<span style="color: #4f97d7; font-weight: bold;">class</span> <span style="color: #ce537a; font-weight: bold;">CaptchaServlet</span> <span style="color: #4f97d7;">{</span>
-    <span style="color: #4f97d7; font-weight: bold;">public</span> <span style="color: #bc6ec5; font-weight: bold;">&#33719;&#24471;&#39564;&#35777;&#30721;&#30340;&#26041;&#27861;</span> <span style="color: #bc6ec5;">()</span> <span style="color: #bc6ec5;">{</span>
-        <span style="color: #2aa1ae; background-color: #292e34;">// </span><span style="color: #2aa1ae; background-color: #292e34;">1. &#33719;&#21462;&#38543;&#26426;&#23383;&#31526;&#20018;&#65292;&#20316;&#20026;&#21407;&#22987;&#39564;&#35777;&#23383;&#31526;&#20018;</span>
-        <span style="color: #ce537a; font-weight: bold;">String</span> <span style="color: #7590db;">randomString</span> = getRandomString<span style="color: #2d9574;">(</span>4<span style="color: #2d9574;">)</span>;
+<pre class="src src-java"><span class="org-c-annotation">@WebServlet</span><span class="org-rainbow-delimiters-depth-1">(</span><span class="org-string">"/captcha"</span><span class="org-rainbow-delimiters-depth-1">)</span>
+<span class="org-keyword">class</span> <span class="org-type">CaptchaServlet</span> <span class="org-rainbow-delimiters-depth-1">{</span>
+    <span class="org-keyword">public</span> <span class="org-function-name">&#33719;&#24471;&#39564;&#35777;&#30721;&#30340;&#26041;&#27861;</span> <span class="org-rainbow-delimiters-depth-2">()</span> <span class="org-rainbow-delimiters-depth-2">{</span>
+        <span class="org-comment-delimiter">// </span><span class="org-comment">1. &#33719;&#21462;&#38543;&#26426;&#23383;&#31526;&#20018;&#65292;&#20316;&#20026;&#21407;&#22987;&#39564;&#35777;&#23383;&#31526;&#20018;</span>
+        <span class="org-type">String</span> <span class="org-variable-name">randomString</span> = getRandomString<span class="org-rainbow-delimiters-depth-3">(</span>4<span class="org-rainbow-delimiters-depth-3">)</span>;
 
-        <span style="color: #2aa1ae; background-color: #292e34;">// </span><span style="color: #2aa1ae; background-color: #292e34;">2. &#26681;&#25454;&#23383;&#31526;&#20018;&#65292;&#29983;&#25104;&#26426;&#22120;&#38590;&#20197;&#36776;&#35748;&#30340;&#22270;&#29255;</span>
-        <span style="color: #ce537a; font-weight: bold;">BufferedImage</span> <span style="color: #7590db;">image</span> = &#32472;&#21046;&#22270;&#29255;<span style="color: #2d9574;">(</span>randomString<span style="color: #2d9574;">)</span>;
+        <span class="org-comment-delimiter">// </span><span class="org-comment">2. &#26681;&#25454;&#23383;&#31526;&#20018;&#65292;&#29983;&#25104;&#26426;&#22120;&#38590;&#20197;&#36776;&#35748;&#30340;&#22270;&#29255;</span>
+        <span class="org-type">BufferedImage</span> <span class="org-variable-name">image</span> = &#32472;&#21046;&#22270;&#29255;<span class="org-rainbow-delimiters-depth-3">(</span>randomString<span class="org-rainbow-delimiters-depth-3">)</span>;
 
-        <span style="color: #2aa1ae; background-color: #292e34;">// </span><span style="color: #2aa1ae; background-color: #292e34;">3. &#21407;&#22987;&#23383;&#31526;&#20018; -&gt; &#20445;&#23384;&#36215;&#26469;</span>
-        session.setAttribute<span style="color: #2d9574;">(</span><span style="color: #2d9574;">"captcha"</span>, randomString<span style="color: #2d9574;">)</span>;
+        <span class="org-comment-delimiter">// </span><span class="org-comment">3. &#21407;&#22987;&#23383;&#31526;&#20018; -&gt; &#20445;&#23384;&#36215;&#26469;</span>
+        session.setAttribute<span class="org-rainbow-delimiters-depth-3">(</span><span class="org-string">"captcha"</span>, randomString<span class="org-rainbow-delimiters-depth-3">)</span>;
 
-        <span style="color: #2aa1ae; background-color: #292e34;">// </span><span style="color: #2aa1ae; background-color: #292e34;">4. &#32472;&#21046;&#30340;&#22270;&#29255; -&gt; &#21457;&#36865;&#32473;&#29992;&#25143;</span>
-        ImageIO.write<span style="color: #2d9574;">(</span>image, <span style="color: #2d9574;">"PNG"</span>, response.getOutputStream<span style="color: #67b11d;">()</span><span style="color: #2d9574;">)</span>;
-    <span style="color: #bc6ec5;">}</span>
+        <span class="org-comment-delimiter">// </span><span class="org-comment">4. &#32472;&#21046;&#30340;&#22270;&#29255; -&gt; &#21457;&#36865;&#32473;&#29992;&#25143;</span>
+        ImageIO.write<span class="org-rainbow-delimiters-depth-3">(</span>image, <span class="org-string">"PNG"</span>, response.getOutputStream<span class="org-rainbow-delimiters-depth-4">()</span><span class="org-rainbow-delimiters-depth-3">)</span>;
+    <span class="org-rainbow-delimiters-depth-2">}</span>
 
 
-    <span style="color: #2aa1ae; background-color: #292e34;">/* </span><span style="color: #2aa1ae; background-color: #292e34;">&#26681;&#25454;&#23383;&#31526;&#20018;&#32472;&#21046;&#22270;&#29255; */</span>
-    <span style="color: #ce537a; font-weight: bold;">BufferedImage</span> <span style="color: #bc6ec5; font-weight: bold;">&#32472;&#21046;&#22270;&#29255;</span><span style="color: #bc6ec5;">(</span><span style="color: #ce537a; font-weight: bold;">String</span> <span style="color: #7590db;">randomString</span><span style="color: #bc6ec5;">)</span> <span style="color: #bc6ec5;">{</span>
-        <span style="color: #2aa1ae; background-color: #292e34;">// </span><span style="color: #2aa1ae; background-color: #292e34;">1. &#21019;&#24314; Image &#23545;&#35937;</span>
-        <span style="color: #ce537a; font-weight: bold;">BufferedImage</span> <span style="color: #7590db;">image</span> = <span style="color: #4f97d7; font-weight: bold;">new</span> <span style="color: #ce537a; font-weight: bold;">BufferedImage</span><span style="color: #2d9574;">(</span>w, h, <span style="color: #a45bad;">BufferedImage</span>.TYPE_INT_RGB<span style="color: #2d9574;">)</span>;
+    <span class="org-comment-delimiter">/* </span><span class="org-comment">&#26681;&#25454;&#23383;&#31526;&#20018;&#32472;&#21046;&#22270;&#29255; */</span>
+    <span class="org-type">BufferedImage</span> <span class="org-function-name">&#32472;&#21046;&#22270;&#29255;</span><span class="org-rainbow-delimiters-depth-2">(</span><span class="org-type">String</span> <span class="org-variable-name">randomString</span><span class="org-rainbow-delimiters-depth-2">)</span> <span class="org-rainbow-delimiters-depth-2">{</span>
+        <span class="org-comment-delimiter">// </span><span class="org-comment">1. &#21019;&#24314; Image &#23545;&#35937;</span>
+        <span class="org-type">BufferedImage</span> <span class="org-variable-name">image</span> = <span class="org-keyword">new</span> <span class="org-type">BufferedImage</span><span class="org-rainbow-delimiters-depth-3">(</span>w, h, <span class="org-constant">BufferedImage</span>.TYPE_INT_RGB<span class="org-rainbow-delimiters-depth-3">)</span>;
 
-        <span style="color: #2aa1ae; background-color: #292e34;">// </span><span style="color: #2aa1ae; background-color: #292e34;">2. &#33719;&#21462;&#30011;&#31508;</span>
-        <span style="color: #ce537a; font-weight: bold;">Graphics</span> <span style="color: #7590db;">g</span> = image.getGraphics<span style="color: #2d9574;">()</span>;
+        <span class="org-comment-delimiter">// </span><span class="org-comment">2. &#33719;&#21462;&#30011;&#31508;</span>
+        <span class="org-type">Graphics</span> <span class="org-variable-name">g</span> = image.getGraphics<span class="org-rainbow-delimiters-depth-3">()</span>;
 
-        <span style="color: #2aa1ae; background-color: #292e34;">// </span><span style="color: #2aa1ae; background-color: #292e34;">3. &#35774;&#32622;&#32972;&#26223;&#33394;</span>
-        g.setColor<span style="color: #2d9574;">(</span>getRandomColor<span style="color: #67b11d;">()</span><span style="color: #2d9574;">)</span>;
-        g.fillRect<span style="color: #2d9574;">(</span>0, 0, w, h<span style="color: #2d9574;">)</span>;
+        <span class="org-comment-delimiter">// </span><span class="org-comment">3. &#35774;&#32622;&#32972;&#26223;&#33394;</span>
+        g.setColor<span class="org-rainbow-delimiters-depth-3">(</span>getRandomColor<span class="org-rainbow-delimiters-depth-4">()</span><span class="org-rainbow-delimiters-depth-3">)</span>;
+        g.fillRect<span class="org-rainbow-delimiters-depth-3">(</span>0, 0, w, h<span class="org-rainbow-delimiters-depth-3">)</span>;
 
-        <span style="color: #2aa1ae; background-color: #292e34;">// </span><span style="color: #2aa1ae; background-color: #292e34;">4. &#32472;&#21046;&#23383;&#31526;&#20018;</span>
-        g.setColor<span style="color: #2d9574;">(</span>getRandomColor<span style="color: #67b11d;">()</span><span style="color: #2d9574;">)</span>;
-        g.setFont<span style="color: #2d9574;">(</span><span style="color: #4f97d7; font-weight: bold;">new</span> <span style="color: #ce537a; font-weight: bold;">Font</span><span style="color: #67b11d;">(</span>xxx, xxx, xxx<span style="color: #67b11d;">)</span><span style="color: #2d9574;">)</span>;
-        g.drawString<span style="color: #2d9574;">()</span>;
-        <span style="color: #2aa1ae; background-color: #292e34;">// </span><span style="color: #2aa1ae; background-color: #292e34;">&#20854;&#20182;&#19968;&#20123;&#22788;&#29702;&#65292;&#21464;&#24418;&#25197;&#26354;&#31561;</span>
+        <span class="org-comment-delimiter">// </span><span class="org-comment">4. &#32472;&#21046;&#23383;&#31526;&#20018;</span>
+        g.setColor<span class="org-rainbow-delimiters-depth-3">(</span>getRandomColor<span class="org-rainbow-delimiters-depth-4">()</span><span class="org-rainbow-delimiters-depth-3">)</span>;
+        g.setFont<span class="org-rainbow-delimiters-depth-3">(</span><span class="org-keyword">new</span> <span class="org-type">Font</span><span class="org-rainbow-delimiters-depth-4">(</span>xxx, xxx, xxx<span class="org-rainbow-delimiters-depth-4">)</span><span class="org-rainbow-delimiters-depth-3">)</span>;
+        g.drawString<span class="org-rainbow-delimiters-depth-3">()</span>;
+        <span class="org-comment-delimiter">// </span><span class="org-comment">&#20854;&#20182;&#19968;&#20123;&#22788;&#29702;&#65292;&#21464;&#24418;&#25197;&#26354;&#31561;</span>
 
-        <span style="color: #2aa1ae; background-color: #292e34;">// </span><span style="color: #2aa1ae; background-color: #292e34;">5. &#30011;&#24178;&#25200;&#32447;&#21644;&#24178;&#25200;&#28857;&#31561;</span>
-        g.setColor<span style="color: #2d9574;">(</span>getRandomColor<span style="color: #67b11d;">()</span><span style="color: #2d9574;">)</span>;
-        g.drawLine<span style="color: #2d9574;">()</span>;
-        g.drawOval<span style="color: #2d9574;">()</span>;
+        <span class="org-comment-delimiter">// </span><span class="org-comment">5. &#30011;&#24178;&#25200;&#32447;&#21644;&#24178;&#25200;&#28857;&#31561;</span>
+        g.setColor<span class="org-rainbow-delimiters-depth-3">(</span>getRandomColor<span class="org-rainbow-delimiters-depth-4">()</span><span class="org-rainbow-delimiters-depth-3">)</span>;
+        g.drawLine<span class="org-rainbow-delimiters-depth-3">()</span>;
+        g.drawOval<span class="org-rainbow-delimiters-depth-3">()</span>;
 
-        <span style="color: #2aa1ae; background-color: #292e34;">// </span><span style="color: #2aa1ae; background-color: #292e34;">6. &#32467;&#26463;</span>
-        g.dispose<span style="color: #2d9574;">()</span>;
+        <span class="org-comment-delimiter">// </span><span class="org-comment">6. &#32467;&#26463;</span>
+        g.dispose<span class="org-rainbow-delimiters-depth-3">()</span>;
 
-        <span style="color: #4f97d7; font-weight: bold;">return</span> image;
-    <span style="color: #bc6ec5;">}</span>
-<span style="color: #4f97d7;">}</span>
+        <span class="org-keyword">return</span> image;
+    <span class="org-rainbow-delimiters-depth-2">}</span>
+<span class="org-rainbow-delimiters-depth-1">}</span>
 </pre>
 </div>
 </div>
@@ -298,17 +286,17 @@ Java 中，绘制图片，需要用到 <code>awt</code> 包的 <code>BufferedIma
 </p>
 <div class="org-src-container">
 
-<pre class="src src-java"><span style="color: #2aa1ae; background-color: #292e34;">// </span><span style="color: #2aa1ae; background-color: #292e34;">1. &#20174; request &#20013;&#24471;&#21040;&#29992;&#25143;&#30340;&#25163;&#26426;&#21495;&#30721;</span>
-<span style="color: #ce537a; font-weight: bold;">String</span> <span style="color: #7590db;">phone</span> = request.getParameter<span style="color: #4f97d7;">(</span><span style="color: #2d9574;">"phone"</span><span style="color: #4f97d7;">)</span>;
+<pre class="src src-java"><span class="org-comment-delimiter">// </span><span class="org-comment">1. &#20174; request &#20013;&#24471;&#21040;&#29992;&#25143;&#30340;&#25163;&#26426;&#21495;&#30721;</span>
+<span class="org-type">String</span> <span class="org-variable-name">phone</span> = request.getParameter<span class="org-rainbow-delimiters-depth-1">(</span><span class="org-string">"phone"</span><span class="org-rainbow-delimiters-depth-1">)</span>;
 
-<span style="color: #2aa1ae; background-color: #292e34;">// </span><span style="color: #2aa1ae; background-color: #292e34;">2. &#24471;&#21040;&#38543;&#26426;&#30340;&#23383;&#31526;&#20018;&#25110;&#25968;&#23383;</span>
-<span style="color: #ce537a; font-weight: bold;">String</span> <span style="color: #7590db;">randomNumber</span> = getRandomNumber<span style="color: #4f97d7;">(</span>4<span style="color: #4f97d7;">)</span>;
+<span class="org-comment-delimiter">// </span><span class="org-comment">2. &#24471;&#21040;&#38543;&#26426;&#30340;&#23383;&#31526;&#20018;&#25110;&#25968;&#23383;</span>
+<span class="org-type">String</span> <span class="org-variable-name">randomNumber</span> = getRandomNumber<span class="org-rainbow-delimiters-depth-1">(</span>4<span class="org-rainbow-delimiters-depth-1">)</span>;
 
-<span style="color: #2aa1ae; background-color: #292e34;">// </span><span style="color: #2aa1ae; background-color: #292e34;">3. &#23558;&#24471;&#21040;&#30340;&#21407;&#22987;&#23383;&#31526;&#20018;&#20445;&#23384;&#36215;&#26469;</span>
-session.setAttribute<span style="color: #4f97d7;">(</span><span style="color: #2d9574;">"captcha"</span>, randomNumber<span style="color: #4f97d7;">)</span>;
+<span class="org-comment-delimiter">// </span><span class="org-comment">3. &#23558;&#24471;&#21040;&#30340;&#21407;&#22987;&#23383;&#31526;&#20018;&#20445;&#23384;&#36215;&#26469;</span>
+session.setAttribute<span class="org-rainbow-delimiters-depth-1">(</span><span class="org-string">"captcha"</span>, randomNumber<span class="org-rainbow-delimiters-depth-1">)</span>;
 
-<span style="color: #2aa1ae; background-color: #292e34;">// </span><span style="color: #2aa1ae; background-color: #292e34;">4. &#35843;&#29992;&#30701;&#20449;&#25509;&#21475;&#26381;&#21153;&#65292;&#23558;&#21407;&#22987;&#23383;&#31526;&#20018;&#21457;&#36865;&#32473;&#29992;&#25143;</span>
-SMSInteface.sendMessage<span style="color: #4f97d7;">(</span>phone, randomNumber<span style="color: #4f97d7;">)</span>;
+<span class="org-comment-delimiter">// </span><span class="org-comment">4. &#35843;&#29992;&#30701;&#20449;&#25509;&#21475;&#26381;&#21153;&#65292;&#23558;&#21407;&#22987;&#23383;&#31526;&#20018;&#21457;&#36865;&#32473;&#29992;&#25143;</span>
+SMSInteface.sendMessage<span class="org-rainbow-delimiters-depth-1">(</span>phone, randomNumber<span class="org-rainbow-delimiters-depth-1">)</span>;
 </pre>
 </div>
 
@@ -317,24 +305,24 @@ SMSInteface.sendMessage<span style="color: #4f97d7;">(</span>phone, randomNumber
 </p>
 <div class="org-src-container">
 
-<pre class="src src-java"><span style="color: #2aa1ae; background-color: #292e34;">// </span><span style="color: #2aa1ae; background-color: #292e34;">1. &#27880;&#20876;&#36134;&#21495;&#65292;&#33719;&#21462; appkey &#21644; secret</span>
-<span style="color: #2aa1ae; background-color: #292e34;">// </span><span style="color: #2aa1ae; background-color: #292e34;">2. &#30003;&#35831;&#30701;&#20449;&#31614;&#21517;&#65292;&#30003;&#35831;&#30701;&#20449;&#27169;&#26495;</span>
-<span style="color: #2aa1ae; background-color: #292e34;">// </span><span style="color: #2aa1ae; background-color: #292e34;">3. &#20026;&#39033;&#30446;&#28155;&#21152; jar &#21253;: "com.aliyun:aliyun-java-sdk-dysmsapi:+"</span>
-<span style="color: #2aa1ae; background-color: #292e34;">// </span><span style="color: #2aa1ae; background-color: #292e34;">4. &#32534;&#20889;&#31243;&#24207;&#65292;&#21457;&#36865;&#30701;&#20449;</span>
-<span style="color: #4f97d7; font-weight: bold;">public</span> <span style="color: #ce537a; font-weight: bold;">void</span> <span style="color: #bc6ec5; font-weight: bold;">sendMessage</span><span style="color: #4f97d7;">(</span><span style="color: #ce537a; font-weight: bold;">String</span> <span style="color: #7590db;">phone</span>, <span style="color: #ce537a; font-weight: bold;">String</span> <span style="color: #7590db;">randomNumber</span><span style="color: #4f97d7;">)</span> <span style="color: #4f97d7;">{</span>
-    <span style="color: #2aa1ae; background-color: #292e34;">// </span><span style="color: #2aa1ae; background-color: #292e34;">1. &#26500;&#36896; request &#23545;&#35937;</span>
-    <span style="color: #ce537a; font-weight: bold;">AlibabaAliqinFcSmsNumSendRequest</span> <span style="color: #7590db;">req</span> = <span style="color: #4f97d7; font-weight: bold;">new</span> <span style="color: #ce537a; font-weight: bold;">AlibabaAliqinFcSmsNumSendRequest</span><span style="color: #bc6ec5;">()</span>;
-    req.setRecNum<span style="color: #bc6ec5;">(</span>phone<span style="color: #bc6ec5;">)</span>;        <span style="color: #2aa1ae; background-color: #292e34;">// </span><span style="color: #2aa1ae; background-color: #292e34;">&#21457;&#32473;&#35841;</span>
-    req.setSmsType<span style="color: #bc6ec5;">(</span><span style="color: #2d9574;">"normal"</span><span style="color: #bc6ec5;">)</span>;    <span style="color: #2aa1ae; background-color: #292e34;">// </span><span style="color: #2aa1ae; background-color: #292e34;">&#30701;&#24687;&#31867;&#22411; </span>
-    req.setSmsFreeSignName<span style="color: #bc6ec5;">(</span><span style="color: #2d9574;">"&#21335;&#26041;IT&#23398;&#38498;134&#29677;"</span><span style="color: #bc6ec5;">)</span>;  <span style="color: #2aa1ae; background-color: #292e34;">// </span><span style="color: #2aa1ae; background-color: #292e34;">&#20320;&#30340;&#31614;&#21517;</span>
-    req.setSmsTemplateCode<span style="color: #bc6ec5;">(</span><span style="color: #2d9574;">"SMS_585014"</span><span style="color: #bc6ec5;">)</span>;                          <span style="color: #2aa1ae; background-color: #292e34;">// </span><span style="color: #2aa1ae; background-color: #292e34;">&#27169;&#26495;&#65292;&#38656;&#35201;&#33258;&#24049;&#22312;&#21518;&#21488;&#35774;&#32622;</span>
-    req.setSmsParamString<span style="color: #bc6ec5;">(</span><span style="color: #2d9574;">"{,\"body\":\""</span> + randomNumber + <span style="color: #2d9574;">"\"}"</span><span style="color: #bc6ec5;">)</span>; <span style="color: #2aa1ae; background-color: #292e34;">// </span><span style="color: #2aa1ae; background-color: #292e34;">&#21457;&#36865;&#20869;&#23481;&#65292;&#20197;&#21442;&#25968;&#24418;&#24335;&#20256;&#36882;&#32473;&#27169;&#26495;</span>
+<pre class="src src-java"><span class="org-comment-delimiter">// </span><span class="org-comment">1. &#27880;&#20876;&#36134;&#21495;&#65292;&#33719;&#21462; appkey &#21644; secret</span>
+<span class="org-comment-delimiter">// </span><span class="org-comment">2. &#30003;&#35831;&#30701;&#20449;&#31614;&#21517;&#65292;&#30003;&#35831;&#30701;&#20449;&#27169;&#26495;</span>
+<span class="org-comment-delimiter">// </span><span class="org-comment">3. &#20026;&#39033;&#30446;&#28155;&#21152; jar &#21253;: "com.aliyun:aliyun-java-sdk-dysmsapi:+"</span>
+<span class="org-comment-delimiter">// </span><span class="org-comment">4. &#32534;&#20889;&#31243;&#24207;&#65292;&#21457;&#36865;&#30701;&#20449;</span>
+<span class="org-keyword">public</span> <span class="org-type">void</span> <span class="org-function-name">sendMessage</span><span class="org-rainbow-delimiters-depth-1">(</span><span class="org-type">String</span> <span class="org-variable-name">phone</span>, <span class="org-type">String</span> <span class="org-variable-name">randomNumber</span><span class="org-rainbow-delimiters-depth-1">)</span> <span class="org-rainbow-delimiters-depth-1">{</span>
+    <span class="org-comment-delimiter">// </span><span class="org-comment">1. &#26500;&#36896; request &#23545;&#35937;</span>
+    <span class="org-type">AlibabaAliqinFcSmsNumSendRequest</span> <span class="org-variable-name">req</span> = <span class="org-keyword">new</span> <span class="org-type">AlibabaAliqinFcSmsNumSendRequest</span><span class="org-rainbow-delimiters-depth-2">()</span>;
+    req.setRecNum<span class="org-rainbow-delimiters-depth-2">(</span>phone<span class="org-rainbow-delimiters-depth-2">)</span>;        <span class="org-comment-delimiter">// </span><span class="org-comment">&#21457;&#32473;&#35841;</span>
+    req.setSmsType<span class="org-rainbow-delimiters-depth-2">(</span><span class="org-string">"normal"</span><span class="org-rainbow-delimiters-depth-2">)</span>;    <span class="org-comment-delimiter">// </span><span class="org-comment">&#30701;&#24687;&#31867;&#22411; </span>
+    req.setSmsFreeSignName<span class="org-rainbow-delimiters-depth-2">(</span><span class="org-string">"&#21335;&#26041;IT&#23398;&#38498;134&#29677;"</span><span class="org-rainbow-delimiters-depth-2">)</span>;  <span class="org-comment-delimiter">// </span><span class="org-comment">&#20320;&#30340;&#31614;&#21517;</span>
+    req.setSmsTemplateCode<span class="org-rainbow-delimiters-depth-2">(</span><span class="org-string">"SMS_585014"</span><span class="org-rainbow-delimiters-depth-2">)</span>;                          <span class="org-comment-delimiter">// </span><span class="org-comment">&#27169;&#26495;&#65292;&#38656;&#35201;&#33258;&#24049;&#22312;&#21518;&#21488;&#35774;&#32622;</span>
+    req.setSmsParamString<span class="org-rainbow-delimiters-depth-2">(</span><span class="org-string">"{,\"body\":\""</span> + randomNumber + <span class="org-string">"\"}"</span><span class="org-rainbow-delimiters-depth-2">)</span>; <span class="org-comment-delimiter">// </span><span class="org-comment">&#21457;&#36865;&#20869;&#23481;&#65292;&#20197;&#21442;&#25968;&#24418;&#24335;&#20256;&#36882;&#32473;&#27169;&#26495;</span>
 
-    <span style="color: #2aa1ae; background-color: #292e34;">// </span><span style="color: #2aa1ae; background-color: #292e34;">2. &#21457;&#36865;&#30701;&#20449;&#65292;&#29983;&#25104; response &#23545;&#35937;</span>
-    <span style="color: #ce537a; font-weight: bold;">TaobaoClient</span> <span style="color: #7590db;">client</span> = <span style="color: #4f97d7; font-weight: bold;">new</span> <span style="color: #ce537a; font-weight: bold;">DefaultTaobaoClient</span><span style="color: #bc6ec5;">(</span><span style="color: #2d9574;">"http://gw.api.taobao.com/router/rest"</span>, appkey, secret<span style="color: #bc6ec5;">)</span>;
-    <span style="color: #ce537a; font-weight: bold;">AlibabaAliqinFcSmsNumSendResponse</span> <span style="color: #7590db;">resp</span> = client.execute<span style="color: #bc6ec5;">(</span>req<span style="color: #bc6ec5;">)</span>;
-    System.out.println<span style="color: #bc6ec5;">(</span>resp.getBody<span style="color: #2d9574;">()</span><span style="color: #bc6ec5;">)</span>;
-<span style="color: #4f97d7;">}</span>
+    <span class="org-comment-delimiter">// </span><span class="org-comment">2. &#21457;&#36865;&#30701;&#20449;&#65292;&#29983;&#25104; response &#23545;&#35937;</span>
+    <span class="org-type">TaobaoClient</span> <span class="org-variable-name">client</span> = <span class="org-keyword">new</span> <span class="org-type">DefaultTaobaoClient</span><span class="org-rainbow-delimiters-depth-2">(</span><span class="org-string">"http://gw.api.taobao.com/router/rest"</span>, appkey, secret<span class="org-rainbow-delimiters-depth-2">)</span>;
+    <span class="org-type">AlibabaAliqinFcSmsNumSendResponse</span> <span class="org-variable-name">resp</span> = client.execute<span class="org-rainbow-delimiters-depth-2">(</span>req<span class="org-rainbow-delimiters-depth-2">)</span>;
+    System.out.println<span class="org-rainbow-delimiters-depth-2">(</span>resp.getBody<span class="org-rainbow-delimiters-depth-3">()</span><span class="org-rainbow-delimiters-depth-2">)</span>;
+<span class="org-rainbow-delimiters-depth-1">}</span>
 </pre>
 </div>
 
@@ -363,8 +351,8 @@ SMSInteface.sendMessage<span style="color: #4f97d7;">(</span>phone, randomNumber
 </div>
 <div id="postamble" class="status">
 <p class="author">Author: imfine</p>
-<p class="date">Created: 2017-07-13 Thu 18:56</p>
-<p class="creator"><a href="http://www.gnu.org/software/emacs/">Emacs</a> 25.1.1 (<a href="http://orgmode.org">Org</a> mode 8.2.10)</p>
+<p class="date">Created: 2017-08-02 Wed 16:40</p>
+<p class="creator"><a href="http://www.gnu.org/software/emacs/">Emacs</a> 25.2.1 (<a href="http://orgmode.org">Org</a> mode 8.2.10)</p>
 <p class="validation">Go ahead, never stop.</p>
 </div>
 </body>

@@ -33,7 +33,6 @@ Content-Type: image/png
 </pre>
 #+END_HTML
 
-
 * 服务端
 
 在 Servlet 3.0 以前, Servlet API 本身不支持 =multipart/form-data=,

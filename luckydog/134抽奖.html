@@ -1,0 +1,277 @@
+﻿<html>
+<head>
+    <meta charset="UTF-8">
+	<title>134班众英雄座次</title>
+	<style>
+	/*页面初始化*/
+	*{
+		margin:0px;
+		padding:0px;
+	}
+	table{
+		margin:0px auto;
+		height:90%;
+		width:80%;
+		border:1px black solid;
+	}
+	td {
+		width: 120px;
+		text-align: center;
+		font-size: 20px;
+		text-shadow: 1px 1px 5px #ddd;
+		line-height: 40pt;
+	}
+	.g1 { background: lightyellow; }
+	.g2 { background: aliceblue; }
+	.g3 { background: lightyellow; }
+	.g4 { background: pink; }
+	.g5 { background: #e5e5e5; }
+	.g6 { background: pink; }
+	.g7 { background: #fff2b2; }
+	.g8 { background: lightyellow; }
+	.g9 { background: #d1c0a5; }
+	.g10 { background: lightyellow; }
+	.m { font-weight: bolder; }
+	
+	.g1:hover,.g2:hover,.g3:hover,.g4:hover,.g5:hover,.g6:hover,.g7:hover,.g8:hover,.g9:hover,.g10:hover{
+		cursor:pointer;
+		outline:1px black solid;
+	}
+	button {
+		padding: 12px 30px;
+	}
+	#sp1:hover{
+		cursor:pointer;	
+	}
+	</style>
+	<script>
+	window.onload=function(){
+		alert("使用注意说明：\n\n1、请最先选择座位表右下方的单选或多选模式\n\n2、选完之后就可以点击右上角的Good Luck开始抽奖\n\n3、点击Good Luck之后请等待1秒之后再点击，否则可能会出错\n\n4、不同模式有不同效果，单选在点击抽奖后只可以抽一次，而多选则可以抽多个（上限7个）\n\n");
+		//定时器时间
+		var time;
+		//单选按钮
+		var dan=document.getElementById("btn-one");
+		//多选按钮
+		var duo=document.getElementById("btn-two");
+		//开始与停止
+		var btn1=document.getElementById("btn1");
+		//英雄座次
+		var td=document.getElementsByTagName("td");
+		//随机数;
+		var num=0;
+		//时间
+		var timeout=10;
+		var countdown;
+		//观众位置
+		var index=66;
+		//判断是否选择模式
+		if(pattern.innerText=="无"){
+			btn1.onclick=function(){
+				alert("您还未选择模式！");
+			};
+		}
+		
+		//点击单选时
+		dan.onclick=function(){
+			pattern.innerText="单选模式";
+			btn1.onclick=function(){
+				
+				if(btn1.innerText=="Good Luck"){								
+					for(var i=66;i<73;i++){
+						td[i].innerText=" ";
+					}
+					time=setInterval(function(){
+						num=Math.floor(Math.random()*53);
+						
+						if(num!=6&&num!=17){
+							for(var i=0;i<53;i++){
+								td[i].style.outline="0px";
+							}
+							td[num].style.outline="1px red solid";
+						}
+					},50);
+					
+					Countdown=setInterval(function(){
+						btn1.innerText="点击停止："+timeout;
+						if(timeout==0){
+							clearInterval(time);
+							clearInterval(Countdown);
+							var a=td[num].innerText;
+							td[66].innerText=a;
+							btn1.innerText="Good Luck";
+							timeout=10;
+						}else{
+							timeout--;
+						}
+					},1000);
+				}else{
+					clearInterval(time);
+					clearInterval(Countdown);
+					var a=td[num].innerText;
+					td[66].innerText=a;
+					btn1.innerText="Good Luck";
+					timeout=10;
+				}
+			};
+		}
+		
+		
+		//点击多选时
+		duo.onclick=function(){
+			pattern.innerText="多选模式";
+			btn1.onclick=function(){
+				if(btn1.innerText=="Good Luck"){
+					for(var i=66;i<73;i++){
+						td[i].innerText=" ";
+					}
+					time=setInterval(function(){
+						num=Math.floor(Math.random()*53);
+						
+						if(num!=6&&num!=17){
+							for(var i=0;i<53;i++){
+								td[i].style.outline="0px";
+							}
+							td[num].style.outline="1px red solid";
+						}
+					},50);
+					
+					Countdown=setInterval(function(){
+						btn1.innerText="点击选择："+timeout;
+						if(timeout==0){
+							clearInterval(time);
+							clearInterval(Countdown);
+							if(index!=73){
+								var a=td[num].innerText;
+								td[66].innerText=a;
+							}
+							for(var i=0;i<53;i++){
+								td[i].style.outline="0px";
+							}
+							btn1.innerText="Good Luck";
+							timeout=10;
+							index=66;
+						}else{
+							timeout--;
+						}
+					},1000);
+				}else{
+					var timeshit;
+					var count=0;
+					if(index<73){
+						var a=td[num].innerText;
+						for(var i=66;i<73;i++){
+							if(a==td[i].innerText||num==6||num==17){
+								count=1;
+							}
+						}
+						if(count==0){
+							td[index].innerText=a;
+							index++;
+						}else{
+							var l=0;
+							timeshit=setInterval(function(){
+								var one=Math.floor(Math.random()*53);
+								for(var i=66;i<73;i++){
+									if(td[one].innerText==td[i].innerText||one==6||one==17){
+										l=1;
+									}
+								}
+								if(l==0){
+									clearInterval(timeshit);
+									td[index].innerText=td[one].innerText;
+									index++;
+								}
+							},10);
+						}
+					}else{
+						alert("已达上限");
+						clearInterval(time);
+						clearInterval(Countdown);
+						if(index!=73){
+							var a=td[num].innerText;
+							td[66].innerText=a;
+						}
+						for(var i=0;i<53;i++){
+							td[i].style.outline="0px";
+						}
+						btn1.innerText="Good Luck";
+						timeout=10;
+						index=66;
+					}
+				}
+			};
+		}
+		sp1.onclick=function(){
+			alert("本版本为1.0版本下一版本为1.1版本\n\n更新内容：\n\n1、新增记事本功能\n\n2、增加历史名单记录\n\n3、代码优化及bug修改");
+			alert("然而并没有下一版！啊哈哈哈哈哈");
+		}
+	};
+	</script>
+</head>
+
+<body>
+<table id="tab1">
+	<tr>
+		<td class="g3">吴炳均</td> <td class="g3 m">刘佩景</td>
+		<td class="g3">文浩斌</td> <td class="g5">邱志文</td>
+		<td class="g6 m">李远志</td> <td class="g6">陈锐豪</td>
+		<td colspan="2"><button id="btn1">Good Luck</button></td>
+	</tr>
+	
+	<tr>
+		<td class="g3">邓高盛</td> <td class="g3">王强</td>
+		<td class="g3">伍瑞麟</td> <td class="g6">张冬兰</td>
+		<td class="g6">苏国好</td> <td class="g6">邹尚雄</td>
+		<td class="g10">吕锦鸿</td> <td class="g10 m">张鹏翼</td>
+	</tr>
+	
+	<tr>
+		<td class="g2">钟玉群</td> <td class="g2">王永发</td>
+		<td></td> <td class="g5">李守综</td>
+		<td class="g7">伍世顺</td> <td class="g7">韦宝玉</td>
+		<td class="g10">汤俊杰</td> <td class="g10">邝勇团</td>
+	</tr>
+	
+	<tr>
+		<td class="g2">刘熠松</td> <td class="g2 m">范锐</td>
+		<td class="g5">张能</td> <td class="g5 m">王新炜</td>
+		<td class="g7">陈佩东</td> <td class="g7 m">胡剑飞</td>
+		<td class="g9">钟威</td> <td class="g10">江树祥</td>
+	</tr>
+	<tr>
+		<td class="g2">谢贺锋</td> <td class="g1">杜志海</td>
+		<td class="g4">洪俊鹏</td> <td class="g5">吴东海</td>
+		<td class="g8">张洪恩</td> <td class="g7">蒙宏钊</td>
+		<td class="g9 m">王海涛</td> <td class="g9">黄文亮</td>
+	</tr>
+	<tr>
+		<td class="g1">郑凯铭</td> <td class="g1 m">吴英平</td>
+		<td class="g4">凌岚森</td> <td class="g4 m">张柏川</td>
+		<td class="g8 m">郭宇仔</td> <td class="g8">梁炜彬</td>
+		<td class="g9">陈宪仲</td> <td class="g9">廖星云</td>
+	</tr>
+	<tr>
+		<td class="g1">吴俊飞</td> <td class="g1">秦树月</td>
+		<td class="g4">叶兴强</td> <td class="g4">欧阳文强</td>
+		<td class="g8">潘桂树</td> <td class="g8">黎楚</td>
+		<td><button id="btn-one">单选模式</button></td><td><button id="btn-two">多选模式</button></td>
+	</tr>
+	<tr>
+		<td colspan="2">一组</td> <td colspan="2">二组</td>
+		<td colspan="2">三组</td> <td colspan="2">四组</td>
+	</tr>
+	<tr>
+		<td colspan="4"></td><td colspan="2" style="border:1px black solid;font-size:24px; font-weight:bold;">讲台</td><td>当前模式：</td><td id="pattern">无</td>
+	</tr>
+	<tr>
+		<td colspan="2"></td><td colspan="8"><h2>老牛,牛哥,牛师傅</h2></td>
+	</tr>
+	<tr>
+		<td><h5>幸运观众：</h5></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td>
+	</tr>
+</table>
+<div style="font-size:2px; text-align:center;color:#CCCCCC">暴走猪头统一商标，版本号：1.0&nbsp;<span id="sp1">点此查看1.1版本</span></div>
+
+    
+</body>
+</html>

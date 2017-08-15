@@ -1,0 +1,162 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>Oracle 数据库</title>
+<!-- 2017-08-15 Tue 16:30 -->
+<meta  charset="utf-8">
+<meta  name="generator" content="Org-mode">
+<meta  name="author" content="imfine">
+<meta name='viewport' content='width=device-width,initial-scale=1'>
+<link rel='stylesheet' href='assets/base.css'>
+<script src='assets/base.js'></script>
+</head>
+<body>
+<div id="org-div-home-and-up">
+ <a accesskey="h" href="index.html"> UP </a>
+ |
+ <a accesskey="H" href="index.html"> HOME </a>
+</div><div id="content">
+<h1 class="title">Oracle 数据库</h1>
+<nav id="table-of-contents">
+<h2>Table of Contents</h2>
+<div id="text-table-of-contents">
+<ul>
+<li><a href="#sec-1">1. 基础知识</a></li>
+<li><a href="#sec-2">2. 甜点</a></li>
+<li><a href="#sec-3">3. 体系结构</a></li>
+<li><a href="#sec-4">4. 用户权限</a></li>
+<li><a href="#sec-5">5. SQL 语句</a></li>
+<li><a href="#sec-6">6. Objects</a></li>
+<li><a href="#sec-7">7. PL/SQL编程</a></li>
+<li><a href="#sec-8">8. 锁/事务</a></li>
+<li><a href="#sec-9">9. hint/explain</a></li>
+</ul>
+</div>
+</nav>
+
+<section id="outline-container-sec-1" class="outline-2">
+<h2 id="sec-1"><span class="section-number-2">1</span> 基础知识</h2>
+<div class="outline-text-2" id="text-1">
+<ol class="org-ol">
+<li>登录 SQLPLUS
+<pre class="example">
+cmd
+sqlplus [用户名]/[密码][@数据库] [参数]
+sqlplus sys/orcl as sysdba  -- 登录 sys 用户，必须指定 sysdba 或 sysoper 身份
+sqlplus system/orcl         -- 数据库管理员
+</pre>
+</li>
+
+<li>创建一个自己的用户(比如 vip/vip)
+<div class="org-src-container">
+
+<pre class="src src-sql"><span class="org-keyword">create</span> <span class="org-builtin">user</span> vip identified <span class="org-keyword">by</span> vip;     <span class="org-comment">-- &#27880;&#24847;&#65292;&#26032;&#21019;&#24314;&#30340;&#29992;&#25143;&#65292;&#20160;&#20040;&#26435;&#38480;&#37117;&#27809;&#26377;&#65292;&#38656;&#35201;&#25480;&#26435;&#21518;&#25165;&#33021;&#20351;&#29992;</span>
+<span class="org-keyword">grant</span> <span class="org-keyword">create</span> <span class="org-keyword">session</span> <span class="org-keyword">to</span> vip;           <span class="org-comment">-- &#25480;&#20104;&#30331;&#24405;&#30340;&#26435;&#38480;</span>
+<span class="org-keyword">grant</span> <span class="org-keyword">connect</span> <span class="org-keyword">to</span> vip;                  <span class="org-comment">-- &#35282;&#33394;&#26159;&#24456;&#22810;&#26435;&#38480;&#30340;&#25171;&#21253;&#65292;connect &#26159;&#19968;&#31181;&#35282;&#33394;&#65292;&#23427;&#21253;&#21547;&#20102;&#36830;&#25509;&#26597;&#30475;&#25968;&#25454;&#30340;&#19968;&#20123;&#22522;&#26412;&#26435;&#38480;</span>
+<span class="org-keyword">grant</span> dba <span class="org-keyword">to</span> vip;                      <span class="org-comment">-- dba &#26159;&#32477;&#22823;&#22810;&#25968;&#26435;&#38480;&#30340;&#38598;&#21512;&#65292;&#23427;&#22522;&#26412;&#33021;&#20570;&#25152;&#26377;&#20107;&#24773;&#65292;&#25152;&#20197;&#24456;&#23569;&#21333;&#29420;&#25480;&#20104;&#29992;&#25143;&#12290;&#20294;&#22312;&#27979;&#35797;&#29615;&#22659;&#20013;&#65292;&#36825;&#26679;&#65292;&#24456;&#29245;&#12290;</span>
+
+<span class="org-comment">-- &#19978;&#38754;&#30340;&#21019;&#24314;&#29992;&#25143;&#12289;&#25480;&#20104;&#26435;&#38480;&#20004;&#27493;&#25805;&#20316;&#65292;&#21487;&#20197;&#31616;&#21270;&#20026;&#19979;&#38754;&#19968;&#27493;&#65306;</span>
+<span class="org-keyword">grant</span> dba <span class="org-keyword">to</span> vip identified <span class="org-keyword">by</span> vip;    <span class="org-comment">-- &#27880;&#24847;&#65292;&#20351;&#29992;&#20998;&#21495;&#32467;&#23614;</span>
+</pre>
+</div>
+</li>
+
+<li>切换到用户
+<pre class="example">
+sqlplus vip/vip  -- 在 cmd 下
+conn vip/vip     -- 在 sqlplus 中
+</pre>
+</li>
+
+<li>使用
+<pre class="example">
+create table aaa (id int);
+</pre>
+</li>
+
+<li>激活内置的测试账号，这里面有几张示例表，可以用它们练习下查询
+<pre class="example">
+alter user scott account unlock;
+conn scott/tiger
+</pre>
+</li>
+
+<li>修改密码
+<pre class="example">
+alter user scott identified by [newpassword];
+</pre>
+</li>
+</ol>
+</div>
+</section>
+
+<section id="outline-container-sec-2" class="outline-2">
+<h2 id="sec-2"><span class="section-number-2">2</span> 甜点</h2>
+<div class="outline-text-2" id="text-2">
+<ul class="org-ul">
+<li>在芝加哥工作的人中，谁的工资最高
+<div class="org-src-container">
+
+<pre class="src src-sql"></pre>
+</div>
+</li>
+<li>查询每个部门下有多少员工
+</li>
+<li>查询除去 salesman 所有平均工资超过 1500 的部门
+</li>
+<li>查询在 new york 工作的所有员工的姓名，部门名称和工资信息
+</li>
+<li>查询姓名为 King 的员工的编号，名称跟部门
+</li>
+<li>查询各种工作的最低工资
+</li>
+<li>查询工龄大于10年的所有员工信息
+</li>
+<li>查询每个部门员工数量，平均工资和平均工作年限
+</li>
+<li>统计各部门每个工种的人数，平均工资。
+</li>
+<li>查询从事同一种工作但不属于同一部门的员工信息。
+</li>
+<li>查询所有员工工资都大于1000的部门的信息及员工信息
+</li>
+<li>查询入职日期早于其直接上级的所有员工信息。
+</li>
+<li>列出雇员中（除去mgr为空的人)工资第二高的人。
+</li>
+<li>列出1981年来公司所有员工的总收入（包括sal和comm）
+</li>
+</ul>
+</div>
+</section>
+
+<section id="outline-container-sec-3" class="outline-2">
+<h2 id="sec-3"><span class="section-number-2">3</span> 体系结构</h2>
+</section>
+<section id="outline-container-sec-4" class="outline-2">
+<h2 id="sec-4"><span class="section-number-2">4</span> 用户权限</h2>
+</section>
+<section id="outline-container-sec-5" class="outline-2">
+<h2 id="sec-5"><span class="section-number-2">5</span> SQL 语句</h2>
+</section>
+<section id="outline-container-sec-6" class="outline-2">
+<h2 id="sec-6"><span class="section-number-2">6</span> Objects</h2>
+</section>
+<section id="outline-container-sec-7" class="outline-2">
+<h2 id="sec-7"><span class="section-number-2">7</span> PL/SQL编程</h2>
+</section>
+<section id="outline-container-sec-8" class="outline-2">
+<h2 id="sec-8"><span class="section-number-2">8</span> 锁/事务</h2>
+</section>
+<section id="outline-container-sec-9" class="outline-2">
+<h2 id="sec-9"><span class="section-number-2">9</span> hint/explain</h2>
+</section>
+</div>
+<div id="postamble" class="status">
+<p class="author">Author: imfine</p>
+<p class="date">Created: 2017-08-15 Tue 16:30</p>
+<p class="creator"><a href="http://www.gnu.org/software/emacs/">Emacs</a> 25.2.1 (<a href="http://orgmode.org">Org</a> mode 8.2.10)</p>
+<p class="validation">Go ahead, never stop.</p>
+</div>
+</body>
+</html>

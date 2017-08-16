@@ -1,7 +1,10 @@
 #+TITLE: Oracle 数据库
 
-* 基础知识
 
+数据库本质是用计算机存储数据的一种系统。
+它是位于 =用户= 和 =系统= 之间的一种管理软件。
+
+* 基础知识
 ** Prelude
 
 1. 登录 SQLPLUS
@@ -53,7 +56,7 @@
 : set timing on/off      -- 是否显示语句的执行时间
 : set autocommit on/off  -- 是否启用自动提交
 : set autotrace on/off   -- 是否输出执行计划
-: set serverouput on/off -- 是否显示来自服务端的信息
+: set serveroutput on/off-- 是否显示来自服务端的信息
 : column aaa format a22  -- 将列 'aaa' 的宽度限制为 22 个字幕'a'的大小。column 命令很强大，语句也复杂，此处不提。
 
 在 sqlplus 中有缓冲区的概念:
@@ -168,10 +171,89 @@
 - 列出1981年来公司所有员工的总收入（包括sal和comm）
 
 * 体系结构
+Oracle 服务器分为两部分：
+1. Instance 实例
+2. Database 数据库
+
+实例，又称为数据库引擎，由 =SGA(System Global Area, 系统全局区)= 和 =一系列后台进程= 组成。
+它需要启动才会生成，用来加载并管理一个数据库。
+
+数据库，是保存在硬盘上的文件集合，它是数据的主要载体。
+: $OracleBase\oradata\[数据库名字]\
+
+*服务启动的大致过程：*
+1. [读取] 读取系统的 ORACLE_SID 环境变量，确定要启动的实例名字，比如为 xxoo
+2. [加载] 从 =$ORABASE/admin/xxoo= 和 =$ORA_HOME/database/SPFILEXXOO.ora= 等位置加载相关配置文件。配置文件的名字是根据 sid 来定义的。
+3. [启动] 从配置文件中，读取相关信息，比如数据库名字、数据库控制文件位置、SGA 等信息，并根据这些，初始化数据库加载需要的 =内存空间(SGA)= 和 =相关进程= 。
+4. [装载] 根据配置文件中读取的数据库信息，找到各种数据文件位置，并装载数据库。
+5. [启动] 进行数据校验等，如果没有问题，启动数据库。
+
+可以通过查看启动过程协助理解：
+#+BEGIN_SRC sql
+  -- 首先，登录 sys 用户，只有管理员才有完全操纵数据库的权力
+  -- shutdown 用来关闭。如果不带参数，默认为 normal
+  ---- immediate 表示立即关闭，如果有未处理完操作，回滚并断开
+  ---- normal 表示等待所有连接断开才关闭数据库
+  ---- transaction 表示等事务介绍才断开
+  shutdown immediate;
+
+  -- 启动数据库，分解为三个动作：
+  ---- 启动实例
+  ---- 利用启动的实例去挂载数据库
+  ---- 校验并打开数据库
+  -- 只有完全打开，才能进行完全的数据操作
+  -- 也可以指定参数，启动到某个阶段。这是在维护数据库中使用的命令。
+  startup             -- 如果不加参数，
+  startup nomount     -- 启动到 nomount 阶段
+  startup mount       -- 启动到 mount 阶段
+
+  -- 当然，也可以这样分步启动：
+  startup nomount
+  alter database mount
+  alter database open
+#+END_SRC
+
 * 用户权限
 * SQL 语句
 * Objects
 * PL/SQL编程
 * 锁/事务
 * hint/explain
+* Miscellaneous
+** Window/Unix/BSD/Linux 历史
+#+BEGIN_SRC dot :file assets/dot/osess.png :export results
+  digraph oses {
+      rankdir=LR;
+      node [shape=record,color=lightblue,fontname=SimSun];
+      edge [fontname=SimSun,fontsize=9];
 
+      OS -> { Windows, UNIX };
+
+      Windows -> "微软公司";
+      
+      UNIX -> TM [label="商标"];
+
+      UNIX -> BSD [label="开源版本"];
+
+      UNIX -> Linux[label="山寨版本"];
+
+      TM -> { "AIX(IBM)", "Solaris(SUN)" };
+
+      BSD -> { OpenBSD, NetBSD };
+
+      Linux[label="GNU/Linux"];
+
+      Linux -> { linuxDesc, "发行版", GNU };
+
+      linuxDesc [label=" 创始人：Linus", shape=Mrecord];
+
+      "发行版" -> { Android, ubuntu, debian, archlinux, redhat, centos };
+
+      GNU -> "GNU's Not Unix 的缩写";
+
+      GNU -> "由 Richard Stallman\n在麻省理工学院\n人工智能实验室发起,\n目标是成立一个\n完全免费操作系统";
+  }
+      
+#+END_SRC
+
+[[file:assets/dot/osess.png]]

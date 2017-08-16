@@ -3,6 +3,7 @@
     <meta charset="UTF-8">
 	<title>134班众英雄座次</title>
 	<style>
+	body{ background-color:#EAEAEA;}
 	/*页面初始化*/
 	*{
 		margin:0px;
@@ -10,43 +11,61 @@
 	}
 	table{
 		margin:0px auto;
-		height:90%;
-		width:80%;
-		border:1px black solid;
+		height:100%;
+		width:100%;
+		min-width:1000px;
 	}
 	td {
 		width: 120px;
 		text-align: center;
-		font-size: 20px;
+		font-size: 24px;
+		font-weight:500;
 		text-shadow: 1px 1px 5px #ddd;
 		line-height: 40pt;
+		border-radius:5px;
 	}
-	.g1 { background: lightyellow; }
-	.g2 { background: aliceblue; }
-	.g3 { background: lightyellow; }
+	.g1 { background: #A3D1D1;}
+	.g2 { background: #BCEE68; }
+	.g3 { background: #97CBFF; }
 	.g4 { background: pink; }
-	.g5 { background: #e5e5e5; }
+	.g5 { background: #B9B9FF; }
 	.g6 { background: pink; }
 	.g7 { background: #fff2b2; }
-	.g8 { background: lightyellow; }
+	.g8 { background: #B3EE3A; }
 	.g9 { background: #d1c0a5; }
-	.g10 { background: lightyellow; }
-	.m { font-weight: bolder; }
+	.g10 { background: #A3D1D1; }
+	.m { font-weight: bolder; font-size:26px; }
 	
 	.g1:hover,.g2:hover,.g3:hover,.g4:hover,.g5:hover,.g6:hover,.g7:hover,.g8:hover,.g9:hover,.g10:hover{
-		cursor:pointer;
-		outline:1px black solid;
-	}
+		cursor:pointer; 
+		background-color:#00EEEE;
+		font-size:26px;
+		font-weight:bold;
+		color:red;
+	} 
 	button {
 		padding: 12px 30px;
 	}
 	#sp1:hover{
 		cursor:pointer;	
 	}
+	/**************************************************************************************************************/
+	#none{
+		height:100%; width:100%; background-color:rgba(0,0,0,0.5); position:absolute; z-index:2;display:none;
+	}
 	</style>
 	<script>
 	window.onload=function(){
-		alert("使用注意说明：\n\n1、请最先选择座位表右下方的单选或多选模式\n\n2、选完之后就可以点击右上角的Good Luck开始抽奖\n\n3、点击Good Luck之后请等待1秒之后再点击，否则可能会出错\n\n4、不同模式有不同效果，单选在点击抽奖后只可以抽一次，而多选则可以抽多个（上限7个）\n\n");
+		var g1=document.getElementsByClassName("g1");
+		var g2=document.getElementsByClassName("g2");
+		var g3=document.getElementsByClassName("g3");
+		var g4=document.getElementsByClassName("g4");
+		var g5=document.getElementsByClassName("g5");
+		var g6=document.getElementsByClassName("g6");
+		var g7=document.getElementsByClassName("g7");
+		var g8=document.getElementsByClassName("g8");
+		var g9=document.getElementsByClassName("g9");
+		var g10=document.getElementsByClassName("g10");
 		//定时器时间
 		var time;
 		//单选按钮
@@ -64,158 +83,195 @@
 		var countdown;
 		//观众位置
 		var index=66;
-		//判断是否选择模式
-		if(pattern.innerText=="无"){
-			btn1.onclick=function(){
-				alert("您还未选择模式！");
-			};
-		}
+		//已选择
+		var old=100;
+		var n;
+		var newname="";
+		var strs;
+		var color=1;
+		var z=0;
+		var names = ["王海涛","邹尚雄","陈锐豪","张栢川","潘桂树","黎楚","伍世顺","胡剑飞","叶兴强","文浩斌","陈宪仲","邱志文","王新炜","李远志","张能","韦宝玉","廖星云","张洪恩","张冬兰","钟玉群","吕锦鸿","郭宇仔","陈佩东","蒙宏钊","欧阳文强","梁炜彬","黄文亮","江树祥","王强","王永发","刘佩景","谢贺锋","吴俊飞","郑凯铭","凌岚森","刘熠松","苏国好","李守综","邓高盛","伍瑞麟","吴炳均","吴英平","范锐","邝勇团","汤俊杰","张鹏翼","杜志海","吴东海","秦树月","钟威","洪俊鹏"];
 		
 		//点击单选时
 		dan.onclick=function(){
-			pattern.innerText="单选模式";
-			btn1.onclick=function(){
-				
-				if(btn1.innerText=="Good Luck"){								
-					for(var i=66;i<73;i++){
-						td[i].innerText=" ";
-					}
-					time=setInterval(function(){
-						num=Math.floor(Math.random()*53);
-						
-						if(num!=6&&num!=17){
-							for(var i=0;i<53;i++){
-								td[i].style.outline="0px";
-							}
-							td[num].style.outline="1px red solid";
-						}
-					},50);
-					
-					Countdown=setInterval(function(){
-						btn1.innerText="点击停止："+timeout;
-						if(timeout==0){
-							clearInterval(time);
-							clearInterval(Countdown);
-							var a=td[num].innerText;
-							td[66].innerText=a;
-							btn1.innerText="Good Luck";
-							timeout=10;
-						}else{
-							timeout--;
-						}
-					},1000);
-				}else{
-					clearInterval(time);
-					clearInterval(Countdown);
-					var a=td[num].innerText;
-					td[66].innerText=a;
-					btn1.innerText="Good Luck";
-					timeout=10;
+			
+			if(z==2){
+				strs="";
+				for(let i=0;i<g1.length;i++){
+					g1[i].style.backgroundColor="#A3D1D1";
+				}for(let i=0;i<g1.length;i++){
+					g2[i].style.backgroundColor="#BCEE68";
+				}for(let i=0;i<g1.length;i++){
+					g3[i].style.backgroundColor="#97CBFF";
+				}for(let i=0;i<g1.length;i++){
+					g4[i].style.backgroundColor="pink";
+				}for(let i=0;i<g1.length;i++){
+					g5[i].style.backgroundColor="#B9B9FF";
+				}for(let i=0;i<g1.length;i++){
+					g6[i].style.backgroundColor="pink";
+				}for(let i=0;i<g1.length;i++){
+					g7[i].style.backgroundColor="#fff2b2";
+				}for(let i=0;i<g1.length;i++){
+					g8[i].style.backgroundColor="#B3EE3A";
+				}for(let i=0;i<g1.length;i++){
+					g9[i].style.backgroundColor="#d1c0a5";
+				}for(let i=0;i<g1.length;i++){
+					g10[i].style.backgroundColor="#A3D1D1";
 				}
-			};
+				z=1;
+			}else{
+				z=1;
+			}
+			if(dan.innerText=="单选"){
+				if(color!=1){
+					td[old].style.backgroundColor=color;
+					td[old].style.color="black";
+				}
+				for(let i=0;i<53;i++){
+					td[i].style.outline="0px";
+				}
+				old=100;
+				dan.innerText="停止";
+				time=setInterval(function(){
+					n=names.length;
+					if(old!=100){
+						td[old].style.outline="1px white solid";
+					}
+					num=Math.floor(Math.random()*n);
+					let msg=names[num];
+					for(let i=0;i<53;i++){
+						if(td[i].innerText==msg){
+							td[i].style.outline="1px red solid";
+							old=i;
+						}
+					}
+				},10);
+			}else{
+				strs= new Array();
+				dan.innerText="单选";
+				clearInterval(time);
+				for(var i=0;i<names.length;i++){
+					if(td[old].innerText==names[i]){
+						names.splice(i,1);
+						if(newname==""){
+							newname=td[old].innerText;
+						}else{
+							newname+=","+td[old].innerText;
+						}
+					}
+				}
+				color=window.getComputedStyle(td[old],null);
+				color=color.backgroundColor;
+				td[old].style.backgroundColor="red";
+				td[old].style.color="white";
+				td[old].style.outline="0px";
+			}
 		}
 		
 		
 		//点击多选时
 		duo.onclick=function(){
-			pattern.innerText="多选模式";
-			btn1.onclick=function(){
-				if(btn1.innerText=="Good Luck"){
-					for(var i=66;i<73;i++){
-						td[i].innerText=" ";
+			if(z==1){
+				strs="";
+				for(let i=0;i<g1.length;i++){
+					g1[i].style.backgroundColor="#A3D1D1";
+				}for(let i=0;i<g1.length;i++){
+					g2[i].style.backgroundColor="#BCEE68";
+				}for(let i=0;i<g1.length;i++){
+					g3[i].style.backgroundColor="#97CBFF";
+				}for(let i=0;i<g1.length;i++){
+					g4[i].style.backgroundColor="pink";
+				}for(let i=0;i<g1.length;i++){
+					g5[i].style.backgroundColor="#B9B9FF";
+				}for(let i=0;i<g1.length;i++){
+					g6[i].style.backgroundColor="pink";
+				}for(let i=0;i<g1.length;i++){
+					g7[i].style.backgroundColor="#fff2b2";
+				}for(let i=0;i<g1.length;i++){
+					g8[i].style.backgroundColor="#B3EE3A";
+				}for(let i=0;i<g1.length;i++){
+					g9[i].style.backgroundColor="#d1c0a5";
+				}for(let i=0;i<g1.length;i++){
+					g10[i].style.backgroundColor="#A3D1D1";
+				}
+				z=2;
+			}else{
+				z=2;
+			}
+			if(duo.innerText=="多选"){
+				old=100;
+				duo.innerText="停止";
+				time=setInterval(function(){
+					n=names.length;
+					if(old!=100){
+						td[old].style.outline="1px white solid";
 					}
-					time=setInterval(function(){
-						num=Math.floor(Math.random()*53);
-						
-						if(num!=6&&num!=17){
-							for(var i=0;i<53;i++){
-								td[i].style.outline="0px";
-							}
-							td[num].style.outline="1px red solid";
+					num=Math.floor(Math.random()*n);
+					let msg=names[num];
+					for(let i=0;i<53;i++){
+						if(td[i].innerText==msg){
+							td[i].style.outline="1px #0066FF solid";
+							old=i;
 						}
-					},50);
-					
-					Countdown=setInterval(function(){
-						btn1.innerText="点击选择："+timeout;
-						if(timeout==0){
-							clearInterval(time);
-							clearInterval(Countdown);
-							if(index!=73){
-								var a=td[num].innerText;
-								td[66].innerText=a;
-							}
-							for(var i=0;i<53;i++){
-								td[i].style.outline="0px";
-							}
-							btn1.innerText="Good Luck";
-							timeout=10;
-							index=66;
+					}
+				},10);
+			}else{
+				strs= new Array();
+				duo.innerText="多选";
+				clearInterval(time);
+				for(var i=0;i<names.length;i++){
+					if(td[old].innerText==names[i]){
+						names.splice(i,1);
+						if(newname==""){
+							newname=td[old].innerText;
 						}else{
-							timeout--;
+							newname+=","+td[old].innerText;
 						}
-					},1000);
-				}else{
-					var timeshit;
-					var count=0;
-					if(index<73){
-						var a=td[num].innerText;
-						for(var i=66;i<73;i++){
-							if(a==td[i].innerText||num==6||num==17){
-								count=1;
-							}
-						}
-						if(count==0){
-							td[index].innerText=a;
-							index++;
-						}else{
-							var l=0;
-							timeshit=setInterval(function(){
-								var one=Math.floor(Math.random()*53);
-								for(var i=66;i<73;i++){
-									if(td[one].innerText==td[i].innerText||one==6||one==17){
-										l=1;
-									}
-								}
-								if(l==0){
-									clearInterval(timeshit);
-									td[index].innerText=td[one].innerText;
-									index++;
-								}
-							},10);
-						}
-					}else{
-						alert("已达上限");
-						clearInterval(time);
-						clearInterval(Countdown);
-						if(index!=73){
-							var a=td[num].innerText;
-							td[66].innerText=a;
-						}
-						for(var i=0;i<53;i++){
-							td[i].style.outline="0px";
-						}
-						btn1.innerText="Good Luck";
-						timeout=10;
-						index=66;
 					}
 				}
-			};
+				td[old].style.backgroundColor="red";
+				td[old].style.color="white";
+				td[old].style.outline="0px";
+			}
+		}
+		btn1.onclick=function(){
+			none.style.display="block";
+			ji.innerText=localStorage.msg;
+		}
+		text.onblur=function(){
+			if(text.value!=""){
+				localStorage.msg=text.value;
+				ji.innerText=localStorage.msg;
+			}
+		};
+		prev.onclick=function(){
+			none.style.display="none";
+			text.value="";
+			text.style.placeholder="输入内容后，失去焦点即保存......";
 		}
 		sp1.onclick=function(){
-			alert("本版本为1.0版本下一版本为1.1版本\n\n更新内容：\n\n1、新增记事本功能\n\n2、增加历史名单记录\n\n3、代码优化及bug修改");
-			alert("然而并没有下一版！啊哈哈哈哈哈");
+			alert("本版本为1.2版本，下一版本为1.3版本\n\n更新内容：\n\n1、增加动态分组\n\n2、代码优化及bug修改");
+			alert("才怪勒！（掀桌子）\n\n并不会有下一版滴！\n\n代码就在这儿了，谁想改就改吧！\n\n哦吼吼吼！");
 		}
 	};
 	</script>
 </head>
 
 <body>
+<div id="none">
+	<div style="height:300px; width:600px; background-color:#FFFFFF; margin:60px auto">
+		<div style=" background-color:#0099FF; color:#FFFFFF; font-size:24px; padding:20px">记事本</div>
+		<div id="ji" style=" padding-top:10px; padding-left:20px; height:70px;background-color:#CCCCCC; color:#FFFFFF"></div>
+		<textarea id="text" style="height:80px; width:100%; font-size:18px;" placeholder="输入内容后，失去焦点即保存......"></textarea>
+		<button id="prev" style=" height:50px; width:90%; margin:10px 30px; background-color:#0099FF; color:#FFFFFF; border:0px;">退出</button>
+	</div>
+</div>
 <table id="tab1">
 	<tr>
 		<td class="g3">吴炳均</td> <td class="g3 m">刘佩景</td>
 		<td class="g3">文浩斌</td> <td class="g5">邱志文</td>
 		<td class="g6 m">李远志</td> <td class="g6">陈锐豪</td>
-		<td colspan="2"><button id="btn1">Good Luck</button></td>
+		<td colspan="2"><button id="btn1">记事本</button></td>
 	</tr>
 	
 	<tr>
@@ -254,23 +310,17 @@
 		<td class="g1">吴俊飞</td> <td class="g1">秦树月</td>
 		<td class="g4">叶兴强</td> <td class="g4">欧阳文强</td>
 		<td class="g8">潘桂树</td> <td class="g8">黎楚</td>
-		<td><button id="btn-one">单选模式</button></td><td><button id="btn-two">多选模式</button></td>
+		<td><button id="btn-one">单选</button></td><td><button id="btn-two">多选</button></td>
 	</tr>
 	<tr>
 		<td colspan="2">一组</td> <td colspan="2">二组</td>
 		<td colspan="2">三组</td> <td colspan="2">四组</td>
 	</tr>
 	<tr>
-		<td colspan="4"></td><td colspan="2" style="border:1px black solid;font-size:24px; font-weight:bold;">讲台</td><td>当前模式：</td><td id="pattern">无</td>
-	</tr>
-	<tr>
-		<td colspan="2"></td><td colspan="8"><h2>老牛,牛哥,牛师傅</h2></td>
-	</tr>
-	<tr>
-		<td><h5>幸运观众：</h5></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td>
+		<td colspan="3"></td><td>老牛</td><td colspan="2" style="outline:1px black solid;font-size:24px; font-weight:bold;">讲台</td><td></td><td id="pattern"></td>
 	</tr>
 </table>
-<div style="font-size:2px; text-align:center;color:#CCCCCC">暴走猪头统一商标，版本号：1.0&nbsp;<span id="sp1">点此查看1.1版本</span></div>
+<div style=" position:absolute; bottom:0px; z-index:2; font-size:2px; text-align:center;color:#C2C2C2">暴走猪头统一商标&nbsp;版本号：1.2&nbsp;<span id="sp1">点此查看1.3版本</span></div>
 
     
 </body>

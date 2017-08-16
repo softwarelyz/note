@@ -2,6 +2,8 @@
 
 * 基础知识
 
+** Prelude
+
 1. 登录 SQLPLUS
    : cmd
    : sqlplus [用户名]/[密码][@数据库] [参数]
@@ -33,11 +35,124 @@
 6. 修改密码
    : alter user scott identified by [newpassword];
 
+** Sqlplus
+这是一个轻量级的功能强大的客户端, 是 dba 必须掌握的工具。
+
+我们可以配置 sqlplus 的一些行为，两个命令：
+1. show. 用来显示配置参数
+2. set.  用来设置配置参数
+
+比如：
+: show all               -- 显示所有配置参数
+: show lines             -- 显示 lines 的配置信息
+: show errors            -- 显示错误
+: set lines[ize] 333     -- 将行宽设置为 333
+: set pages[ize] 444     -- 将每页的记录数设置为 444
+: set echo off/on        -- 导入外部文件，是否要显示原始 sql 语句
+: set feedback on/off    -- 是否显示“查询到xx数据”等信息
+: set timing on/off      -- 是否显示语句的执行时间
+: set autocommit on/off  -- 是否启用自动提交
+: set autotrace on/off   -- 是否输出执行计划
+: set serverouput on/off -- 是否显示来自服务端的信息
+: column aaa format a22  -- 将列 'aaa' 的宽度限制为 22 个字幕'a'的大小。column 命令很强大，语句也复杂，此处不提。
+
+在 sqlplus 中有缓冲区的概念:
+: 缓冲区是用来记录上一次执行的命令语句的空间。
+
+我们可以通过一些列简单命令，对上一次输入的语句进行一些控制:
+- 增 =append/insert=
+- 删 =delete=
+- 改 =change=
+- 查 =list=
+- 执行修改后的语句 =run= 或者 =/=
+
+例子：
+: list         -- 显示完整的缓存区
+: list 3       -- 显示并定位到第三行
+: list 3 5     -- 显示第三行到第五行的内容
+: list last    -- 定位到最后一行
+
+: list 3
+: del               -- 删除第三行
+
+: list 3
+: append  order by sal  -- 定位到第三行，然后追加 order by sal
+: insert order by sal   -- 开启新的一行，插入 order by sal
+
+: list 3
+: change /emp/dept      -- 定位到第三行，将这一行的 emp 换为 dept
+
+还有其他一些命令：
+: get D:\aaa.sql        -- 将文件加载到缓冲区，但不执行
+: start D:\aaa.sql      -- 将文件加载到缓冲区，并且执行
+: @D:\aaa.sql           -- 是上面一条语句的简写形式
+: save D:\bbb.sql       -- 将缓冲区的内容保存到文件中
+: edit                  -- 调用外部编辑器，编辑缓冲区
+: clear screen          -- 清空缓冲区
+
+: show user             -- 显示当前用户
+: show parameters       -- 显示 oracle 的配置参数
+: show parameters nls   -- 显示 oracle 中所有跟语言配置相关的一些参数
+: describe emp          -- 显示 emp 表的结构信息
+
 * 甜点
-- 在芝加哥工作的人中，谁的工资最高
-  #+BEGIN_SRC sql
+** 示例
+
+[题目] 从 scott 用户的 emp/dept 表中，找到“来自芝加哥最有钱的那个人”。
+
+首先，我们需要理清思路。
+
+这里总共有两个条件：
+1. 这个人来自芝加哥
+2. 这个人是最有钱的，而且是芝加哥最有钱的
+
+我们可以看出，第二个条件是依赖第一个条件的。
+
+所以，分两步查询：
+1. 找出所有来自芝加哥的人
+2. 从这些人中，找到最有钱的那个。这一步，可以通过 max 函数或者 order by 方式实现。
+
+*下面是语句示例：*
+#+BEGIN_SRC sql
+
+  ---- 第一步：找到来自芝加哥的所有人。下面两种写法等价：
+
+  select e.* from emp e
+    join dept d on (e.deptno=d.deptno)
+    where d.loc='CHICAGO';
+
+  select e.* from emp e, dept d
+    where d.deptno = e.deptno
+          and d.loc='CHICAGO';
   
-  #+END_SRC
+
+  ---- 第二步，基于上面结果，筛选出最有钱的那个
+
+  -- 可以通过 max 函数
+  select e.* from emp e, dept d
+    where e.deptno = d.deptno
+          and d.loc='CHICAGO'
+          and sal = 
+              (select max(sal) from emp e, dept d
+                where e.deptno = d.deptno
+                      and d.loc='CHICAGO');
+
+  -- 可以通过 order by 方式
+  select ename from
+    (select e.*, d.* from emp e, dept d
+      where e.deptno = d.deptno
+            and d.loc='CHICAGO'
+      order by sal desc)
+  where rownum = 1;
+
+#+END_SRC
+
+注意，实现的方式，不止上面的那些。但总体 *思路* 是一样的。
+
+所以，思路永远是最重要的。
+
+** 题库
+- 在芝加哥工作的人中，谁的工资最高
 - 查询每个部门下有多少员工
 - 查询除去 salesman 所有平均工资超过 1500 的部门
 - 查询在 new york 工作的所有员工的姓名，部门名称和工资信息
@@ -59,3 +174,4 @@
 * PL/SQL编程
 * 锁/事务
 * hint/explain
+

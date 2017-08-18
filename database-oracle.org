@@ -4,9 +4,7 @@
 数据库本质是用计算机存储数据的一种系统。
 它是位于 =用户= 和 =系统= 之间的一种管理软件。
 
-* 基础知识
-** Prelude
-
+* 序
 1. 登录 SQLPLUS
    : cmd
    : sqlplus [用户名]/[密码][@数据库] [参数]
@@ -38,70 +36,10 @@
 6. 修改密码
    : alter user scott identified by [newpassword];
 
-** Sqlplus
-这是一个轻量级的功能强大的客户端, 是 dba 必须掌握的工具。
-
-我们可以配置 sqlplus 的一些行为，两个命令：
-1. show. 用来显示配置参数
-2. set.  用来设置配置参数
-
-比如：
-: show all               -- 显示所有配置参数
-: show lines             -- 显示 lines 的配置信息
-: show errors            -- 显示错误
-: set lines[ize] 333     -- 将行宽设置为 333
-: set pages[ize] 444     -- 将每页的记录数设置为 444
-: set echo off/on        -- 导入外部文件，是否要显示原始 sql 语句
-: set feedback on/off    -- 是否显示“查询到xx数据”等信息
-: set timing on/off      -- 是否显示语句的执行时间
-: set autocommit on/off  -- 是否启用自动提交
-: set autotrace on/off   -- 是否输出执行计划
-: set serveroutput on/off-- 是否显示来自服务端的信息
-: column aaa format a22  -- 将列 'aaa' 的宽度限制为 22 个字幕'a'的大小。column 命令很强大，语句也复杂，此处不提。
-
-在 sqlplus 中有缓冲区的概念:
-: 缓冲区是用来记录上一次执行的命令语句的空间。
-
-我们可以通过一些列简单命令，对上一次输入的语句进行一些控制:
-- 增 =append/insert=
-- 删 =delete=
-- 改 =change=
-- 查 =list=
-- 执行修改后的语句 =run= 或者 =/=
-
-例子：
-: list         -- 显示完整的缓存区
-: list 3       -- 显示并定位到第三行
-: list 3 5     -- 显示第三行到第五行的内容
-: list last    -- 定位到最后一行
-
-: list 3
-: del               -- 删除第三行
-
-: list 3
-: append  order by sal  -- 定位到第三行，然后追加 order by sal
-: insert order by sal   -- 开启新的一行，插入 order by sal
-
-: list 3
-: change /emp/dept      -- 定位到第三行，将这一行的 emp 换为 dept
-
-还有其他一些命令：
-: get D:\aaa.sql        -- 将文件加载到缓冲区，但不执行
-: start D:\aaa.sql      -- 将文件加载到缓冲区，并且执行
-: @D:\aaa.sql           -- 是上面一条语句的简写形式
-: save D:\bbb.sql       -- 将缓冲区的内容保存到文件中
-: edit                  -- 调用外部编辑器，编辑缓冲区
-: clear screen          -- 清空缓冲区
-
-: show user             -- 显示当前用户
-: show parameters       -- 显示 oracle 的配置参数
-: show parameters nls   -- 显示 oracle 中所有跟语言配置相关的一些参数
-: describe emp          -- 显示 emp 表的结构信息
-
 * 甜点
 ** 示例
 
-[题目] 从 scott 用户的 emp/dept 表中，找到“来自芝加哥最有钱的那个人”。
+[题目] 从 scott 用户的 emp/dept 表中，找到 “来自芝加哥最有钱的那个人” 。
 
 首先，我们需要理清思路。
 
@@ -171,20 +109,202 @@
 - 列出1981年来公司所有员工的总收入（包括sal和comm）
 
 * 体系结构
-** Client/Server
 Oracle 采取的是 Client/Server 架构。
 
+#+BEGIN_SRC dot :file assets/dot/oracle_cs.gif :exports results
+  digraph OracleCS {
+      rankdir=LR;
+      node [margin=.6,shape=Mrecord];
+
+      Client -> TNSListener -> Server;
+      TNSListener [margin=.1,shape=plaintext];
+  }
+#+END_SRC
+
+#+RESULTS:
+[[file:assets/dot/oracle_cs.gif]]
+
+
+客户端(=Client=)操作数据库的请求发送后，服务端的监听器(=TNSListener=)接收到请求，并将其转发给相应的数据库实例(=Instance=)，再由实例(=Instance=)去操纵数据库(=Database=)。
+返回操作结果，是一个相反的过程。下面是个简陋的图示:
+
+#+BEGIN_SRC dot :file assets/dot/oracle_construct.gif :exports results
+  digraph OracleConstruct {
+      bgcolor=antiquewhite;
+
+      node [shape=Mrecord,fontname=SimSun,fontsize=10];
+      edge [fontname=SimSun,fontsize=9,arrowhead=vee];
+
+      subgraph cluster_c {
+          label="Client";style=filled;color=khaki;
+          Client [label = "{<sqlplus> sqlplus | SQL\nDeveloper |jdbc.jar | TOAD | PL/SQL\nDeveloper}", shape=record];
+      }
+
+      TNSListener;
+
+      subgraph cluster_s {
+          label="Server";style=filled;color=khaki;
+
+          Instance [style=filled,fillcolor=skyblue,margin=.4];
+          Database [style=filled,fillcolor=skyblue,margin=.4];
+
+          Instance -> { SGA, "后台进程" } [arrowhead=none];
+          Database -> dbfiles [label="物理组件"];
+          Database -> dbdatas [label="逻辑组件"];
+
+          {
+             rank=same; Instance -> Database[color=red,label=" DBName ",fontcolor=blue];
+          }
+
+          dbfiles [label="{ 控制文件 | 数据文件 | 重做日志 | 归档日志 }"];
+          dbdatas [label="{ 表空间\n(Tablespace) | 段(Segment) | 区(Extend) | 块(Block) }"];
+      }
+
+      Client -> TNSListener[bgcolor=blue,color=red,label="sqlplus\nvip/vip@192.168.0.111/orcl\n\nselect * from emp;",lhead=clusterC,fontcolor=blue];
+      TNSListener -> Instance:w[color=red,headlabel=" SID  ",constraint=false,fontcolor=blue];
+
+  }
+#+END_SRC
+
+#+RESULTS:
+[[file:assets/dot/oracle_construct.gif]]
+
+** Client
+*** Sqlplus
+这是一个轻量级的功能强大的客户端, 是 dba 必须掌握的工具。
+
+用 =sqlplus= 连接数据库的语法为：
+#+BEGIN_SRC sh
+  # Usage:
+  #   sqlplus 用户名/密码@主机名:端口号/实例名
+  # 参数个数不是固定的
+
+  sqlplus                         # 会要求你输入用户名密码，默认连接本地 ORACLE_SID 变量指定的数据库
+  sqlplus vip                     # 会要求你输入密码
+  sqlplus vip/vip                 # 连接本地 ORACLE_SID 变量指定的数据库
+
+  sqlplus sys/hello as sysdba     # sys 用户必须用 sysdba 或 sysoper 的身份登录
+
+  sqlplus vip@192.168.0.111/orcl  # 连接 192.168.0.111 机器上的 orcl 数据库，用户名为 vip
+  sqlplus vip@192db               # 连接 别名 为 192db 的数据库
+#+END_SRC
+
+#+RESULTS:
+
+
+我们可以配置 sqlplus 的一些行为，两个命令：
+1. show. 用来显示配置参数
+2. set.  用来设置配置参数
+
+比如：
+: show all               -- 显示所有配置参数
+: show lines             -- 显示 lines 的配置信息
+: show errors            -- 显示错误
+: set lines[ize] 333     -- 将行宽设置为 333
+: set pages[ize] 444     -- 将每页的记录数设置为 444
+: set echo off/on        -- 导入外部文件，是否要显示原始 sql 语句
+: set feedback on/off    -- 是否显示“查询到xx数据”等信息
+: set timing on/off      -- 是否显示语句的执行时间
+: set autocommit on/off  -- 是否启用自动提交
+: set autotrace on/off   -- 是否输出执行计划
+: set serveroutput on/off-- 是否显示来自服务端的信息
+: column aaa format a22  -- 将列 'aaa' 的宽度限制为 22 个字幕'a'的大小。column 命令很强大，语句也复杂，此处不提。
+
+在 sqlplus 中有缓冲区的概念:
+: 缓冲区是用来记录上一次执行的命令语句的空间。
+
+我们可以通过一些列简单命令，对上一次输入的语句进行一些控制:
+- 增 =append/insert=
+- 删 =delete=
+- 改 =change=
+- 查 =list=
+- 执行修改后的语句 =run= 或者 =/=
+
+例子：
+: list         -- 显示完整的缓存区
+: list 3       -- 显示并定位到第三行
+: list 3 5     -- 显示第三行到第五行的内容
+: list last    -- 定位到最后一行
+
+: list 3
+: del               -- 删除第三行
+
+: list 3
+: append  order by sal  -- 定位到第三行，然后追加 order by sal
+: insert order by sal   -- 开启新的一行，插入 order by sal
+
+: list 3
+: change /emp/dept      -- 定位到第三行，将这一行的 emp 换为 dept
+
+还有其他一些命令：
+: get D:\aaa.sql        -- 将文件加载到缓冲区，但不执行
+: start D:\aaa.sql      -- 将文件加载到缓冲区，并且执行
+: @D:\aaa.sql           -- 是上面一条语句的简写形式
+: save D:\bbb.sql       -- 将缓冲区的内容保存到文件中
+: edit                  -- 调用外部编辑器，编辑缓冲区
+: clear screen          -- 清空缓冲区
+
+: show user             -- 显示当前用户
+: show parameters       -- 显示 oracle 的配置参数
+: show parameters nls   -- 显示 oracle 中所有跟语言配置相关的一些参数
+: describe emp          -- 显示 emp 表的结构信息
+
+*** JDBC
+用 Java 连接数据库，需要用到 jdbc 驱动，它们可以在下面目录中找到：
+: 主目录\product\12.1.0\dbhome_1\jdbc\lib\*.jar
+
+比如 =ojdbc7_g.jar=, =7= 表示适用于 JDK 版本 1.7, =g= 表示自带更多调试信息。
+
+** TNSListener
+
+TNSListener，是用来监听来自客户端的请求，并将其转发给相对应的服务端实例的一种后台服务。
+
+它是沟通客户端与服务端的一个桥梁。
+
+比如，下面用 =sqlplus= 客户端将会连接 =localhost= 上的 =orcl= 数据库:
+: sqlplus vip/vip@localhost/orcl
+
+请求会发送到 localhost 主机的 1521 号端口，
+作为监听的 TNSListener 收到这个请求后，再把请求转发给对应的 orcl 数据库实例。
+
+所以必须开启监听服务，并且配置正确，才能连接操作数据库。
+: 注：如果用 sqlplus vip/vip 的方式连接数据库，即没有指定连接的机器，那么默认连接的是本机数据库
+: 这种连接是不需要监听服务的，因为为了增加连接速度，这样的本地连接 oracle 会使用一个专用的进程直接连接实例
+
+我们可以使用 Oracle 提供的 =lsnrctl= 命令操纵监听服务的开启或关闭：
+: lsnrctl status    # 查看状态
+: lsnrctl stop      # 停止监听服务
+: lsnrctl start     # 开启监听服务
+: lsnrctl reload    # 重启监听服务
+: lsnrctl services  # 查看监听的连接情况
+
+我们可以使用 Oracle 的 Net Manager 工具来配置自己的监听器。
+
+实质上，用 Net Manager 配置跟直接修改下面文件的作用是一样的：
+: 主目录\product\12.1.0\dbhome_1\network\admin\listener.ora
+
+我们在 Net Manager 中对 listener 的配置对应的是这一段代码：
+#+BEGIN_EXAMPLE
+LISTENER =
+  (DESCRIPTION_LIST =
+    (DESCRIPTION =
+      (ADDRESS = (PROTOCOL = TCP)(HOST = 0.0.0.0)(PORT = 1521))
+    )
+    ...
+  )
+#+END_EXAMPLE
+
+只要修改其中的 host/port 等，重启监听服务即可。
+
+** Server
 Oracle 服务端分为两部分：
 1. =Instance= 实例
 2. =Database= 数据库
 
+*** 实例(Instance)
 *实例*, 又称为数据库引擎，由 =SGA(System Global Area, 系统全局区)= 和 =一系列后台进程= 组成。
 它需要启动才会生成，用来加载并管理一个数据库。
 
-*数据库*, 是保存在硬盘上的文件集合，它是数据的主要载体。
-: $OracleBase\oradata\[数据库名字]\
-
-** 实例启动过程
 *服务启动的大致过程：*
 1. [读取] 读取系统的 ORACLE_SID 环境变量，确定要启动的实例名字，比如为 xxoo
 2. [加载] 从 =$ORABASE/admin/xxoo= 和 =$ORA_HOME/database/SPFILEXXOO.ora= 等位置加载相关配置文件。配置文件的名字是根据 sid 来定义的。
@@ -217,7 +337,12 @@ Oracle 服务端分为两部分：
   alter database open
 #+END_SRC
 
-** 数据库的物理组件
+*** 数据库(Database)
+*数据库*, 是保存在硬盘上的文件集合，它是数据的主要载体。
+: $OracleBase\oradata\[数据库名字]\
+
+可以从不同的角度去认识数据库，比如物理/逻辑角度：
+**** 物理组件
 数据库是保存在操作系统的一系列文件。
 
 默认安装情况下，这些文件都在 =$ORACLE_BASE/oradata= 文件夹下：
@@ -295,14 +420,14 @@ oradata/
    #+END_SRC
 5. 其他文件
 
-
-** 数据库的逻辑组件
+**** 逻辑组件
 https://docs.oracle.com/cd/B28359_01/server.111/b28318/physical.htm#CNCPT1082
 
 从 Oracle 内部管理数据的角度，可以将 Oracle 分为4个组件：
-1. 表空间(tablespace)。表空间是 Oracle 中进行维护的最基本单位。
-   数据库是由若干表空间组成的。一个表空间至少对应一个物理文件。
-
+1. 表空间(tablespace)
+   - 最基本的逻辑结构，是 Oracle 中进行数据恢复的最小单位，容纳着表、索引等对象
+   - 数据库是由若干表空间组成的。一个表空间至少对应一个物理文件。
+   - 实际开发中，不建议使用默认表空间。请为自己的业务创建自己的表空间。
    #+BEGIN_SRC sql
      -- 内置的各种表空间
      ---- system/sysaux 系统表空间/系统辅助表空间，用来保存系统字典表和其他信息，数据库创建完会自动生成
@@ -331,13 +456,19 @@ https://docs.oracle.com/cd/B28359_01/server.111/b28318/physical.htm#CNCPT1082
      -- 删除表空间
      drop tablespace xxx;
    #+END_SRC
-2. 段(Segment)。包括索引段、数据段等。
-   表空间被划分为若干区域，每个区域负责存放不同类型数据，这些区域这就是段。
-3. 区(Extend)。为存储数据分配的连续空间。
-4. 块(Block)。数据块是 Oracle 数据库最小的逻辑单元。
-   它代表在读写操作的时候，每次处理的数据大小是多少。
-   正常情况下，它是操作系统块的整数倍，默认是 8 KB。
-   : show parameters block;
+2. 段(Segment)
+   - 段是对象在数据库中占用的空间
+   - 包括索引段、数据段等
+   - 表空间被划分为若干区域，每个区域负责存放不同类型数据，这些区域这就是段
+3. 区(Extend)
+   - 由连续的数据块组成，由 Oracle 自动分配管理
+   - 会自动扩展大小
+4. 块(Block)
+   - 数据块是 Oracle 数据库最小的逻辑单元
+   - 它代表在读写操作的时候，每次处理的数据大小是多少
+   - 正常情况下，它是操作系统块的整数倍，默认是 8 KB
+   - 可以通过参数 db_block_size 控制
+     : show parameters block;
 
 [[file:assets/image/database-oracle/oracle_logic_2017-08-17_14-33-06.jpg]]
 
@@ -348,40 +479,51 @@ https://docs.oracle.com/cd/B28359_01/server.111/b28318/physical.htm#CNCPT1082
 * 锁/事务
 * hint/explain
 * Miscellaneous
-** Window/Unix/BSD/Linux 历史
-#+BEGIN_SRC dot :file assets/dot/osess.png :export results
-  digraph oses {
-      rankdir=LR;
-      node [shape=record,color=lightblue,fontname=SimSun];
-      edge [fontname=SimSun,fontsize=9];
+** 操作系统历史 (Operate System History)
+#+BEGIN_SRC dot :file assets/dot/os_history.jpg :exports results
+  digraph os_history {
+      graph [rankdir=LR,ranksep=.25];
+      node [shape=Mrecord,color=lightblue,fontname=SimSun,fontsize=10,style=filled,fillcolor=aliceblue];
+      edge [fontname=SimSun,fontsize=9,color=grey,arrowhead=vee,arrowsize=.5];
 
-      OS -> { Windows, UNIX };
-
-      Windows -> "微软公司";
+      OS -> { Windows[label="Windows\nMicrosoft"]; UNIX };
       
-      UNIX -> TM [label="商标"];
+      UNIX -> TM [label="拓展/商用",constraint=false];
+      UNIX -> BSD [label="开源版本\n(加州大学伯克利分校)"];
+      UNIX -> Linux[label="山寨版本\n(by Linus Torvalds)"];
 
-      UNIX -> BSD [label="开源版本"];
+      BSD -> { TM, FreeBSD, OpenBSD, NetBSD };
+      TM -> { "AIX(IBM)", "Solaris(Oracle)", "MacOS(Apple)", "HP-UX(HP)" };
 
-      UNIX -> Linux[label="山寨版本"];
+      {
+          node [shape=plaintext,style=none];
+          FreeBSD_Desc [label="稳定，高效，精于网络处理"];
+          OpenBSD_Desc [label="号称最安全的操作系统"];
+          NetBSD_Desc  [label="可移植性强，适合嵌入式"];
+      }
 
-      TM -> { "AIX(IBM)", "Solaris(SUN)" };
+      FreeBSD -> FreeBSD_Desc;
+      OpenBSD -> OpenBSD_Desc;
+      NetBSD -> NetBSD_Desc;
 
-      BSD -> { OpenBSD, NetBSD };
+      linuxDist [label=" GNU/Linux 发行版 "];
+      
+      Linux -> linuxDist [label="预装大量软件\n增强易用性"];
+      linuxDist -> { Android; Archlinux; }
+      linuxDist -> { node[color=darkgreen]; Debian; Ubuntu; Kali; }
+      linuxDist -> { node[color=steelblue]; Redhat; Fedora; CentOS; };
+      Linux -> GNU [label="推动者"];
+      GNU -> linuxDist [style=dotted];
+      GNU -> { "GNU's Not Unix 的缩写",
+               "由 Richard Stallman\n在麻省理工学院\n人工智能实验室发起,\n目标是成立一个\n完全免费的操作系统",
+               "自由软件组织\n口号是：开源，自由" };
 
-      Linux[label="GNU/Linux"];
-
-      Linux -> { linuxDesc, "发行版", GNU };
-
-      linuxDesc [label=" 创始人：Linus", shape=Mrecord];
-
-      "发行版" -> { Android, ubuntu, debian, archlinux, redhat, centos };
-
-      GNU -> "GNU's Not Unix 的缩写";
-
-      GNU -> "由 Richard Stallman\n在麻省理工学院\n人工智能实验室发起,\n目标是成立一个\n完全免费操作系统";
   }
       
 #+END_SRC
 
-[[file:assets/dot/osess.png]]
+#+RESULTS:
+[[file:assets/dot/os_history.jpg]]
+
+
+

@@ -90,12 +90,12 @@
 		var strs;
 		var color=1;
 		var z=0;
-		var names = ["王海涛","邹尚雄","陈锐豪","张栢川","潘桂树","黎楚","伍世顺","胡剑飞","叶兴强","文浩斌","陈宪仲","邱志文","王新炜","李远志","张能","韦宝玉","廖星云","张洪恩","张冬兰","钟玉群","吕锦鸿","郭宇仔","陈佩东","蒙宏钊","欧阳文强","梁炜彬","黄文亮","江树祥","王强","王永发","刘佩景","谢贺锋","吴俊飞","郑凯铭","凌岚森","刘熠松","苏国好","李守综","邓高盛","伍瑞麟","吴炳均","吴英平","范锐","邝勇团","汤俊杰","张鹏翼","杜志海","吴东海","秦树月","钟威","洪俊鹏"];
+		var names = ["王海涛","邹尚雄","陈锐豪","张栢川","潘桂树","黎楚","伍世顺","胡剑飞","叶兴强","文浩斌","陈宪仲","邱志文","王新炜","李远志","张能","韦宝玉","廖星云","张洪恩","张冬兰","钟玉群","吕锦鸿","郭宇仔","陈佩东","蒙宏钊","欧阳文强","粱炜彬","黄文亮","江树祥","王强","王永发","刘佩景","谢贺锋","吴俊飞","郑凯铭","凌岚森","刘熠松","苏国好","李守综","邓高盛","伍瑞麟","吴炳均","吴英平","范锐","邝勇团","汤俊杰","张鹏翼","杜志海","吴东海","秦树月","钟威","洪俊鹏"];
 		
 		//点击单选时
 		dan.onclick=function(){
 			
-			if(z==2){
+			if(z==2||names.length==1){
 				strs="";
 				for(let i=0;i<g1.length;i++){
 					g1[i].style.backgroundColor="#A3D1D1";
@@ -171,7 +171,7 @@
 		
 		//点击多选时
 		duo.onclick=function(){
-			if(z==1){
+			if(z==1||names.length==1){
 				strs="";
 				for(let i=0;i<g1.length;i++){
 					g1[i].style.backgroundColor="#A3D1D1";
@@ -320,7 +320,7 @@
 		<td colspan="3"></td><td>老牛</td><td colspan="2" style="outline:1px black solid;font-size:24px; font-weight:bold;">讲台</td><td></td><td id="pattern"></td>
 	</tr>
 </table>
-<div style=" position:absolute; bottom:0px; z-index:2; font-size:2px; text-align:center;color:#C2C2C2">暴走猪头统一商标&nbsp;版本号：1.2&nbsp;<span id="sp1">点此查看1.3版本</span></div>
+<div style=" position:absolute; bottom:20px; z-index:2; font-size:2px; text-align:center;color:#C2C2C2">暴走猪头统一商标&nbsp;版本号：1.2&nbsp;<span id="sp1">点此查看1.3版本</span></div>
 
     
 </body>

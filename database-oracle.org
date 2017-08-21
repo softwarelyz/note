@@ -37,7 +37,23 @@
    : alter user scott identified by [newpassword];
 
 * 甜点
-** 示例
+** 题库
+- 在芝加哥工作的人中，谁的工资最高
+- 查询每个部门下有多少员工
+- 查询除去 salesman 所有平均工资超过 1500 的部门
+- 查询在 new york 工作的所有员工的姓名，部门名称和工资信息
+- 查询姓名为 King 的员工的编号，名称跟部门
+- 查询各种工作的最低工资
+- 查询工龄大于10年的所有员工信息
+- 查询每个部门员工数量，平均工资和平均工作年限
+- 统计各部门每个工种的人数，平均工资。
+- 查询从事同一种工作但不属于同一部门的员工信息。
+- 查询所有员工工资都大于1000的部门的信息及员工信息
+- 查询入职日期早于其直接上级的所有员工信息。
+- 列出雇员中（除去mgr为空的人)工资第二高的人。
+- 列出1981年来公司所有员工的总收入（包括sal和comm）
+
+** 在芝加哥工作的人中，谁的工资最高
 
 [题目] 从 scott 用户的 emp/dept 表中，找到 “来自芝加哥最有钱的那个人” 。
 
@@ -92,21 +108,78 @@
 
 所以，思路永远是最重要的。
 
-** 题库
-- 在芝加哥工作的人中，谁的工资最高
-- 查询每个部门下有多少员工
-- 查询除去 salesman 所有平均工资超过 1500 的部门
-- 查询在 new york 工作的所有员工的姓名，部门名称和工资信息
-- 查询姓名为 King 的员工的编号，名称跟部门
-- 查询各种工作的最低工资
-- 查询工龄大于10年的所有员工信息
-- 查询每个部门员工数量，平均工资和平均工作年限
-- 统计各部门每个工种的人数，平均工资。
-- 查询从事同一种工作但不属于同一部门的员工信息。
-- 查询所有员工工资都大于1000的部门的信息及员工信息
-- 查询入职日期早于其直接上级的所有员工信息。
-- 列出雇员中（除去mgr为空的人)工资第二高的人。
-- 列出1981年来公司所有员工的总收入（包括sal和comm）
+
+** 查询所有员工工资都大于1000的部门的信息及员工信息
+
+*最核心的问题：* 查询出符合条件的部门编号。
+
+*** 第一种思路
+1. 查询出所有的部门编号
+   : select * from emp;
+
+2. 查询出所有工资少于 1000 的人，
+   我们要把它所在的部门，从上面的结果中排除掉。
+   : select deptno from emp where sal < 1000;
+
+3. 将上面查询出的不符合条件的部门排除掉
+   : select distinct deptno from emp
+   :  where deptno not in 
+   :   (select deptno from emp where sal < 1000);
+
+4. 修改上面语句，增加最终的条件，查询所有的其他信息
+   #+BEGIN_SRC sql
+    select d.dname, e.* from emp e join dept d on(e.deptno = d.deptno)
+      where e.deptno not in
+        (select deptno from emp where sal < 1000)
+   #+END_SRC
+
+
+*** 第二种思路
+
+使用分组函数(=group by= / =having=)。
+
+分组函数主要用来统计分析。
+
+一个完整的查询语句如下，其中 group by 和 having 是用来分组和筛选分组。
+#+BEGIN_SRC sql
+  select [字段] from [表名]
+    where [条件]
+    group by [分组字段]
+    having [对分组结果进行筛选]
+    order by [字段]
+#+END_SRC
+
+示例：
+#+BEGIN_SRC sql
+  select deptno,     -- 分组字段
+         count(*),   -- 人数
+         sum(sal),   -- 工资总和
+         avg(sal),   -- 平均工资
+         max(sal),   -- 最高工资
+         min(sal)    -- 最低工资
+    from emp group by deptno         -- 按照部门分组，进行统计
+             having avg(sal) > 2000; -- 只显示平均工资大于 2000 的分组  
+#+END_SRC
+
+
+*那我们的题目的解决思路就是：*
+1. 按照部门分组
+   #+BEGIN_SRC sql
+     select deptno from emp group by deptno;
+   #+END_SRC
+
+2. 筛选，排除最低工资小于 1000 的部门。
+   即：得到符合条件的部门的编号。
+   #+BEGIN_SRC sql
+     select deptno from emp group by deptno having min(sal) > 1000;
+   #+END_SRC
+
+3. 完善最终语句，得到最终结果。
+   #+BEGIN_SRC sql
+     select * from emp e, dept d
+       where e.deptno = d.deptno
+             and e.deptno in (select deptno from emp group by deptno having min(sal) > 1000);
+   #+END_SRC
 
 * 体系结构
 Oracle 采取的是 Client/Server 架构。

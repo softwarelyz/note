@@ -2,7 +2,7 @@
 <html>
 <head>
 <title>Oracle 数据库</title>
-<!-- 2017-08-21 Mon 10:51 -->
+<!-- 2017-08-28 Mon 16:33 -->
 <meta  charset="utf-8">
 <meta  name="generator" content="Org-mode">
 <meta  name="author" content="imfine">
@@ -25,11 +25,12 @@
 <li><a href="#sec-2">2. 甜点</a>
 <ul>
 <li><a href="#sec-2-1">2.1. 题库</a></li>
-<li><a href="#sec-2-2">2.2. 在芝加哥工作的人中，谁的工资最高</a></li>
-<li><a href="#sec-2-3">2.3. 查询所有员工工资都大于1000的部门的信息及员工信息</a>
+<li><a href="#sec-2-2">2.2. 查询各种工作中工资最低的人</a></li>
+<li><a href="#sec-2-3">2.3. 在芝加哥工作的人中，谁的工资最高</a></li>
+<li><a href="#sec-2-4">2.4. 查询所有员工工资都大于1000的部门的信息及员工信息</a>
 <ul>
-<li><a href="#sec-2-3-1">2.3.1. 第一种思路</a></li>
-<li><a href="#sec-2-3-2">2.3.2. 第二种思路</a></li>
+<li><a href="#sec-2-4-1">2.4.1. 第一种思路</a></li>
+<li><a href="#sec-2-4-2">2.4.2. 第二种思路</a></li>
 </ul>
 </li>
 </ul>
@@ -51,7 +52,12 @@
 </li>
 </ul>
 </li>
-<li><a href="#sec-4">4. 用户权限</a></li>
+<li><a href="#sec-4">4. 用户权限</a>
+<ul>
+<li><a href="#sec-4-1">4.1. 用户的管理</a></li>
+<li><a href="#sec-4-2">4.2. 权限和角色</a></li>
+</ul>
+</li>
 <li><a href="#sec-5">5. SQL 语句</a></li>
 <li><a href="#sec-6">6. Objects</a></li>
 <li><a href="#sec-7">7. PL/SQL编程</a></li>
@@ -166,8 +172,27 @@ alter user scott identified by [newpassword];
 </div>
 
 <div id="outline-container-sec-2-2" class="outline-3">
-<h3 id="sec-2-2"><span class="section-number-3">2.2</span> 在芝加哥工作的人中，谁的工资最高</h3>
+<h3 id="sec-2-2"><span class="section-number-3">2.2</span> 查询各种工作中工资最低的人</h3>
 <div class="outline-text-3" id="text-2-2">
+<p>
+看到最低、最大、平均之类的题目，首先想到的是分组函数的使用。
+</p>
+
+<p>
+也就是 group by, having。
+</p>
+
+<div class="org-src-container">
+
+<pre class="src src-sql"><span class="org-keyword">select</span> job, <span class="org-builtin">min</span><span class="org-rainbow-delimiters-depth-1">(</span>sal<span class="org-rainbow-delimiters-depth-1">)</span> <span class="org-keyword">from</span> emp <span class="org-keyword">group</span> <span class="org-keyword">by</span> job;
+</pre>
+</div>
+</div>
+</div>
+
+<div id="outline-container-sec-2-3" class="outline-3">
+<h3 id="sec-2-3"><span class="section-number-3">2.3</span> 在芝加哥工作的人中，谁的工资最高</h3>
+<div class="outline-text-3" id="text-2-3">
 <p>
 [题目] 从 scott 用户的 emp/dept 表中，找到 “来自芝加哥最有钱的那个人” 。
 </p>
@@ -248,17 +273,17 @@ alter user scott identified by [newpassword];
 </div>
 
 
-<div id="outline-container-sec-2-3" class="outline-3">
-<h3 id="sec-2-3"><span class="section-number-3">2.3</span> 查询所有员工工资都大于1000的部门的信息及员工信息</h3>
-<div class="outline-text-3" id="text-2-3">
+<div id="outline-container-sec-2-4" class="outline-3">
+<h3 id="sec-2-4"><span class="section-number-3">2.4</span> 查询所有员工工资都大于1000的部门的信息及员工信息</h3>
+<div class="outline-text-3" id="text-2-4">
 <p>
 <b>最核心的问题：</b> 查询出符合条件的部门编号。
 </p>
 </div>
 
-<div id="outline-container-sec-2-3-1" class="outline-4">
-<h4 id="sec-2-3-1"><span class="section-number-4">2.3.1</span> 第一种思路</h4>
-<div class="outline-text-4" id="text-2-3-1">
+<div id="outline-container-sec-2-4-1" class="outline-4">
+<h4 id="sec-2-4-1"><span class="section-number-4">2.4.1</span> 第一种思路</h4>
+<div class="outline-text-4" id="text-2-4-1">
 <ol class="org-ol">
 <li>查询出所有的部门编号
 <pre class="example">
@@ -295,9 +320,9 @@ select distinct deptno from emp
 </div>
 
 
-<div id="outline-container-sec-2-3-2" class="outline-4">
-<h4 id="sec-2-3-2"><span class="section-number-4">2.3.2</span> 第二种思路</h4>
-<div class="outline-text-4" id="text-2-3-2">
+<div id="outline-container-sec-2-4-2" class="outline-4">
+<h4 id="sec-2-4-2"><span class="section-number-4">2.4.2</span> 第二种思路</h4>
+<div class="outline-text-4" id="text-2-4-2">
 <p>
 使用分组函数(<code>group by</code> / <code>having</code>)。
 </p>
@@ -842,7 +867,8 @@ archive log list;
 
 <span class="org-comment">-- &#21019;&#24314;&#20020;&#26102;&#34920;&#31354;&#38388;</span>
 <span class="org-keyword">create</span> <span class="org-keyword">temporary</span> tablespace yyy
-  tempfile <span class="org-string">'D:/ANOTHER_TMP.dbf'</span>;
+  tempfile <span class="org-string">'D:/ANOTHER_TMP.dbf'</span>
+  <span class="org-keyword">size</span> 5m;
 
 <span class="org-comment">-- &#21024;&#38500;&#34920;&#31354;&#38388;</span>
 <span class="org-keyword">drop</span> tablespace xxx;
@@ -897,7 +923,287 @@ show parameters block;
 
 <section id="outline-container-sec-4" class="outline-2">
 <h2 id="sec-4"><span class="section-number-2">4</span> 用户权限</h2>
+<div class="outline-text-2" id="text-4">
+<p>
+安装完 Oracle，缺省有两个用户：
+</p>
+<ol class="org-ol">
+<li><code>SYS</code> 用户，又叫数据库系统管理员、特权用户，数据库中至高无上的存在。
+<ul class="org-ul">
+<li>它是数据库的系统管理员，负责数据库的安装、维护、升级、备份、恢复、优化等操作。
+</li>
+<li>在它之下，保存着数据库所有的系统字典。
+</li>
+<li>不能用 normal 身份登录，必须用 SYSDBA/SYSOPER 身份登录。
+</li>
+</ul>
+</li>
+<li><code>SYSTEM</code> 用户，数据库管理员，它拥有 DBA 角色，主要负责对数据库中各种对象，各种资源的管理。
+</li>
+<li><code>SCOTT</code> 用户，一个示例用户，默认是锁定的，需要解锁使用。
+</li>
+</ol>
+
+<p>
+新创建的用户，是不能做任何事情的（甚至不能登录）。
+必须要为用户授予权限，才能做相应的事情。
+可以说，用户是权限的容器。
+</p>
+
+<p>
+权限分为两种：
+</p>
+<ol class="org-ol">
+<li>系统权限。执行特定命令和实施特定行为的权限。
+</li>
+<li>对象权限。作用在某个数据库对象上的权限，包括对对象的增删改查。
+</li>
+<li>角色。为了方便管理，将若干系统权限打包统一分配，称之为角色。
+</li>
+</ol>
+</div>
+
+<div id="outline-container-sec-4-1" class="outline-3">
+<h3 id="sec-4-1"><span class="section-number-3">4.1</span> 用户的管理</h3>
+<div class="outline-text-3" id="text-4-1">
+<p>
+用户是用于 <b>资源管理</b> 和 <b>权限控制</b> 的一个概念。
+</p>
+
+<div class="org-src-container">
+
+<pre class="src src-sql"><span class="org-comment">-- &#21019;&#24314;&#29992;&#25143;&#30340;&#35821;&#27861;</span>
+<span class="org-keyword">CREATE</span> <span class="org-builtin">USER</span> <span class="org-keyword">name</span>
+  IDENTIFIED <span class="org-keyword">BY</span> password          <span class="org-comment">-- &#19968;&#20010;&#29992;&#25143;&#65292;&#33267;&#23569;&#25317;&#26377;&#29992;&#25143;&#21517;&#21644;&#23494;&#30721;</span>
+  <span class="org-rainbow-delimiters-depth-1">[</span><span class="org-keyword">DEFAULT</span> TABLESPACE users<span class="org-rainbow-delimiters-depth-1">]</span>      <span class="org-comment">-- &#25351;&#23450;&#27492;&#29992;&#25143;&#19979;&#25968;&#25454;&#40664;&#35748;&#20445;&#23384;&#20301;&#32622;&#65292;&#22914;&#26524;&#19981;&#25351;&#23450;&#65292;&#40664;&#35748;&#20026; Users &#34920;&#31354;&#38388;</span>
+  <span class="org-rainbow-delimiters-depth-1">[</span><span class="org-keyword">TEMPORARY</span> TABLESPACE temp<span class="org-rainbow-delimiters-depth-1">]</span>     <span class="org-comment">-- &#25351;&#23450;&#20020;&#26102;&#34920;&#31354;&#38388;&#65292;&#40664;&#35748;&#20026; temp &#34920;&#31354;&#38388;</span>
+  <span class="org-rainbow-delimiters-depth-1">[</span>QUOTA 100M/unlimited <span class="org-keyword">ON</span> USERS<span class="org-rainbow-delimiters-depth-1">]</span> <span class="org-comment">-- &#22312;&#34920;&#31354;&#38388;&#19978;&#26377;&#22810;&#23569;&#31354;&#38388;&#30340;&#20351;&#29992;&#26435;&#21147;&#65292;&#40664;&#35748;&#20026; 0, unlimited &#34920;&#31034;&#26080;&#19978;&#38480;</span>
+  <span class="org-rainbow-delimiters-depth-1">[</span>ACCOUNT LOCK/UNLOCK<span class="org-rainbow-delimiters-depth-1">]</span>           <span class="org-comment">-- &#36134;&#21495;&#30340;&#21021;&#22987;&#29366;&#24577;&#65306;&#38145;&#23450;/&#26410;&#38145;&#23450;&#65292;&#40664;&#35748;&#20026;&#26410;&#38145;&#23450;</span>
+  <span class="org-rainbow-delimiters-depth-1">[</span>PASSWORD EXPIRE<span class="org-rainbow-delimiters-depth-1">]</span>               <span class="org-comment">-- &#36134;&#21495;&#30340;&#21021;&#22987;&#29366;&#24577;&#65306;&#24378;&#21046;&#35201;&#27714;&#37325;&#35774;&#23494;&#30721;&#65292;&#40664;&#35748;&#19981;&#24378;&#21046;</span>
+  <span class="org-rainbow-delimiters-depth-1">[</span>PROFILE <span class="org-keyword">DEFAULT</span><span class="org-rainbow-delimiters-depth-1">]</span>               <span class="org-comment">-- &#25351;&#23450;&#20351;&#29992;&#30340;&#36164;&#28304;&#25991;&#20214;&#65292;&#40664;&#35748;&#26159; default</span>
+;
+
+<span class="org-comment">-- &#20462;&#25913;&#29992;&#25143;&#30340;&#35821;&#27861;</span>
+<span class="org-keyword">ALTER</span> <span class="org-builtin">USER</span> <span class="org-keyword">name</span> <span class="org-rainbow-delimiters-depth-1">[</span>&#36319;&#21019;&#24314;&#29992;&#25143;&#30340;&#21442;&#25968;&#26159;&#19968;&#26679;&#30340;<span class="org-rainbow-delimiters-depth-1">]</span>;
+
+<span class="org-comment">-- &#21024;&#38500;&#29992;&#25143;&#30340;&#35821;&#27861;</span>
+<span class="org-keyword">DROP</span> <span class="org-builtin">USER</span> <span class="org-keyword">name</span> <span class="org-rainbow-delimiters-depth-1">[</span><span class="org-keyword">cascade</span><span class="org-rainbow-delimiters-depth-1">]</span>;
+</pre>
+</div>
+
+<p>
+为了对用户行为有更精细的控制，需要使用 <b>资源文件</b> (<code>profile</code>)。
+资源文件是口令限制、资源限制的命名集合。
+</p>
+
+<div class="org-src-container">
+
+<pre class="src src-sql"><span class="org-comment">-- &#22686;&#21152;&#36164;&#28304;&#25991;&#20214;&#30340;&#35821;&#27861;</span>
+<span class="org-keyword">CREATE</span> PROFILE <span class="org-keyword">name</span> <span class="org-keyword">LIMIT</span>
+  RESOURCE_&#21442;&#25968; n/unlimited/<span class="org-keyword">default</span>  <span class="org-comment">-- &#25511;&#21046;&#30340;&#26159;&#36164;&#28304;&#30340;&#21344;&#29992;</span>
+  PASSWORD_&#21442;&#25968;;                     <span class="org-comment">-- &#25511;&#21046;&#30340;&#26159;&#23494;&#30721;&#30340;&#20351;&#29992;</span>
+
+<span class="org-comment">-- &#20462;&#25913;&#36164;&#28304;&#25991;&#20214;&#30340;&#35821;&#27861;</span>
+<span class="org-keyword">ALTER</span> PROFILE <span class="org-keyword">name</span> ...;
+
+<span class="org-comment">-- &#21024;&#38500;&#36164;&#28304;&#25991;&#20214;&#30340;&#35821;&#27861;</span>
+<span class="org-keyword">DROP</span> PROFILE <span class="org-keyword">name</span>;
+
+<span class="org-comment">-- &#20026;&#29992;&#25143;&#25351;&#23450;&#36164;&#28304;&#25991;&#20214;</span>
+<span class="org-keyword">ALTER</span> <span class="org-builtin">USER</span> <span class="org-keyword">name</span> PROFILE profile_name;
+</pre>
+</div>
+
+<p>
+常用资源文件选项：
+</p>
+<table>
+
+
+<colgroup>
+<col  class="left">
+
+<col  class="left">
+
+<col  class="left">
+</colgroup>
+<thead>
+<tr>
+<th scope="col" class="left">名字</th>
+<th scope="col" class="left">类型</th>
+<th scope="col" class="left">介绍</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td class="left">SESSIONS_PER_USER</td>
+<td class="left">resource</td>
+<td class="left">每个用户最多能创建的连接数</td>
+</tr>
+
+<tr>
+<td class="left">CONNECT_TIME</td>
+<td class="left">resource</td>
+<td class="left">每个连接最多能保持的时间(分钟)</td>
+</tr>
+
+<tr>
+<td class="left">IDLE_TIME</td>
+<td class="left">resource</td>
+<td class="left">每个连接不操作多长时间自动断开(分钟)</td>
+</tr>
+
+<tr>
+<td class="left">CPU_PER_SESSION</td>
+<td class="left">resource</td>
+<td class="left">每个连接最多能占用的 CPU 时间(百分之一秒)</td>
+</tr>
+
+<tr>
+<td class="left">LOGICAL_READS_PER_SESSION</td>
+<td class="left">resource</td>
+<td class="left">每个连接最多能读取的数据块</td>
+</tr>
+
+<tr>
+<td class="left">PRIVATE_SGA</td>
+<td class="left">resource</td>
+<td class="left">最多占用的 SGA 大小</td>
+</tr>
+
+<tr>
+<td class="left">PASSWORD_LIFE_TIME</td>
+<td class="left">password</td>
+<td class="left">限制指定时间中必须重新修改密码(天)</td>
+</tr>
+
+<tr>
+<td class="left">PASSWORD_REUSE_TIME/MAX</td>
+<td class="left">password</td>
+<td class="left">密码重用的限制</td>
+</tr>
+
+<tr>
+<td class="left">FAILED_LOGIN_ATTEMPTS</td>
+<td class="left">password</td>
+<td class="left">允许的密码输错次数</td>
+</tr>
+
+<tr>
+<td class="left">PASSWORD_LOCK_TIME</td>
+<td class="left">password</td>
+<td class="left">因输错密码锁定的天数(天)</td>
+</tr>
+
+<tr>
+<td class="left">PASSWORD_VERIFY_FUNCTION</td>
+<td class="left">password</td>
+<td class="left">用于自定义密码验证</td>
+</tr>
+</tbody>
+</table>
+
+
+<p>
+操作示例：
+</p>
+<div class="org-src-container">
+
+<pre class="src src-sql"><span class="org-comment">-- &#25152;&#26377;&#30340;&#29992;&#25143;&#20449;&#24687;&#65292;&#20445;&#23384;&#22312;&#23383;&#20856;&#34920; dba_users &#37324;&#38754;</span>
+<span class="org-keyword">select</span> * <span class="org-keyword">from</span> dba_users <span class="org-keyword">where</span> USERNAME=<span class="org-string">'VIP'</span>;
+<span class="org-comment">-- &#25152;&#26377;&#30340;&#36164;&#28304;&#25991;&#20214;&#20449;&#24687;&#65292;&#20445;&#23384;&#22312; dba_profiles &#37324;&#38754;</span>
+<span class="org-keyword">select</span> * <span class="org-keyword">from</span> dba_profiles <span class="org-keyword">where</span> profile=<span class="org-string">'DEFAULT'</span>;
+
+<span class="org-comment">-- &#21019;&#24314;&#29992;&#25143;&#30340;&#26368;&#22522;&#26412;&#35821;&#21477;&#65292;&#38656;&#35201;&#29992;&#25143;&#21517;&#21644;&#23494;&#30721;</span>
+<span class="org-comment">-- &#20854;&#20182;&#23646;&#24615;&#37319;&#29992;&#30340;&#37117;&#26159;&#40664;&#35748;&#20540;</span>
+<span class="org-keyword">create</span> <span class="org-builtin">user</span> vip identified <span class="org-keyword">by</span> vip;
+
+<span class="org-comment">-- &#20877;&#19968;&#20010;&#31245;&#24494;&#22797;&#26434;&#19968;&#28857;&#30340;&#21019;&#24314;&#35821;&#21477;</span>
+<span class="org-keyword">create</span> <span class="org-builtin">user</span> vip
+  identified <span class="org-keyword">by</span> vip
+  <span class="org-keyword">default</span> tablespace users
+  <span class="org-keyword">temporary</span> <span class="org-keyword">temporary</span> temp
+  quota unlimited <span class="org-keyword">on</span> users
+  password expire;
+
+<span class="org-comment">-- &#26368;&#22909;&#20026;&#25105;&#20204;&#30340;&#26032;&#29992;&#25143;&#25351;&#23450;&#29305;&#23450;&#30340;&#34920;&#31354;&#38388;</span>
+<span class="org-keyword">create</span> tablespace db_vip
+  datafile <span class="org-string">'d:/db_vip.dbf'</span>
+  <span class="org-keyword">size</span> 50m;
+
+<span class="org-keyword">create</span> <span class="org-builtin">user</span> vip
+  identified <span class="org-keyword">by</span> vip
+  <span class="org-keyword">default</span> tablespace db_vip
+  quota unlimited <span class="org-keyword">on</span> db_vip
+  password expire;
+
+<span class="org-comment">-- &#20026;&#25105;&#20204;&#30340;&#29992;&#25143;&#21019;&#24314;&#30456;&#24212;&#30340;&#36164;&#28304;&#25991;&#20214;</span>
+<span class="org-keyword">create</span> profile vip_profile <span class="org-keyword">limit</span>
+  failed_login_attempts 3
+  password_life_time    unlimited
+  sessions_per_user     2;
+<span class="org-comment">-- &#23558;&#36164;&#28304;&#25991;&#20214;&#20998;&#37197;&#32473;&#29992;&#25143;&#65292;&#20063;&#21487;&#20197;&#22312;&#21019;&#24314;&#29992;&#25143;&#30340;&#26102;&#20505;&#25351;&#23450;</span>
+<span class="org-keyword">alter</span> <span class="org-builtin">user</span> profile vip_profile;
+</pre>
+</div>
+</div>
+</div>
+
+<div id="outline-container-sec-4-2" class="outline-3">
+<h3 id="sec-4-2"><span class="section-number-3">4.2</span> 权限和角色</h3>
+<div class="outline-text-3" id="text-4-2">
+<p>
+基本语法：
+</p>
+<div class="org-src-container">
+
+<pre class="src src-sql"><span class="org-comment">-- &#25480;&#26435;&#65306;</span>
+<span class="org-keyword">grant</span> &#26435;&#38480; <span class="org-rainbow-delimiters-depth-1">[</span><span class="org-keyword">on</span> &#23545;&#35937;<span class="org-rainbow-delimiters-depth-1">]</span> <span class="org-keyword">to</span> &#35841; <span class="org-rainbow-delimiters-depth-1">[</span><span class="org-keyword">with</span> <span class="org-keyword">admin</span> <span class="org-keyword">option</span><span class="org-rainbow-delimiters-depth-1">]</span>;
+
+<span class="org-comment">-- &#25764;&#26435;</span>
+<span class="org-keyword">revoke</span> &#26435;&#38480; <span class="org-keyword">from</span> &#35841;;
+
+
+
+<span class="org-keyword">create</span> <span class="org-keyword">role</span> hello_world;
+
+<span class="org-comment">---- &#26597;&#30475;&#26435;&#38480;</span>
+<span class="org-comment">-- &#21015;&#20986;&#31995;&#32479;&#20013;&#25152;&#26377;&#30340;&#31995;&#32479;&#26435;&#38480;</span>
+<span class="org-keyword">select</span> * <span class="org-keyword">from</span> system_privilege_map;
+<span class="org-comment">-- &#23545;&#35937;&#26435;&#38480;</span>
+<span class="org-comment">-- select/insert/update/delete/alter/all on &#23545;&#35937;</span>
+
+<span class="org-comment">-- &#26597;&#30475;&#25351;&#23450;&#29992;&#25143;&#24050;&#25480;&#20104;&#30340;&#26435;&#38480;</span>
+<span class="org-keyword">select</span> * <span class="org-keyword">from</span> dba_sys_privs;
+<span class="org-keyword">select</span> * <span class="org-keyword">from</span> dba_tab_privs;
+<span class="org-keyword">select</span> * <span class="org-keyword">from</span> dba_role_privs;
+</pre>
+</div>
+
+<p>
+最小权限原则
+</p>
+
+<p>
+权限
+</p>
+<ul class="org-ul">
+<li>系统权限
+<pre class="example">
+select * from system_privilege_map;
+</pre>
+</li>
+<li>对象权限
+</li>
+<li>角色
+</li>
+</ul>
+</div>
+</div>
 </section>
+
+
+
 <section id="outline-container-sec-5" class="outline-2">
 <h2 id="sec-5"><span class="section-number-2">5</span> SQL 语句</h2>
 </section>
@@ -930,7 +1236,7 @@ show parameters block;
 </div>
 <div id="postamble" class="status">
 <p class="author">Author: imfine</p>
-<p class="date">Created: 2017-08-21 Mon 10:51</p>
+<p class="date">Created: 2017-08-28 Mon 16:33</p>
 <p class="creator"><a href="http://www.gnu.org/software/emacs/">Emacs</a> 25.2.1 (<a href="http://orgmode.org">Org</a> mode 8.2.10)</p>
 <p class="validation">Go ahead, never stop.</p>
 </div>

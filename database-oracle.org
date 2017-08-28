@@ -53,6 +53,15 @@
 - 列出雇员中（除去mgr为空的人)工资第二高的人。
 - 列出1981年来公司所有员工的总收入（包括sal和comm）
 
+** 查询各种工作中工资最低的人
+看到最低、最大、平均之类的题目，首先想到的是分组函数的使用。
+
+也就是 group by, having。
+
+#+BEGIN_SRC sql
+  select job, min(sal) from emp group by job;
+#+END_SRC
+
 ** 在芝加哥工作的人中，谁的工资最高
 
 [题目] 从 scott 用户的 emp/dept 表中，找到 “来自芝加哥最有钱的那个人” 。
@@ -524,7 +533,8 @@ https://docs.oracle.com/cd/B28359_01/server.111/b28318/physical.htm#CNCPT1082
 
      -- 创建临时表空间
      create temporary tablespace yyy
-       tempfile 'D:/ANOTHER_TMP.dbf';
+       tempfile 'D:/ANOTHER_TMP.dbf'
+       size 5m;
 
      -- 删除表空间
      drop tablespace xxx;
@@ -546,6 +556,155 @@ https://docs.oracle.com/cd/B28359_01/server.111/b28318/physical.htm#CNCPT1082
 [[file:assets/image/database-oracle/oracle_logic_2017-08-17_14-33-06.jpg]]
 
 * 用户权限
+安装完 Oracle，缺省有两个用户：
+1. =SYS= 用户，又叫数据库系统管理员、特权用户，数据库中至高无上的存在。
+   - 它是数据库的系统管理员，负责数据库的安装、维护、升级、备份、恢复、优化等操作。
+   - 在它之下，保存着数据库所有的系统字典。
+   - 不能用 normal 身份登录，必须用 SYSDBA/SYSOPER 身份登录。
+2. =SYSTEM= 用户，数据库管理员，它拥有 DBA 角色，主要负责对数据库中各种对象，各种资源的管理。
+3. =SCOTT= 用户，一个示例用户，默认是锁定的，需要解锁使用。
+
+新创建的用户，是不能做任何事情的（甚至不能登录）。
+必须要为用户授予权限，才能做相应的事情。
+可以说，用户是权限的容器。
+
+权限分为两种：
+1. 系统权限。执行特定命令和实施特定行为的权限。
+2. 对象权限。作用在某个数据库对象上的权限，包括对对象的增删改查。
+3. 角色。为了方便管理，将若干系统权限打包统一分配，称之为角色。
+
+** 用户的管理
+用户是用于 *资源管理* 和 *权限控制* 的一个概念。
+
+#+BEGIN_SRC sql
+  -- 创建用户的语法
+  CREATE USER name
+    IDENTIFIED BY password          -- 一个用户，至少拥有用户名和密码
+    [DEFAULT TABLESPACE users]      -- 指定此用户下数据默认保存位置，如果不指定，默认为 Users 表空间
+    [TEMPORARY TABLESPACE temp]     -- 指定临时表空间，默认为 temp 表空间
+    [QUOTA 100M/unlimited ON USERS] -- 在表空间上有多少空间的使用权力，默认为 0, unlimited 表示无上限
+    [ACCOUNT LOCK/UNLOCK]           -- 账号的初始状态：锁定/未锁定，默认为未锁定
+    [PASSWORD EXPIRE]               -- 账号的初始状态：强制要求重设密码，默认不强制
+    [PROFILE DEFAULT]               -- 指定使用的资源文件，默认是 default
+  ;
+
+  -- 修改用户的语法
+  ALTER USER name [跟创建用户的参数是一样的];
+
+  -- 删除用户的语法
+  DROP USER name [cascade];
+#+END_SRC
+
+为了对用户行为有更精细的控制，需要使用 *资源文件* (=profile=)。
+资源文件是口令限制、资源限制的命名集合。
+
+#+BEGIN_SRC sql
+  -- 增加资源文件的语法
+  CREATE PROFILE name LIMIT
+    RESOURCE_参数 n/unlimited/default  -- 控制的是资源的占用
+    PASSWORD_参数;                     -- 控制的是密码的使用
+
+  -- 修改资源文件的语法
+  ALTER PROFILE name ...;
+
+  -- 删除资源文件的语法
+  DROP PROFILE name;
+
+  -- 为用户指定资源文件
+  ALTER USER name PROFILE profile_name;
+#+END_SRC
+
+常用资源文件选项：
+| 名字                      | 类型     | 介绍                                      |
+|---------------------------+----------+-------------------------------------------|
+| SESSIONS_PER_USER         | resource | 每个用户最多能创建的连接数                |
+| CONNECT_TIME              | resource | 每个连接最多能保持的时间(分钟)            |
+| IDLE_TIME                 | resource | 每个连接不操作多长时间自动断开(分钟)      |
+| CPU_PER_SESSION           | resource | 每个连接最多能占用的 CPU 时间(百分之一秒) |
+| LOGICAL_READS_PER_SESSION | resource | 每个连接最多能读取的数据块                |
+| PRIVATE_SGA               | resource | 最多占用的 SGA 大小                       |
+| PASSWORD_LIFE_TIME        | password | 限制指定时间中必须重新修改密码(天)        |
+| PASSWORD_REUSE_TIME/MAX   | password | 密码重用的限制                            |
+| FAILED_LOGIN_ATTEMPTS     | password | 允许的密码输错次数                        |
+| PASSWORD_LOCK_TIME        | password | 因输错密码锁定的天数(天)                  |
+| PASSWORD_VERIFY_FUNCTION  | password | 用于自定义密码验证                        |
+  
+
+操作示例：
+#+BEGIN_SRC sql
+  -- 所有的用户信息，保存在字典表 dba_users 里面
+  select * from dba_users where USERNAME='VIP';
+  -- 所有的资源文件信息，保存在 dba_profiles 里面
+  select * from dba_profiles where profile='DEFAULT';
+
+  -- 创建用户的最基本语句，需要用户名和密码
+  -- 其他属性采用的都是默认值
+  create user vip identified by vip;
+
+  -- 再一个稍微复杂一点的创建语句
+  create user vip
+    identified by vip
+    default tablespace users
+    temporary temporary temp
+    quota unlimited on users
+    password expire;
+
+  -- 最好为我们的新用户指定特定的表空间
+  create tablespace db_vip
+    datafile 'd:/db_vip.dbf'
+    size 50m;
+
+  create user vip
+    identified by vip
+    default tablespace db_vip
+    quota unlimited on db_vip
+    password expire;
+
+  -- 为我们的用户创建相应的资源文件
+  create profile vip_profile limit
+    failed_login_attempts 3
+    password_life_time    unlimited
+    sessions_per_user     2;
+  -- 将资源文件分配给用户，也可以在创建用户的时候指定
+  alter user profile vip_profile;
+#+END_SRC
+
+** 权限和角色
+基本语法：
+#+BEGIN_SRC sql
+  -- 授权：
+  grant 权限 [on 对象] to 谁 [with admin option];
+
+  -- 撤权
+  revoke 权限 from 谁;
+
+
+
+  create role hello_world;
+
+  ---- 查看权限
+  -- 列出系统中所有的系统权限
+  select * from system_privilege_map;
+  -- 对象权限
+  -- select/insert/update/delete/alter/all on 对象
+
+  -- 查看指定用户已授予的权限
+  select * from dba_sys_privs;
+  select * from dba_tab_privs;
+  select * from dba_role_privs;
+
+#+END_SRC
+
+最小权限原则
+
+权限
+- 系统权限
+  : select * from system_privilege_map;
+- 对象权限
+- 角色
+
+
+
 * SQL 语句
 * Objects
 * PL/SQL编程

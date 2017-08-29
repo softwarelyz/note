@@ -570,31 +570,32 @@ https://docs.oracle.com/cd/B28359_01/server.111/b28318/physical.htm#CNCPT1082
 
 权限分为两种：
 #+BEGIN_SRC dot :file assets/dot/oracle_privs.jpg :exports results
-  digraph OP {
-      node [shape=Mrecord,fontname="楷体",fontsize=12];
+  digraph xxoo {
+      ranksep=.3;
 
-      Privs [label=" 权限 "];
-      SysPriv [label=" 系统权限 "];
-      TabPriv [label=" 对象权限 "];
+      node [shape=Mrecord,fontname=SimSun,fontsize=12,style=filled];
+      Privs [label=" 权限 ",fillcolor=orange];
+      SysPriv [label=" 系统权限 ",fillcolor=lightyellow,color=red];
+      TabPriv [label=" 对象权限 ",fillcolor=lightyellow,color=red];
       Role [label=" 角色 "];
 
-      Privs -> { SysPriv,TabPriv };
-      SysPriv -> Role;
+      Privs -> { SysPriv,TabPriv } -> Role [color=gray];
 
-      node [shape=plaintext,fontsize=9,color=blue];
-      ranksep = .2;
-      a [label="- 系统权限。执行特定命令和实施特定行为的权限。\l - 对象权限。作用在某个数据库对象上的权限，包括对对象的增删改查。\l - 角色。为了方便管理，将若干系统权限打包统一分配，称之为角色。"];
-      b [label="授权/撤销授权: \ngrant x [on y] to z [with admin/grant option];\lrevoke x from z;"];
-      c [label="所有系统权限/角色: \nselect * from system_privilege_map;\lselect * from dba_roles;"];
-      d [label="查看已授权情况：\nselect * from dba_sys_privs;\rselect * from dba_tab_privs;\lselect * from dba_role_privs;"];
-      a -> b -> c -> d [style=invis];
+      node [shape=none,fontsize=10];
+      a [label="- 系统权限。执行特定命令和实施特定行为的权限。\l- 对象权限。作用在某个数据库对象上的权限，包括对对象的增删改查。\n- 角色。为了方便管理，将若干系统权限打包统一分配，称之为角色。\l"];
+      b [label="授权、撤销授权:\lgrant x [on y] to z [with admin/grant option];\lrevoke x from z;\l"];
+      c [label="查看已授权情况:\lselect * from dba_sys_privs;\lselect * from dba_tab_privs;\lselect * from dba_role_privs;\l"];
+      d [label="所有系统权限、角色:\lselect * from system_privilege_map;\lselect * from dba_roles;\l"];
+
+      a -> b -> c [style=invis];
+      Role -> d [style=invis];
   }
 #+END_SRC
 
 #+RESULTS:
 [[file:assets/dot/oracle_privs.jpg]]
 
-** 用户的管理
+** 用户(User)
 用户是用于 *资源管理* 和 *权限控制* 的一个概念。
 
 #+BEGIN_SRC sql
@@ -658,9 +659,11 @@ https://docs.oracle.com/cd/B28359_01/server.111/b28318/physical.htm#CNCPT1082
   -- 所有的资源文件信息，保存在 dba_profiles 里面
   select * from dba_profiles where profile='DEFAULT';
 
+
   -- 创建用户的最基本语句，需要用户名和密码
   -- 其他属性采用的都是默认值
   create user vip identified by vip;
+
 
   -- 再一个稍微复杂一点的创建语句
   create user vip
@@ -670,7 +673,9 @@ https://docs.oracle.com/cd/B28359_01/server.111/b28318/physical.htm#CNCPT1082
     quota unlimited on users
     password expire;
 
-  -- 最好为我们的新用户指定特定的表空间
+
+  -- 在实际环境中，一个良好的习惯是：
+  -- 为我们新建的用户创建独立的表空间
   create tablespace db_vip
     datafile 'd:/db_vip.dbf'
     size 50m;
@@ -681,56 +686,120 @@ https://docs.oracle.com/cd/B28359_01/server.111/b28318/physical.htm#CNCPT1082
     quota unlimited on db_vip
     password expire;
 
-  -- 为我们的用户创建相应的资源文件
+
+  -- 如果想对用户做一些限制
+  -- 需要为它创建相应的资源文件
   create profile vip_profile limit
     failed_login_attempts 3
     password_life_time    unlimited
     sessions_per_user     2;
-  -- 将资源文件分配给用户，也可以在创建用户的时候指定
+ 
+ -- 将资源文件分配给用户，也可以在创建用户的时候指定
   alter user profile vip_profile;
 #+END_SRC
 
-** 权限和角色
-基本语法：
+** 权限(Privilege)
+
+*权限指的是执行特定命令或访问数据库对象的权利，分为系统权限和对象权限。*
 #+BEGIN_SRC sql
-  -- 授权：
-  grant 权限 [on 对象] to 谁 [with admin option];
+  -- 授权
+  -- with admin option 可以允许获得权限的用户可以将这个权限继续授予别人
+  GRANT 权限 [ON 对象] TO 谁 [WITH ADMIN OPTION];
 
-grant connect, resource to eee;
-grant connect, resource to fff
-  identified by fff;
--- 搞练习
-grant dba to ggg identified by ggg;
+  -- 撤销授权
+  REVOKE 权限 FROM 谁;
 
-  -- 撤权
-  revoke 权限 from 谁;
+  -- 创建角色
+  CREATE ROLE 角色名;
+#+END_SRC
+
+操作示例：
+#+BEGIN_SRC sql
+  -- 对象权限有 select/insert/update/delete/alter/execute 等
+  -- 系统中所有的系统权限和角色保存在相关字典表中:
+  select * from system_privilege_map;  -- 列出系统中所有的系统权限
+  select * from dba_role;              -- 列出系统中所有的角色
 
 
+  -- 查看已授予的权限
+  select * from dba_sys_privs where grantee='VIP';
+  select * from dba_tab_privs where grantee='VIP';
+  select * from dba_role_privs where grantee='VIP';
 
-  create role hello_world;
 
-  ---- 查看权限
-  -- 列出系统中所有的系统权限
-  select * from system_privilege_map;
-  -- 对象权限
-  -- select/insert/update/delete/alter/all on 对象
-
-  -- 查看指定用户已授予的权限
-  select * from dba_sys_privs;
-  select * from dba_tab_privs;
-  select * from dba_role_privs;
+  --- 关于权限的管理
+  -- 新建用户先
+  create user vip identified by vip quota 1m on users;
+  -- 新用户什么都干不了，甚至不能登录，如果想让它可以登录，给它一个相应权限：
+  grant create session to vip;
+  -- 现在可以登录 vip 了。但是不能创建表，需要我们给一个相应权限：
+  grant create table to vip;
+  -- 现在，可以创建表了
+  create table aaa (i int);
+  insert into aaa values (888);
+  commit;
+  -- 上面创建用户、授权的语句可以缩写为：
+  grant create session, create table to vip identified vip quota 1m on user;
+  -- 自己创建的表，自己会有完全的操作权力，但如果想要看别的用户的表，需要授权：
+  grant select on scott.emp to vip;
+  -- 上面就有了查询的权限。但不能修改。如果要修改，需要相应权限。当然，如果想把对象上的所有权力一并授予，需要用到 All:
+  grant all on scott.emp to vip;
+  -- 通过下面语句，可以看到对象权限的授予情况：
+  select * from dba_tab_privs where grantee='VIP';
 
 #+END_SRC
 
-最小权限原则
+*角色是权限的命名集合，它可以简化授权。*
+#+BEGIN_SRC sql
+  -- 创建角色
+  create role myrole;
+  -- 将权限赋予角色
+  grant create session, create table to myrole;
+  grant create view to myrole;
+  -- 甚至可以将另一个角色赋予我们的角色
+  grant resource to myrole;
+  -- 使用角色
+  grant myrole to vip;
+  grant myrole to vip with admin option;
+  -- 删除角色
+  drop role myrole;
+#+END_SRC
 
-权限
-- 系统权限
-  : select * from system_privilege_map;
-- 对象权限
-- 角色
+*[Oracle 预定义角色]* Oracle 自带了很多角色，常用的有：
+1. CONNECT，只包含了 create session 等权限，即登录系统的权限
+   : select * from dba_sys_privs where grantee='CONNECT';
+2. RESOURCE，包含了若干 create xxx 权限，即创建对象、创建资源的权限
+   : select * from dba_sys_privs where grantee=RESOURCE';
+3. DBA，包含了200多个系统权限，是用来进行系统管理的角色
+   : grant connect, resource to A_Common_User;
+   : grant dba to A_Super_User;
+
+*[特殊的 PUBLIC 角色]* 公用角色，默认是授予每个用户的。
+: grant connect to public;  -- 这样，不需要进行任何其他操作，所有新建的用户就都拥有登录的功能了。
+
+*[最小权限原则]* 我们开发的时候，为了方便，经常要做这样的操作：
+: grant dba to xxx identified by yyy;  -- 创建一个用户 xxx，密码为 yyy，授予 dba 角色
+
+但这权力太大，在正式环境中，这样的授权是非常不合适的。一般要遵守 =最小权限原则=, 也就是：
+: 创建一个用户，授予能完成任务的尽量少的权限，多一个也不好。
 
 
+比如，我们有客户需要查看 vip 用户下的 student 表，我们需要创建一个用户给他：
+#+BEGIN_SRC sql
+  -- 第一步，为客户需求创建一个用户
+  create user guest identified by ***;
+
+  -- 第二步，授予连接数据库的权限
+  grant connect to guest;
+
+  -- 第三步，授予 vip.student 的 select 权限
+  grant select on vip.student to guest;
+
+
+  -- 当然，上面可以再简化为以下。That's All.
+  grant connect to guest identified by ***;
+  grant select on vip.student to guest;
+#+END_SRC
 
 * SQL 语句
 * Objects

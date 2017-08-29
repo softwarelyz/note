@@ -2,7 +2,7 @@
 <html>
 <head>
 <title>Oracle 数据库</title>
-<!-- 2017-08-28 Mon 16:33 -->
+<!-- 2017-08-29 Tue 10:16 -->
 <meta  charset="utf-8">
 <meta  name="generator" content="Org-mode">
 <meta  name="author" content="imfine">
@@ -953,14 +953,11 @@ show parameters block;
 <p>
 权限分为两种：
 </p>
-<ol class="org-ol">
-<li>系统权限。执行特定命令和实施特定行为的权限。
-</li>
-<li>对象权限。作用在某个数据库对象上的权限，包括对对象的增删改查。
-</li>
-<li>角色。为了方便管理，将若干系统权限打包统一分配，称之为角色。
-</li>
-</ol>
+
+<figure>
+<p><img src="assets/dot/oracle_privs.jpg" alt="oracle_privs.jpg">
+</p>
+</figure>
 </div>
 
 <div id="outline-container-sec-4-1" class="outline-3">
@@ -1157,26 +1154,32 @@ show parameters block;
 </p>
 <div class="org-src-container">
 
-<pre class="src src-sql"><span class="org-comment">-- &#25480;&#26435;&#65306;</span>
-<span class="org-keyword">grant</span> &#26435;&#38480; <span class="org-rainbow-delimiters-depth-1">[</span><span class="org-keyword">on</span> &#23545;&#35937;<span class="org-rainbow-delimiters-depth-1">]</span> <span class="org-keyword">to</span> &#35841; <span class="org-rainbow-delimiters-depth-1">[</span><span class="org-keyword">with</span> <span class="org-keyword">admin</span> <span class="org-keyword">option</span><span class="org-rainbow-delimiters-depth-1">]</span>;
+<pre class="src src-sql">  <span class="org-comment">-- &#25480;&#26435;&#65306;</span>
+  <span class="org-keyword">grant</span> &#26435;&#38480; <span class="org-rainbow-delimiters-depth-1">[</span><span class="org-keyword">on</span> &#23545;&#35937;<span class="org-rainbow-delimiters-depth-1">]</span> <span class="org-keyword">to</span> &#35841; <span class="org-rainbow-delimiters-depth-1">[</span><span class="org-keyword">with</span> <span class="org-keyword">admin</span> <span class="org-keyword">option</span><span class="org-rainbow-delimiters-depth-1">]</span>;
 
-<span class="org-comment">-- &#25764;&#26435;</span>
-<span class="org-keyword">revoke</span> &#26435;&#38480; <span class="org-keyword">from</span> &#35841;;
+<span class="org-keyword">grant</span> <span class="org-keyword">connect</span>, resource <span class="org-keyword">to</span> eee;
+<span class="org-keyword">grant</span> <span class="org-keyword">connect</span>, resource <span class="org-keyword">to</span> fff
+  identified <span class="org-keyword">by</span> fff;
+<span class="org-comment">-- &#25630;&#32451;&#20064;</span>
+<span class="org-keyword">grant</span> dba <span class="org-keyword">to</span> ggg identified <span class="org-keyword">by</span> ggg;
+
+  <span class="org-comment">-- &#25764;&#26435;</span>
+  <span class="org-keyword">revoke</span> &#26435;&#38480; <span class="org-keyword">from</span> &#35841;;
 
 
 
-<span class="org-keyword">create</span> <span class="org-keyword">role</span> hello_world;
+  <span class="org-keyword">create</span> <span class="org-keyword">role</span> hello_world;
 
-<span class="org-comment">---- &#26597;&#30475;&#26435;&#38480;</span>
-<span class="org-comment">-- &#21015;&#20986;&#31995;&#32479;&#20013;&#25152;&#26377;&#30340;&#31995;&#32479;&#26435;&#38480;</span>
-<span class="org-keyword">select</span> * <span class="org-keyword">from</span> system_privilege_map;
-<span class="org-comment">-- &#23545;&#35937;&#26435;&#38480;</span>
-<span class="org-comment">-- select/insert/update/delete/alter/all on &#23545;&#35937;</span>
+  <span class="org-comment">---- &#26597;&#30475;&#26435;&#38480;</span>
+  <span class="org-comment">-- &#21015;&#20986;&#31995;&#32479;&#20013;&#25152;&#26377;&#30340;&#31995;&#32479;&#26435;&#38480;</span>
+  <span class="org-keyword">select</span> * <span class="org-keyword">from</span> system_privilege_map;
+  <span class="org-comment">-- &#23545;&#35937;&#26435;&#38480;</span>
+  <span class="org-comment">-- select/insert/update/delete/alter/all on &#23545;&#35937;</span>
 
-<span class="org-comment">-- &#26597;&#30475;&#25351;&#23450;&#29992;&#25143;&#24050;&#25480;&#20104;&#30340;&#26435;&#38480;</span>
-<span class="org-keyword">select</span> * <span class="org-keyword">from</span> dba_sys_privs;
-<span class="org-keyword">select</span> * <span class="org-keyword">from</span> dba_tab_privs;
-<span class="org-keyword">select</span> * <span class="org-keyword">from</span> dba_role_privs;
+  <span class="org-comment">-- &#26597;&#30475;&#25351;&#23450;&#29992;&#25143;&#24050;&#25480;&#20104;&#30340;&#26435;&#38480;</span>
+  <span class="org-keyword">select</span> * <span class="org-keyword">from</span> dba_sys_privs;
+  <span class="org-keyword">select</span> * <span class="org-keyword">from</span> dba_tab_privs;
+  <span class="org-keyword">select</span> * <span class="org-keyword">from</span> dba_role_privs;
 </pre>
 </div>
 
@@ -1236,7 +1239,7 @@ select * from system_privilege_map;
 </div>
 <div id="postamble" class="status">
 <p class="author">Author: imfine</p>
-<p class="date">Created: 2017-08-28 Mon 16:33</p>
+<p class="date">Created: 2017-08-29 Tue 10:16</p>
 <p class="creator"><a href="http://www.gnu.org/software/emacs/">Emacs</a> 25.2.1 (<a href="http://orgmode.org">Org</a> mode 8.2.10)</p>
 <p class="validation">Go ahead, never stop.</p>
 </div>

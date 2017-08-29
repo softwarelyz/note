@@ -569,9 +569,30 @@ https://docs.oracle.com/cd/B28359_01/server.111/b28318/physical.htm#CNCPT1082
 可以说，用户是权限的容器。
 
 权限分为两种：
-1. 系统权限。执行特定命令和实施特定行为的权限。
-2. 对象权限。作用在某个数据库对象上的权限，包括对对象的增删改查。
-3. 角色。为了方便管理，将若干系统权限打包统一分配，称之为角色。
+#+BEGIN_SRC dot :file assets/dot/oracle_privs.jpg :exports results
+  digraph OP {
+      node [shape=Mrecord,fontname="楷体",fontsize=12];
+
+      Privs [label=" 权限 "];
+      SysPriv [label=" 系统权限 "];
+      TabPriv [label=" 对象权限 "];
+      Role [label=" 角色 "];
+
+      Privs -> { SysPriv,TabPriv };
+      SysPriv -> Role;
+
+      node [shape=plaintext,fontsize=9,color=blue];
+      ranksep = .2;
+      a [label="- 系统权限。执行特定命令和实施特定行为的权限。\l - 对象权限。作用在某个数据库对象上的权限，包括对对象的增删改查。\l - 角色。为了方便管理，将若干系统权限打包统一分配，称之为角色。"];
+      b [label="授权/撤销授权: \ngrant x [on y] to z [with admin/grant option];\lrevoke x from z;"];
+      c [label="所有系统权限/角色: \nselect * from system_privilege_map;\lselect * from dba_roles;"];
+      d [label="查看已授权情况：\nselect * from dba_sys_privs;\rselect * from dba_tab_privs;\lselect * from dba_role_privs;"];
+      a -> b -> c -> d [style=invis];
+  }
+#+END_SRC
+
+#+RESULTS:
+[[file:assets/dot/oracle_privs.jpg]]
 
 ** 用户的管理
 用户是用于 *资源管理* 和 *权限控制* 的一个概念。
@@ -674,6 +695,12 @@ https://docs.oracle.com/cd/B28359_01/server.111/b28318/physical.htm#CNCPT1082
 #+BEGIN_SRC sql
   -- 授权：
   grant 权限 [on 对象] to 谁 [with admin option];
+
+grant connect, resource to eee;
+grant connect, resource to fff
+  identified by fff;
+-- 搞练习
+grant dba to ggg identified by ggg;
 
   -- 撤权
   revoke 权限 from 谁;

@@ -802,6 +802,48 @@ https://docs.oracle.com/cd/B28359_01/server.111/b28318/physical.htm#CNCPT1082
 #+END_SRC
 
 * SQL 语句
+** Data Type
+#+BEGIN_SRC dot :file assets/dot/oracle_dataType.jpg :exports results
+  digraph dt {
+      rankdir=LR;
+      node [shape=Mrecord,fontname=SimSun,fontsize=10,style=filled,fillcolor=lightskyblue];
+      DataType [label="Oracle 数据类型",fillcolor=pink];
+      {
+        node [fillcolor=lightyellow];
+        Numeric [label=" 数字类型 "];
+        Character [label=" 字符类型 "];
+        DATEType [label=" 日期类型 "];
+        RAWType [label=" 二进制类型 "];
+        LOB [label=" Lob 类型 "];
+      }
+
+      {
+        CHAR;
+        VARCHAR [label="VARCHAR/VARCHAR2"];
+      }
+
+      DataType -> { Numeric, Character, DATEType, RAWType, LOB, "ROWID/ROWNUM" };
+      Numeric -> NUMBER -> { Integer, Float };
+      Character -> { CHAR, VARCHAR, Long };
+      CHAR -> NCHAR;
+      VARCHAR -> NVARCHAR;
+      DATEType -> { DATE, TIMESTAMP };
+      RAWType -> { RAW, LongRAW };
+      LOB -> { CLOB, BLOB, BFile }
+  }
+#+END_SRC
+
+#+RESULTS:
+[[file:assets/dot/oracle_dataType.jpg]]
+
+#+BEGIN_SRC sql
+  create table haha
+  (
+      aaa char(4),
+      bbb varchar2(4),
+      ccc long
+  );
+
 * Objects
 * PL/SQL编程
 * 锁/事务

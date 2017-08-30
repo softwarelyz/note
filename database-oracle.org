@@ -190,6 +190,16 @@
              and e.deptno in (select deptno from emp group by deptno having min(sal) > 1000);
    #+END_SRC
 
+* 冷饮
+根据我们学校的实际情况，请帮助设计一个学生管理系统。
+: 比如, 学生，老师，班级，课程。按照你自己的设计，酌情增加。
+
+要求，先用 e-r 图，将实体的关系表述出来。
+
+你可以用一些知名的工具去画，也可以手动在纸上画。
+
+然后，将设计好的图，和生成的表的语句，一起上交。
+
 * 体系结构
 Oracle 采取的是 Client/Server 架构。
 
@@ -806,6 +816,7 @@ https://docs.oracle.com/cd/B28359_01/server.111/b28318/physical.htm#CNCPT1082
 #+BEGIN_SRC dot :file assets/dot/oracle_dataType.jpg :exports results
   digraph dt {
       rankdir=LR;
+      edge [color=grey];
       node [shape=Mrecord,fontname=SimSun,fontsize=10,style=filled,fillcolor=lightskyblue];
       DataType [label="Oracle 数据类型",fillcolor=pink];
       {
@@ -827,7 +838,7 @@ https://docs.oracle.com/cd/B28359_01/server.111/b28318/physical.htm#CNCPT1082
       Character -> { CHAR, VARCHAR, Long };
       CHAR -> NCHAR;
       VARCHAR -> NVARCHAR;
-      DATEType -> { DATE, TIMESTAMP };
+      DATEType -> { DATE, TIMESTAMP, "TIMESTAMP with Time Zone" };
       RAWType -> { RAW, LongRAW };
       LOB -> { CLOB, BLOB, BFile }
   }
@@ -835,14 +846,6 @@ https://docs.oracle.com/cd/B28359_01/server.111/b28318/physical.htm#CNCPT1082
 
 #+RESULTS:
 [[file:assets/dot/oracle_dataType.jpg]]
-
-#+BEGIN_SRC sql
-  create table haha
-  (
-      aaa char(4),
-      bbb varchar2(4),
-      ccc long
-  );
 
 * Objects
 * PL/SQL编程

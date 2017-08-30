@@ -2,7 +2,7 @@
 <html>
 <head>
 <title>Oracle 数据库</title>
-<!-- 2017-08-30 Wed 11:23 -->
+<!-- 2017-08-30 Wed 15:28 -->
 <meta  charset="utf-8">
 <meta  name="generator" content="Org-mode">
 <meta  name="author" content="imfine">
@@ -35,41 +35,42 @@
 </li>
 </ul>
 </li>
-<li><a href="#sec-3">3. 体系结构</a>
+<li><a href="#sec-3">3. 冷饮</a></li>
+<li><a href="#sec-4">4. 体系结构</a>
 <ul>
-<li><a href="#sec-3-1">3.1. Client</a>
+<li><a href="#sec-4-1">4.1. Client</a>
 <ul>
-<li><a href="#sec-3-1-1">3.1.1. Sqlplus</a></li>
-<li><a href="#sec-3-1-2">3.1.2. JDBC</a></li>
+<li><a href="#sec-4-1-1">4.1.1. Sqlplus</a></li>
+<li><a href="#sec-4-1-2">4.1.2. JDBC</a></li>
 </ul>
 </li>
-<li><a href="#sec-3-2">3.2. TNSListener</a></li>
-<li><a href="#sec-3-3">3.3. Server</a>
+<li><a href="#sec-4-2">4.2. TNSListener</a></li>
+<li><a href="#sec-4-3">4.3. Server</a>
 <ul>
-<li><a href="#sec-3-3-1">3.3.1. 实例(Instance)</a></li>
-<li><a href="#sec-3-3-2">3.3.2. 数据库(Database)</a></li>
+<li><a href="#sec-4-3-1">4.3.1. 实例(Instance)</a></li>
+<li><a href="#sec-4-3-2">4.3.2. 数据库(Database)</a></li>
 </ul>
 </li>
 </ul>
 </li>
-<li><a href="#sec-4">4. 用户权限</a>
+<li><a href="#sec-5">5. 用户权限</a>
 <ul>
-<li><a href="#sec-4-1">4.1. 用户(User)</a></li>
-<li><a href="#sec-4-2">4.2. 权限(Privilege)</a></li>
+<li><a href="#sec-5-1">5.1. 用户(User)</a></li>
+<li><a href="#sec-5-2">5.2. 权限(Privilege)</a></li>
 </ul>
 </li>
-<li><a href="#sec-5">5. SQL 语句</a>
+<li><a href="#sec-6">6. SQL 语句</a>
 <ul>
-<li><a href="#sec-5-1">5.1. Data Type</a></li>
+<li><a href="#sec-6-1">6.1. Data Type</a></li>
 </ul>
 </li>
-<li><a href="#sec-6">6. Objects</a></li>
-<li><a href="#sec-7">7. PL/SQL编程</a></li>
-<li><a href="#sec-8">8. 锁/事务</a></li>
-<li><a href="#sec-9">9. hint/explain</a></li>
-<li><a href="#sec-10">10. Miscellaneous</a>
+<li><a href="#sec-7">7. Objects</a></li>
+<li><a href="#sec-8">8. PL/SQL编程</a></li>
+<li><a href="#sec-9">9. 锁/事务</a></li>
+<li><a href="#sec-10">10. hint/explain</a></li>
+<li><a href="#sec-11">11. Miscellaneous</a>
 <ul>
-<li><a href="#sec-10-1">10.1. 操作系统历史 (Operate System History)</a></li>
+<li><a href="#sec-11-1">11.1. 操作系统历史 (Operate System History)</a></li>
 </ul>
 </li>
 </ul>
@@ -402,8 +403,32 @@ select distinct deptno from emp
 </section>
 
 <section id="outline-container-sec-3" class="outline-2">
-<h2 id="sec-3"><span class="section-number-2">3</span> 体系结构</h2>
+<h2 id="sec-3"><span class="section-number-2">3</span> 冷饮</h2>
 <div class="outline-text-2" id="text-3">
+<p>
+根据我们学校的实际情况，请帮助设计一个学生管理系统。
+</p>
+<pre class="example">
+比如, 学生，老师，班级，课程。按照你自己的设计，酌情增加。
+</pre>
+
+<p>
+要求，先用 e-r 图，将实体的关系表述出来。
+</p>
+
+<p>
+你可以用一些知名的工具去画，也可以手动在纸上画。
+</p>
+
+<p>
+然后，将设计好的图，和生成的表的语句，一起上交。
+</p>
+</div>
+</section>
+
+<section id="outline-container-sec-4" class="outline-2">
+<h2 id="sec-4"><span class="section-number-2">4</span> 体系结构</h2>
+<div class="outline-text-2" id="text-4">
 <p>
 Oracle 采取的是 Client/Server 架构。
 </p>
@@ -427,12 +452,12 @@ Oracle 采取的是 Client/Server 架构。
 </figure>
 </div>
 
-<div id="outline-container-sec-3-1" class="outline-3">
-<h3 id="sec-3-1"><span class="section-number-3">3.1</span> Client</h3>
-<div class="outline-text-3" id="text-3-1">
-</div><div id="outline-container-sec-3-1-1" class="outline-4">
-<h4 id="sec-3-1-1"><span class="section-number-4">3.1.1</span> Sqlplus</h4>
-<div class="outline-text-4" id="text-3-1-1">
+<div id="outline-container-sec-4-1" class="outline-3">
+<h3 id="sec-4-1"><span class="section-number-3">4.1</span> Client</h3>
+<div class="outline-text-3" id="text-4-1">
+</div><div id="outline-container-sec-4-1-1" class="outline-4">
+<h4 id="sec-4-1-1"><span class="section-number-4">4.1.1</span> Sqlplus</h4>
+<div class="outline-text-4" id="text-4-1-1">
 <p>
 这是一个轻量级的功能强大的客户端, 是 dba 必须掌握的工具。
 </p>
@@ -556,9 +581,9 @@ describe emp          -- 显示 emp 表的结构信息
 </div>
 </div>
 
-<div id="outline-container-sec-3-1-2" class="outline-4">
-<h4 id="sec-3-1-2"><span class="section-number-4">3.1.2</span> JDBC</h4>
-<div class="outline-text-4" id="text-3-1-2">
+<div id="outline-container-sec-4-1-2" class="outline-4">
+<h4 id="sec-4-1-2"><span class="section-number-4">4.1.2</span> JDBC</h4>
+<div class="outline-text-4" id="text-4-1-2">
 <p>
 用 Java 连接数据库，需要用到 jdbc 驱动，它们可以在下面目录中找到：
 </p>
@@ -573,9 +598,9 @@ describe emp          -- 显示 emp 表的结构信息
 </div>
 </div>
 
-<div id="outline-container-sec-3-2" class="outline-3">
-<h3 id="sec-3-2"><span class="section-number-3">3.2</span> TNSListener</h3>
-<div class="outline-text-3" id="text-3-2">
+<div id="outline-container-sec-4-2" class="outline-3">
+<h3 id="sec-4-2"><span class="section-number-3">4.2</span> TNSListener</h3>
+<div class="outline-text-3" id="text-4-2">
 <p>
 TNSListener，是用来监听来自客户端的请求，并将其转发给相对应的服务端实例的一种后台服务。
 </p>
@@ -645,9 +670,9 @@ LISTENER =
 </div>
 </div>
 
-<div id="outline-container-sec-3-3" class="outline-3">
-<h3 id="sec-3-3"><span class="section-number-3">3.3</span> Server</h3>
-<div class="outline-text-3" id="text-3-3">
+<div id="outline-container-sec-4-3" class="outline-3">
+<h3 id="sec-4-3"><span class="section-number-3">4.3</span> Server</h3>
+<div class="outline-text-3" id="text-4-3">
 <p>
 Oracle 服务端分为两部分：
 </p>
@@ -659,9 +684,9 @@ Oracle 服务端分为两部分：
 </ol>
 </div>
 
-<div id="outline-container-sec-3-3-1" class="outline-4">
-<h4 id="sec-3-3-1"><span class="section-number-4">3.3.1</span> 实例(Instance)</h4>
-<div class="outline-text-4" id="text-3-3-1">
+<div id="outline-container-sec-4-3-1" class="outline-4">
+<h4 id="sec-4-3-1"><span class="section-number-4">4.3.1</span> 实例(Instance)</h4>
+<div class="outline-text-4" id="text-4-3-1">
 <p>
 <b>实例</b>, 又称为数据库引擎，由 <code>SGA(System Global Area, 系统全局区)</code> 和 <code>一系列后台进程</code> 组成。
 它需要启动才会生成，用来加载并管理一个数据库。
@@ -714,9 +739,9 @@ startup nomount
 </div>
 </div>
 
-<div id="outline-container-sec-3-3-2" class="outline-4">
-<h4 id="sec-3-3-2"><span class="section-number-4">3.3.2</span> 数据库(Database)</h4>
-<div class="outline-text-4" id="text-3-3-2">
+<div id="outline-container-sec-4-3-2" class="outline-4">
+<h4 id="sec-4-3-2"><span class="section-number-4">4.3.2</span> 数据库(Database)</h4>
+<div class="outline-text-4" id="text-4-3-2">
 <p>
 <b>数据库</b>, 是保存在硬盘上的文件集合，它是数据的主要载体。
 </p>
@@ -728,7 +753,7 @@ $OracleBase\oradata\[数据库名字]\
 可以从不同的角度去认识数据库，比如物理/逻辑角度：
 </p>
 </div>
-<ol class="org-ol"><li><a id="sec-3-3-2-1" name="sec-3-3-2-1"></a>物理组件<br ><div class="outline-text-5" id="text-3-3-2-1">
+<ol class="org-ol"><li><a id="sec-4-3-2-1" name="sec-4-3-2-1"></a>物理组件<br ><div class="outline-text-5" id="text-4-3-2-1">
 <p>
 数据库是保存在操作系统的一系列文件。
 </p>
@@ -829,7 +854,7 @@ archive log list;
 </div>
 </li>
 
-<li><a id="sec-3-3-2-2" name="sec-3-3-2-2"></a>逻辑组件<br ><div class="outline-text-5" id="text-3-3-2-2">
+<li><a id="sec-4-3-2-2" name="sec-4-3-2-2"></a>逻辑组件<br ><div class="outline-text-5" id="text-4-3-2-2">
 <p>
 <a href="https://docs.oracle.com/cd/B28359_01/server.111/b28318/physical.htm#CNCPT1082">https://docs.oracle.com/cd/B28359_01/server.111/b28318/physical.htm#CNCPT1082</a>
 </p>
@@ -925,9 +950,9 @@ show parameters block;
 </div>
 </section>
 
-<section id="outline-container-sec-4" class="outline-2">
-<h2 id="sec-4"><span class="section-number-2">4</span> 用户权限</h2>
-<div class="outline-text-2" id="text-4">
+<section id="outline-container-sec-5" class="outline-2">
+<h2 id="sec-5"><span class="section-number-2">5</span> 用户权限</h2>
+<div class="outline-text-2" id="text-5">
 <p>
 安装完 Oracle，缺省有两个用户：
 </p>
@@ -964,9 +989,9 @@ show parameters block;
 </figure>
 </div>
 
-<div id="outline-container-sec-4-1" class="outline-3">
-<h3 id="sec-4-1"><span class="section-number-3">4.1</span> 用户(User)</h3>
-<div class="outline-text-3" id="text-4-1">
+<div id="outline-container-sec-5-1" class="outline-3">
+<h3 id="sec-5-1"><span class="section-number-3">5.1</span> 用户(User)</h3>
+<div class="outline-text-3" id="text-5-1">
 <p>
 用户是用于 <b>资源管理</b> 和 <b>权限控制</b> 的一个概念。
 </p>
@@ -1157,9 +1182,9 @@ show parameters block;
 </div>
 </div>
 
-<div id="outline-container-sec-4-2" class="outline-3">
-<h3 id="sec-4-2"><span class="section-number-3">4.2</span> 权限(Privilege)</h3>
-<div class="outline-text-3" id="text-4-2">
+<div id="outline-container-sec-5-2" class="outline-3">
+<h3 id="sec-5-2"><span class="section-number-3">5.2</span> 权限(Privilege)</h3>
+<div class="outline-text-3" id="text-5-2">
 <p>
 <b>权限指的是执行特定命令或访问数据库对象的权利，分为系统权限和对象权限。</b>
 </p>
@@ -1304,49 +1329,39 @@ grant dba to xxx identified by yyy;  -- 创建一个用户 xxx，密码为 yyy�
 </div>
 </section>
 
-<section id="outline-container-sec-5" class="outline-2">
-<h2 id="sec-5"><span class="section-number-2">5</span> SQL 语句</h2>
-<div class="outline-text-2" id="text-5">
-</div><div id="outline-container-sec-5-1" class="outline-3">
-<h3 id="sec-5-1"><span class="section-number-3">5.1</span> Data Type</h3>
-<div class="outline-text-3" id="text-5-1">
+<section id="outline-container-sec-6" class="outline-2">
+<h2 id="sec-6"><span class="section-number-2">6</span> SQL 语句</h2>
+<div class="outline-text-2" id="text-6">
+</div><div id="outline-container-sec-6-1" class="outline-3">
+<h3 id="sec-6-1"><span class="section-number-3">6.1</span> Data Type</h3>
+<div class="outline-text-3" id="text-6-1">
 
 <figure>
 <p><img src="assets/dot/oracle_dataType.jpg" alt="oracle_dataType.jpg">
 </p>
 </figure>
-
-<p>
-#+BEGIN_SRC sql
-  create table haha
-  (
-      aaa char(4),
-      bbb varchar2(4),
-      ccc long
-  );
-</p>
 </div>
 </div>
 </section>
 
-<section id="outline-container-sec-6" class="outline-2">
-<h2 id="sec-6"><span class="section-number-2">6</span> Objects</h2>
-</section>
 <section id="outline-container-sec-7" class="outline-2">
-<h2 id="sec-7"><span class="section-number-2">7</span> PL/SQL编程</h2>
+<h2 id="sec-7"><span class="section-number-2">7</span> Objects</h2>
 </section>
 <section id="outline-container-sec-8" class="outline-2">
-<h2 id="sec-8"><span class="section-number-2">8</span> 锁/事务</h2>
+<h2 id="sec-8"><span class="section-number-2">8</span> PL/SQL编程</h2>
 </section>
 <section id="outline-container-sec-9" class="outline-2">
-<h2 id="sec-9"><span class="section-number-2">9</span> hint/explain</h2>
+<h2 id="sec-9"><span class="section-number-2">9</span> 锁/事务</h2>
 </section>
 <section id="outline-container-sec-10" class="outline-2">
-<h2 id="sec-10"><span class="section-number-2">10</span> Miscellaneous</h2>
-<div class="outline-text-2" id="text-10">
-</div><div id="outline-container-sec-10-1" class="outline-3">
-<h3 id="sec-10-1"><span class="section-number-3">10.1</span> 操作系统历史 (Operate System History)</h3>
-<div class="outline-text-3" id="text-10-1">
+<h2 id="sec-10"><span class="section-number-2">10</span> hint/explain</h2>
+</section>
+<section id="outline-container-sec-11" class="outline-2">
+<h2 id="sec-11"><span class="section-number-2">11</span> Miscellaneous</h2>
+<div class="outline-text-2" id="text-11">
+</div><div id="outline-container-sec-11-1" class="outline-3">
+<h3 id="sec-11-1"><span class="section-number-3">11.1</span> 操作系统历史 (Operate System History)</h3>
+<div class="outline-text-3" id="text-11-1">
 
 <figure>
 <p><img src="assets/dot/os_history.jpg" alt="os_history.jpg">
@@ -1358,7 +1373,7 @@ grant dba to xxx identified by yyy;  -- 创建一个用户 xxx，密码为 yyy�
 </div>
 <div id="postamble" class="status">
 <p class="author">Author: imfine</p>
-<p class="date">Created: 2017-08-30 Wed 11:23</p>
+<p class="date">Created: 2017-08-30 Wed 15:28</p>
 <p class="creator"><a href="http://www.gnu.org/software/emacs/">Emacs</a> 25.2.1 (<a href="http://orgmode.org">Org</a> mode 8.2.10)</p>
 <p class="validation">Go ahead, never stop.</p>
 </div>

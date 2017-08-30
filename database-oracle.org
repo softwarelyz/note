@@ -194,11 +194,21 @@
 根据我们学校的实际情况，请帮助设计一个学生管理系统。
 : 比如, 学生，老师，班级，课程。按照你自己的设计，酌情增加。
 
-要求，先用 e-r 图，将实体的关系表述出来。
+基本步骤：
+1. 先用 e-r 图，将实体的关系表述出来。
 
-你可以用一些知名的工具去画，也可以手动在纸上画。
+   这样的图能帮助我们理清思路，并能帮助团队间的有效交流。
+   
+   一定在图画好之后再去着手数据库表的创建。要秉承先设计后实现的思路。
 
-然后，将设计好的图，和生成的表的语句，一起上交。
+   你可以用一些知名的工具(如 visio)去画，也可以手动在纸上画。
+
+2. 根据设计好的图，写出相应的建表语句。
+
+3. 也可以进一步根据实体关系和表，创建相应的 Java 实体类。进一步可以 DAO，进一步可以 Service【可选】
+
+4. 最后，将图跟语句一起上交。这个过程着重思考下项目从设计到编码是怎么一个过程。
+   : 需求分析 -> *概要设计* -> 详细实现。 
 
 * 体系结构
 Oracle 采取的是 Client/Server 架构。
@@ -846,6 +856,171 @@ https://docs.oracle.com/cd/B28359_01/server.111/b28318/physical.htm#CNCPT1082
 
 #+RESULTS:
 [[file:assets/dot/oracle_dataType.jpg]]
+
+查看数据所占空间的两个函数：
+#+BEGIN_SRC sql
+  -- 查看所占字节数
+  select length('你好，世界') from dual;
+  -- 查看所占字符数，即多少个字母，多少个汉字
+  select lengthb('您好，美女') from dual;
+
+  -- 比如
+  create table aaa (a varchar2(6));
+  insert into aaa values ('aaa');
+  insert into aaa values ('你好');
+  select a, length(a), lengthb(a) from aaa;
+#+END_SRC
+
+*** 字符类型
+- char，固定长度，默认1，最大2000，如果长度不够，用空格填充。
+- varchar2 类型，变长字符串，最多4000字节长度。
+- nvarchar2，跟上面比，增加了字符集的支持。
+- long，用于存储大数据，最多 2G。不建议使用，已被 clob 类型替代。
+
+  #+BEGIN_SRC sql
+    -- 它的使用跟 SQL 的标准 varchar 基本类似，
+    -- 但是，在 Oracle 中请使用 varchar2 而不是 varchar，
+    -- varchar2 的效率更高，并且在兼容性上做的更好
+    -- 初始化的语句为： name varchar2(20)
+    -- 其中 20 代表最大长度， 默认单位是字节。
+    -- 如果定义为： name varchar2(20 char)，表示最大保存20个字符长度的字符串。
+    create table aaa (
+       a varchar2(20),        -- 最大是20个字节长度，默认单位字节
+       b varchar2(20 byte),   -- 最大为20个字节长度，跟上面是一样的
+       c varchar2(20 char)    -- 最大为20个字符长度
+    );
+
+    -- varchar2 最大能保存 4000 个字节
+    -- 如果是英文，则是 4000 个英文字母
+    -- 如果是中文，需要按照字符集判断：
+    --   GBK 用两个字节表示一个汉字，所以 varchar2 最多表示 2000 个汉字
+    --   UTF-8 是变长字符集，用一个字节表示一个英文字母，用3个或4个字节表示一个汉字，所以，最多可以保持1333个汉字。
+    select length('你好') from dual;   -- 2
+    select lengthb('你好') from dual;  -- 4
+
+
+    -- char 类型是固定长度的，可能会占用更多空间。但是因为长度固定，块的分配管理比较块，效率很高。
+    -- varchar2 是变长的，会占用尽量少的空间。但是需要消耗更多资源为分配变长空间，效率略低。
+    -- 所以，用哪一种，酌情而定。
+
+    -- nchar/nvarchar2 是 char/varchar2 的字符集支持版本，对多字节字符有算法上的优化。
+    -- 感觉用的比较少。
+
+  #+END_SRC
+
+*** 数值类型
+- number，占用 38 位，有自己的内部表示方式，可以表示天文数字。
+- int/float，number 类型的子类型
+  #+BEGIN_SRC sql
+    -- number 类型的语法为 NUMBER [位数[,小数点数]]
+    create table bbb (
+      a number,         -- 一共 38 位，其他按照插入的值自动判断
+      b number(5),      -- 一共5位
+      c number(5, 2),   -- 一共5位，3位整数，2位小数
+      d number (*, 2)   -- 保存两位小数，其他随意
+      e number (*, 0),  -- 相当于 int
+      f int
+    );
+
+    -- 插入的时候，多余的小数会被切掉，但如果整数位超了，会报错
+    insert into bbb values (111.223, 111.223, 111.223, 111.223, 22);
+      
+    -- 一般情况下，作为表的主键，设为 int 类型就可以了
+  #+END_SRC
+
+
+
+
+
+*** 日期类型
+- date，存储的年月日，时分秒
+- timestamp，存储的更详细，包括时区，还有精确到小数点后6位的秒数等
+- timestamp with time zone，可以设置时区
+- sysdate/systimestamp 连个函数用来查询当前的日期
+  #+BEGIN_SRC sql
+    -- 显示当前时间
+    select sysdate from dual;
+    select systimestamp from dual;
+
+    -- 时间的显示格式，由 nls_date/time_format 等参数控制
+    show parameter nls
+    -- 如果想格式化时间，可以有下面方法：
+    -- 1. 更改注册表中变量
+    -- # set NLS_DATE_FORMAT='yyyy.mm.dd'
+    -- 2. 更改当前会话中的格式
+    alter session set NLS_DATE_FORMAT='yyyy.mm.dd';
+    -- 3. 手动转型：to_char
+    -------- yyyy 代表四位的年, rr 代表两位的年
+    -------- mm 代表两位的数字月,
+    -------- dd 代表两位的数字日,
+    -------- hh 代表12格式的小时, hh24 代表24格式的小时
+    -------- mi 代表分钟数
+    -------- ss 代表秒数
+    select to_char(sysdate, 'yyyy-mm-dd') from dual;
+
+
+    -- date 比 timestamp 占用更少空间
+    -- timestamp 比 date 更精确
+    -- 没有优劣，使用哪一个，按照需求来
+
+
+    -- 插入时间，使用 to_date 转型。
+    -- 符合标准日期格式的字符串，可以隐式转型。
+    create table stu (name varchar2(20), birth date default sysdate);
+    insert into stu values ('aaa', sysdate);      -- 当前时间
+    insert into stu values ('bbb', '20100303');   -- 插入成功，char 自动转型为 date
+    insert into stu values ('ccc', to_date('1999-01-11', 'yyyy-mm-dd'); -- 手动转型
+
+  #+END_SRC
+
+*** 二进制类型
+- RAW
+- LONG RAW
+
+*** LOB 类型
+Large Object，用来存储大数据。
+
+Oracle 提供了 =DBMS_LOG= 包对 LOB 类型的数据进行处理。
+也可以在 jdbc 中通过 =getXLob()= 的方式进行 lob 字段的处理。
+
+- CLOB，charactor，存储大容量字符串
+- BLOB，Binary，存储二进制文件，如小图片、小电影
+- BFile/XMLType 等
+  #+BEGIN_SRC sql
+    create table article
+    (
+      id int primary key,
+      title varchar2(20) not null,
+      content clob,
+      createtime date default sysdate
+    );
+    insert into article (id, title, content) values (1, 'Oracle 使用指南', '你好');
+  #+END_SRC
+
+*** 伪列(Pseudo Column)
+*ROWID，映射的是数据的物理地址*
+  #+BEGIN_SRC sql
+    select dbms_rowid.rowid_object(rowid) object_id,   --> 使用dbms_rowid包获得rowid的十进制信息                      
+      dbms_rowid.rowid_relative_fno(rowid) file_id,                                                                   
+      dbms_rowid.rowid_block_number(rowid) block_id,                                                                  
+      dbms_rowid.rowid_row_number(rowid) num                                                                          
+    from dept;
+
+    select object_name,object_id
+    from dba_objects where object_name='DEPT' and owner='SCOTT'; --> 查看对象id
+  #+END_SRC
+
+比如，如果某行数据的 rowid 是 =AAAO0fAAFAAAAlmAAA=, 那么可以根据它直接定位数据的物理地址：
+| AAAO0f          | AAF             | AAAAlm        | AAA           |
+| 对象号(6个字符) | 文件号(3个字符) | 块号(6个字符) | 行号(3个字符) |
+
+*ROWNUM，为查询出的结果集赋予从1开始的行号。主要用于分页。*
+
+*** NULL
+表示空，类型不确定。
+常跟 nvl 函数一起使用。
+所有跟 null 进行运算的结果仍然是 null.
+: select 1+null from dual;
 
 * Objects
 * PL/SQL编程

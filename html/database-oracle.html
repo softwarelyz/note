@@ -2,7 +2,7 @@
 <html>
 <head>
 <title>Oracle 数据库</title>
-<!-- 2017-08-30 Wed 15:28 -->
+<!-- 2017-08-30 Wed 17:50 -->
 <meta  charset="utf-8">
 <meta  name="generator" content="Org-mode">
 <meta  name="author" content="imfine">
@@ -61,7 +61,17 @@
 </li>
 <li><a href="#sec-6">6. SQL 语句</a>
 <ul>
-<li><a href="#sec-6-1">6.1. Data Type</a></li>
+<li><a href="#sec-6-1">6.1. Data Type</a>
+<ul>
+<li><a href="#sec-6-1-1">6.1.1. 字符类型</a></li>
+<li><a href="#sec-6-1-2">6.1.2. 数值类型</a></li>
+<li><a href="#sec-6-1-3">6.1.3. 日期类型</a></li>
+<li><a href="#sec-6-1-4">6.1.4. 二进制类型</a></li>
+<li><a href="#sec-6-1-5">6.1.5. LOB 类型</a></li>
+<li><a href="#sec-6-1-6">6.1.6. 伪列(Pseudo Column)</a></li>
+<li><a href="#sec-6-1-7">6.1.7. NULL</a></li>
+</ul>
+</li>
 </ul>
 </li>
 <li><a href="#sec-7">7. Objects</a></li>
@@ -413,16 +423,36 @@ select distinct deptno from emp
 </pre>
 
 <p>
-要求，先用 e-r 图，将实体的关系表述出来。
+基本步骤：
+</p>
+<ol class="org-ol">
+<li>先用 e-r 图，将实体的关系表述出来。
+
+<p>
+这样的图能帮助我们理清思路，并能帮助团队间的有效交流。
 </p>
 
 <p>
-你可以用一些知名的工具去画，也可以手动在纸上画。
+一定在图画好之后再去着手数据库表的创建。要秉承先设计后实现的思路。
 </p>
 
 <p>
-然后，将设计好的图，和生成的表的语句，一起上交。
+你可以用一些知名的工具(如 visio)去画，也可以手动在纸上画。
 </p>
+</li>
+
+<li>根据设计好的图，写出相应的建表语句。
+</li>
+
+<li>也可以进一步根据实体关系和表，创建相应的 Java 实体类。进一步可以 DAO，进一步可以 Service【可选】
+</li>
+
+<li>最后，将图跟语句一起上交。这个过程着重思考下项目从设计到编码是怎么一个过程。
+<pre class="example">
+需求分析 -&gt; *概要设计* -&gt; 详细实现。 
+</pre>
+</li>
+</ol>
 </div>
 </section>
 
@@ -1340,6 +1370,276 @@ grant dba to xxx identified by yyy;  -- 创建一个用户 xxx，密码为 yyy�
 <p><img src="assets/dot/oracle_dataType.jpg" alt="oracle_dataType.jpg">
 </p>
 </figure>
+
+<p>
+查看数据所占空间的两个函数：
+</p>
+<div class="org-src-container">
+
+<pre class="src src-sql"><span class="org-comment">-- &#26597;&#30475;&#25152;&#21344;&#23383;&#33410;&#25968;</span>
+<span class="org-keyword">select</span> <span class="org-keyword">length</span><span class="org-rainbow-delimiters-depth-1">(</span><span class="org-string">'&#20320;&#22909;&#65292;&#19990;&#30028;'</span><span class="org-rainbow-delimiters-depth-1">)</span> <span class="org-keyword">from</span> dual;
+<span class="org-comment">-- &#26597;&#30475;&#25152;&#21344;&#23383;&#31526;&#25968;&#65292;&#21363;&#22810;&#23569;&#20010;&#23383;&#27597;&#65292;&#22810;&#23569;&#20010;&#27721;&#23383;</span>
+<span class="org-keyword">select</span> lengthb<span class="org-rainbow-delimiters-depth-1">(</span><span class="org-string">'&#24744;&#22909;&#65292;&#32654;&#22899;'</span><span class="org-rainbow-delimiters-depth-1">)</span> <span class="org-keyword">from</span> dual;
+
+<span class="org-comment">-- &#27604;&#22914;</span>
+<span class="org-keyword">create</span> <span class="org-keyword">table</span> <span class="org-function-name">aaa</span> <span class="org-rainbow-delimiters-depth-1">(</span>a varchar2<span class="org-rainbow-delimiters-depth-2">(</span>6<span class="org-rainbow-delimiters-depth-2">)</span><span class="org-rainbow-delimiters-depth-1">)</span>;
+<span class="org-keyword">insert</span> <span class="org-keyword">into</span> aaa <span class="org-keyword">values</span> <span class="org-rainbow-delimiters-depth-1">(</span><span class="org-string">'aaa'</span><span class="org-rainbow-delimiters-depth-1">)</span>;
+<span class="org-keyword">insert</span> <span class="org-keyword">into</span> aaa <span class="org-keyword">values</span> <span class="org-rainbow-delimiters-depth-1">(</span><span class="org-string">'&#20320;&#22909;'</span><span class="org-rainbow-delimiters-depth-1">)</span>;
+<span class="org-keyword">select</span> a, <span class="org-keyword">length</span><span class="org-rainbow-delimiters-depth-1">(</span>a<span class="org-rainbow-delimiters-depth-1">)</span>, lengthb<span class="org-rainbow-delimiters-depth-1">(</span>a<span class="org-rainbow-delimiters-depth-1">)</span> <span class="org-keyword">from</span> aaa;
+</pre>
+</div>
+</div>
+
+<div id="outline-container-sec-6-1-1" class="outline-4">
+<h4 id="sec-6-1-1"><span class="section-number-4">6.1.1</span> 字符类型</h4>
+<div class="outline-text-4" id="text-6-1-1">
+<ul class="org-ul">
+<li>char，固定长度，默认1，最大2000，如果长度不够，用空格填充。
+</li>
+<li>varchar2 类型，变长字符串，最多4000字节长度。
+</li>
+<li>nvarchar2，跟上面比，增加了字符集的支持。
+</li>
+<li>long，用于存储大数据，最多 2G。不建议使用，已被 clob 类型替代。
+
+<div class="org-src-container">
+
+<pre class="src src-sql"><span class="org-comment">-- &#23427;&#30340;&#20351;&#29992;&#36319; SQL &#30340;&#26631;&#20934; varchar &#22522;&#26412;&#31867;&#20284;&#65292;</span>
+<span class="org-comment">-- &#20294;&#26159;&#65292;&#22312; Oracle &#20013;&#35831;&#20351;&#29992; varchar2 &#32780;&#19981;&#26159; varchar&#65292;</span>
+<span class="org-comment">-- varchar2 &#30340;&#25928;&#29575;&#26356;&#39640;&#65292;&#24182;&#19988;&#22312;&#20860;&#23481;&#24615;&#19978;&#20570;&#30340;&#26356;&#22909;</span>
+<span class="org-comment">-- &#21021;&#22987;&#21270;&#30340;&#35821;&#21477;&#20026;&#65306; name varchar2(20)</span>
+<span class="org-comment">-- &#20854;&#20013; 20 &#20195;&#34920;&#26368;&#22823;&#38271;&#24230;&#65292; &#40664;&#35748;&#21333;&#20301;&#26159;&#23383;&#33410;&#12290;</span>
+<span class="org-comment">-- &#22914;&#26524;&#23450;&#20041;&#20026;&#65306; name varchar2(20 char)&#65292;&#34920;&#31034;&#26368;&#22823;&#20445;&#23384;20&#20010;&#23383;&#31526;&#38271;&#24230;&#30340;&#23383;&#31526;&#20018;&#12290;</span>
+<span class="org-keyword">create</span> <span class="org-keyword">table</span> <span class="org-function-name">aaa</span> <span class="org-rainbow-delimiters-depth-1">(</span>
+   a varchar2<span class="org-rainbow-delimiters-depth-2">(</span>20<span class="org-rainbow-delimiters-depth-2">)</span>,        <span class="org-comment">-- &#26368;&#22823;&#26159;20&#20010;&#23383;&#33410;&#38271;&#24230;&#65292;&#40664;&#35748;&#21333;&#20301;&#23383;&#33410;</span>
+   b varchar2<span class="org-rainbow-delimiters-depth-2">(</span>20 byte<span class="org-rainbow-delimiters-depth-2">)</span>,   <span class="org-comment">-- &#26368;&#22823;&#20026;20&#20010;&#23383;&#33410;&#38271;&#24230;&#65292;&#36319;&#19978;&#38754;&#26159;&#19968;&#26679;&#30340;</span>
+   c varchar2<span class="org-rainbow-delimiters-depth-2">(</span>20 <span class="org-type">char</span><span class="org-rainbow-delimiters-depth-2">)</span>    <span class="org-comment">-- &#26368;&#22823;&#20026;20&#20010;&#23383;&#31526;&#38271;&#24230;</span>
+<span class="org-rainbow-delimiters-depth-1">)</span>;
+
+<span class="org-comment">-- varchar2 &#26368;&#22823;&#33021;&#20445;&#23384; 4000 &#20010;&#23383;&#33410;</span>
+<span class="org-comment">-- &#22914;&#26524;&#26159;&#33521;&#25991;&#65292;&#21017;&#26159; 4000 &#20010;&#33521;&#25991;&#23383;&#27597;</span>
+<span class="org-comment">-- &#22914;&#26524;&#26159;&#20013;&#25991;&#65292;&#38656;&#35201;&#25353;&#29031;&#23383;&#31526;&#38598;&#21028;&#26029;&#65306;</span>
+<span class="org-comment">--   GBK &#29992;&#20004;&#20010;&#23383;&#33410;&#34920;&#31034;&#19968;&#20010;&#27721;&#23383;&#65292;&#25152;&#20197; varchar2 &#26368;&#22810;&#34920;&#31034; 2000 &#20010;&#27721;&#23383;</span>
+<span class="org-comment">--   UTF-8 &#26159;&#21464;&#38271;&#23383;&#31526;&#38598;&#65292;&#29992;&#19968;&#20010;&#23383;&#33410;&#34920;&#31034;&#19968;&#20010;&#33521;&#25991;&#23383;&#27597;&#65292;&#29992;3&#20010;&#25110;4&#20010;&#23383;&#33410;&#34920;&#31034;&#19968;&#20010;&#27721;&#23383;&#65292;&#25152;&#20197;&#65292;&#26368;&#22810;&#21487;&#20197;&#20445;&#25345;1333&#20010;&#27721;&#23383;&#12290;</span>
+<span class="org-keyword">select</span> <span class="org-keyword">length</span><span class="org-rainbow-delimiters-depth-1">(</span><span class="org-string">'&#20320;&#22909;'</span><span class="org-rainbow-delimiters-depth-1">)</span> <span class="org-keyword">from</span> dual;   <span class="org-comment">-- 2</span>
+<span class="org-keyword">select</span> lengthb<span class="org-rainbow-delimiters-depth-1">(</span><span class="org-string">'&#20320;&#22909;'</span><span class="org-rainbow-delimiters-depth-1">)</span> <span class="org-keyword">from</span> dual;  <span class="org-comment">-- 4</span>
+
+
+<span class="org-comment">-- char &#31867;&#22411;&#26159;&#22266;&#23450;&#38271;&#24230;&#30340;&#65292;&#21487;&#33021;&#20250;&#21344;&#29992;&#26356;&#22810;&#31354;&#38388;&#12290;&#20294;&#26159;&#22240;&#20026;&#38271;&#24230;&#22266;&#23450;&#65292;&#22359;&#30340;&#20998;&#37197;&#31649;&#29702;&#27604;&#36739;&#22359;&#65292;&#25928;&#29575;&#24456;&#39640;&#12290;</span>
+<span class="org-comment">-- varchar2 &#26159;&#21464;&#38271;&#30340;&#65292;&#20250;&#21344;&#29992;&#23613;&#37327;&#23569;&#30340;&#31354;&#38388;&#12290;&#20294;&#26159;&#38656;&#35201;&#28040;&#32791;&#26356;&#22810;&#36164;&#28304;&#20026;&#20998;&#37197;&#21464;&#38271;&#31354;&#38388;&#65292;&#25928;&#29575;&#30053;&#20302;&#12290;</span>
+<span class="org-comment">-- &#25152;&#20197;&#65292;&#29992;&#21738;&#19968;&#31181;&#65292;&#37196;&#24773;&#32780;&#23450;&#12290;</span>
+
+<span class="org-comment">-- nchar/nvarchar2 &#26159; char/varchar2 &#30340;&#23383;&#31526;&#38598;&#25903;&#25345;&#29256;&#26412;&#65292;&#23545;&#22810;&#23383;&#33410;&#23383;&#31526;&#26377;&#31639;&#27861;&#19978;&#30340;&#20248;&#21270;&#12290;</span>
+<span class="org-comment">-- &#24863;&#35273;&#29992;&#30340;&#27604;&#36739;&#23569;&#12290;</span>
+</pre>
+</div>
+</li>
+</ul>
+</div>
+</div>
+
+<div id="outline-container-sec-6-1-2" class="outline-4">
+<h4 id="sec-6-1-2"><span class="section-number-4">6.1.2</span> 数值类型</h4>
+<div class="outline-text-4" id="text-6-1-2">
+<ul class="org-ul">
+<li>number，占用 38 位，有自己的内部表示方式，可以表示天文数字。
+</li>
+<li>int/float，number 类型的子类型
+<div class="org-src-container">
+
+<pre class="src src-sql"><span class="org-comment">-- number &#31867;&#22411;&#30340;&#35821;&#27861;&#20026; NUMBER [&#20301;&#25968;[,&#23567;&#25968;&#28857;&#25968;]]</span>
+<span class="org-keyword">create</span> <span class="org-keyword">table</span> <span class="org-function-name">bbb</span> <span class="org-rainbow-delimiters-depth-1">(</span>
+  a <span class="org-keyword">number</span>,         <span class="org-comment">-- &#19968;&#20849; 38 &#20301;&#65292;&#20854;&#20182;&#25353;&#29031;&#25554;&#20837;&#30340;&#20540;&#33258;&#21160;&#21028;&#26029;</span>
+  b <span class="org-keyword">number</span><span class="org-rainbow-delimiters-depth-2">(</span>5<span class="org-rainbow-delimiters-depth-2">)</span>,      <span class="org-comment">-- &#19968;&#20849;5&#20301;</span>
+  c <span class="org-keyword">number</span><span class="org-rainbow-delimiters-depth-2">(</span>5, 2<span class="org-rainbow-delimiters-depth-2">)</span>,   <span class="org-comment">-- &#19968;&#20849;5&#20301;&#65292;3&#20301;&#25972;&#25968;&#65292;2&#20301;&#23567;&#25968;</span>
+  d <span class="org-keyword">number</span> <span class="org-rainbow-delimiters-depth-2">(</span>*, 2<span class="org-rainbow-delimiters-depth-2">)</span>   <span class="org-comment">-- &#20445;&#23384;&#20004;&#20301;&#23567;&#25968;&#65292;&#20854;&#20182;&#38543;&#24847;</span>
+  e <span class="org-keyword">number</span> <span class="org-rainbow-delimiters-depth-2">(</span>*, 0<span class="org-rainbow-delimiters-depth-2">)</span>,  <span class="org-comment">-- &#30456;&#24403;&#20110; int</span>
+  f <span class="org-type">int</span>
+<span class="org-rainbow-delimiters-depth-1">)</span>;
+
+<span class="org-comment">-- &#25554;&#20837;&#30340;&#26102;&#20505;&#65292;&#22810;&#20313;&#30340;&#23567;&#25968;&#20250;&#34987;&#20999;&#25481;&#65292;&#20294;&#22914;&#26524;&#25972;&#25968;&#20301;&#36229;&#20102;&#65292;&#20250;&#25253;&#38169;</span>
+<span class="org-keyword">insert</span> <span class="org-keyword">into</span> bbb <span class="org-keyword">values</span> <span class="org-rainbow-delimiters-depth-1">(</span>111.223, 111.223, 111.223, 111.223, 22<span class="org-rainbow-delimiters-depth-1">)</span>;
+
+<span class="org-comment">-- &#19968;&#33324;&#24773;&#20917;&#19979;&#65292;&#20316;&#20026;&#34920;&#30340;&#20027;&#38190;&#65292;&#35774;&#20026; int &#31867;&#22411;&#23601;&#21487;&#20197;&#20102;</span>
+</pre>
+</div>
+</li>
+</ul>
+</div>
+</div>
+
+
+
+
+
+<div id="outline-container-sec-6-1-3" class="outline-4">
+<h4 id="sec-6-1-3"><span class="section-number-4">6.1.3</span> 日期类型</h4>
+<div class="outline-text-4" id="text-6-1-3">
+<ul class="org-ul">
+<li>date，存储的年月日，时分秒
+</li>
+<li>timestamp，存储的更详细，包括时区，还有精确到小数点后6位的秒数等
+</li>
+<li>timestamp with time zone，可以设置时区
+</li>
+<li>sysdate/systimestamp 连个函数用来查询当前的日期
+<div class="org-src-container">
+
+<pre class="src src-sql"><span class="org-comment">-- &#26174;&#31034;&#24403;&#21069;&#26102;&#38388;</span>
+<span class="org-keyword">select</span> sysdate <span class="org-keyword">from</span> dual;
+<span class="org-keyword">select</span> systimestamp <span class="org-keyword">from</span> dual;
+
+<span class="org-comment">-- &#26102;&#38388;&#30340;&#26174;&#31034;&#26684;&#24335;&#65292;&#30001; nls_date/time_format &#31561;&#21442;&#25968;&#25511;&#21046;</span>
+show <span class="org-keyword">parameter</span> nls
+<span class="org-comment">-- &#22914;&#26524;&#24819;&#26684;&#24335;&#21270;&#26102;&#38388;&#65292;&#21487;&#20197;&#26377;&#19979;&#38754;&#26041;&#27861;&#65306;</span>
+<span class="org-comment">-- 1. &#26356;&#25913;&#27880;&#20876;&#34920;&#20013;&#21464;&#37327;</span>
+<span class="org-comment">-- # set NLS_DATE_FORMAT='yyyy.mm.dd'</span>
+<span class="org-comment">-- 2. &#26356;&#25913;&#24403;&#21069;&#20250;&#35805;&#20013;&#30340;&#26684;&#24335;</span>
+<span class="org-keyword">alter</span> <span class="org-keyword">session</span> <span class="org-keyword">set</span> NLS_DATE_FORMAT=<span class="org-string">'yyyy.mm.dd'</span>;
+<span class="org-comment">-- 3. &#25163;&#21160;&#36716;&#22411;&#65306;to_char</span>
+<span class="org-comment">-------- yyyy &#20195;&#34920;&#22235;&#20301;&#30340;&#24180;, rr &#20195;&#34920;&#20004;&#20301;&#30340;&#24180;</span>
+<span class="org-comment">-------- mm &#20195;&#34920;&#20004;&#20301;&#30340;&#25968;&#23383;&#26376;,</span>
+<span class="org-comment">-------- dd &#20195;&#34920;&#20004;&#20301;&#30340;&#25968;&#23383;&#26085;,</span>
+<span class="org-comment">-------- hh &#20195;&#34920;12&#26684;&#24335;&#30340;&#23567;&#26102;, hh24 &#20195;&#34920;24&#26684;&#24335;&#30340;&#23567;&#26102;</span>
+<span class="org-comment">-------- mi &#20195;&#34920;&#20998;&#38047;&#25968;</span>
+<span class="org-comment">-------- ss &#20195;&#34920;&#31186;&#25968;</span>
+<span class="org-keyword">select</span> to_char<span class="org-rainbow-delimiters-depth-1">(</span>sysdate, <span class="org-string">'yyyy-mm-dd'</span><span class="org-rainbow-delimiters-depth-1">)</span> <span class="org-keyword">from</span> dual;
+
+
+<span class="org-comment">-- date &#27604; timestamp &#21344;&#29992;&#26356;&#23569;&#31354;&#38388;</span>
+<span class="org-comment">-- timestamp &#27604; date &#26356;&#31934;&#30830;</span>
+<span class="org-comment">-- &#27809;&#26377;&#20248;&#21155;&#65292;&#20351;&#29992;&#21738;&#19968;&#20010;&#65292;&#25353;&#29031;&#38656;&#27714;&#26469;</span>
+
+
+<span class="org-comment">-- &#25554;&#20837;&#26102;&#38388;&#65292;&#20351;&#29992; to_date &#36716;&#22411;&#12290;</span>
+<span class="org-comment">-- &#31526;&#21512;&#26631;&#20934;&#26085;&#26399;&#26684;&#24335;&#30340;&#23383;&#31526;&#20018;&#65292;&#21487;&#20197;&#38544;&#24335;&#36716;&#22411;&#12290;</span>
+<span class="org-keyword">create</span> <span class="org-keyword">table</span> <span class="org-function-name">stu</span> <span class="org-rainbow-delimiters-depth-1">(</span><span class="org-keyword">name</span> varchar2<span class="org-rainbow-delimiters-depth-2">(</span>20<span class="org-rainbow-delimiters-depth-2">)</span>, birth <span class="org-type">date</span> <span class="org-keyword">default</span> sysdate<span class="org-rainbow-delimiters-depth-1">)</span>;
+<span class="org-keyword">insert</span> <span class="org-keyword">into</span> stu <span class="org-keyword">values</span> <span class="org-rainbow-delimiters-depth-1">(</span><span class="org-string">'aaa'</span>, sysdate<span class="org-rainbow-delimiters-depth-1">)</span>;      <span class="org-comment">-- &#24403;&#21069;&#26102;&#38388;</span>
+<span class="org-keyword">insert</span> <span class="org-keyword">into</span> stu <span class="org-keyword">values</span> <span class="org-rainbow-delimiters-depth-1">(</span><span class="org-string">'bbb'</span>, <span class="org-string">'20100303'</span><span class="org-rainbow-delimiters-depth-1">)</span>;   <span class="org-comment">-- &#25554;&#20837;&#25104;&#21151;&#65292;char &#33258;&#21160;&#36716;&#22411;&#20026; date</span>
+<span class="org-keyword">insert</span> <span class="org-keyword">into</span> stu <span class="org-keyword">values</span> <span class="org-rainbow-delimiters-depth-1">(</span><span class="org-string">'ccc'</span>, to_date<span class="org-rainbow-delimiters-depth-2">(</span><span class="org-string">'1999-01-11'</span>, <span class="org-string">'yyyy-mm-dd'</span><span class="org-rainbow-delimiters-depth-2">)</span>; <span class="org-comment">-- &#25163;&#21160;&#36716;&#22411;</span>
+</pre>
+</div>
+</li>
+</ul>
+</div>
+</div>
+
+<div id="outline-container-sec-6-1-4" class="outline-4">
+<h4 id="sec-6-1-4"><span class="section-number-4">6.1.4</span> 二进制类型</h4>
+<div class="outline-text-4" id="text-6-1-4">
+<ul class="org-ul">
+<li>RAW
+</li>
+<li>LONG RAW
+</li>
+</ul>
+</div>
+</div>
+
+<div id="outline-container-sec-6-1-5" class="outline-4">
+<h4 id="sec-6-1-5"><span class="section-number-4">6.1.5</span> LOB 类型</h4>
+<div class="outline-text-4" id="text-6-1-5">
+<p>
+Large Object，用来存储大数据。
+</p>
+
+<p>
+Oracle 提供了 <code>DBMS_LOG</code> 包对 LOB 类型的数据进行处理。
+也可以在 jdbc 中通过 <code>getXLob()</code> 的方式进行 lob 字段的处理。
+</p>
+
+<ul class="org-ul">
+<li>CLOB，charactor，存储大容量字符串
+</li>
+<li>BLOB，Binary，存储二进制文件，如小图片、小电影
+</li>
+<li>BFile/XMLType 等
+<div class="org-src-container">
+
+<pre class="src src-sql"><span class="org-keyword">create</span> <span class="org-keyword">table</span> <span class="org-function-name">article</span>
+<span class="org-rainbow-delimiters-depth-1">(</span>
+  id <span class="org-type">int</span> <span class="org-keyword">primary</span> <span class="org-keyword">key</span>,
+  title varchar2<span class="org-rainbow-delimiters-depth-2">(</span>20<span class="org-rainbow-delimiters-depth-2">)</span> <span class="org-keyword">not</span> <span class="org-keyword">null</span>,
+  content <span class="org-type">clob</span>,
+  createtime <span class="org-type">date</span> <span class="org-keyword">default</span> sysdate
+<span class="org-rainbow-delimiters-depth-1">)</span>;
+<span class="org-keyword">insert</span> <span class="org-keyword">into</span> article <span class="org-rainbow-delimiters-depth-1">(</span>id, title, content<span class="org-rainbow-delimiters-depth-1">)</span> <span class="org-keyword">values</span> <span class="org-rainbow-delimiters-depth-1">(</span>1, <span class="org-string">'Oracle &#20351;&#29992;&#25351;&#21335;'</span>, <span class="org-string">'&#20320;&#22909;'</span><span class="org-rainbow-delimiters-depth-1">)</span>;
+</pre>
+</div>
+</li>
+</ul>
+</div>
+</div>
+
+<div id="outline-container-sec-6-1-6" class="outline-4">
+<h4 id="sec-6-1-6"><span class="section-number-4">6.1.6</span> 伪列(Pseudo Column)</h4>
+<div class="outline-text-4" id="text-6-1-6">
+<p>
+<b>ROWID，映射的是数据的物理地址</b>
+</p>
+<div class="org-src-container">
+
+<pre class="src src-sql"><span class="org-keyword">select</span> dbms_rowid.rowid_object<span class="org-rainbow-delimiters-depth-1">(</span>rowid<span class="org-rainbow-delimiters-depth-1">)</span> object_id,   <span class="org-comment">--&gt; &#20351;&#29992;dbms_rowid&#21253;&#33719;&#24471;rowid&#30340;&#21313;&#36827;&#21046;&#20449;&#24687;                      </span>
+  dbms_rowid.rowid_relative_fno<span class="org-rainbow-delimiters-depth-1">(</span>rowid<span class="org-rainbow-delimiters-depth-1">)</span> file_id,                                                                   
+  dbms_rowid.rowid_block_number<span class="org-rainbow-delimiters-depth-1">(</span>rowid<span class="org-rainbow-delimiters-depth-1">)</span> block_id,                                                                  
+  dbms_rowid.rowid_row_number<span class="org-rainbow-delimiters-depth-1">(</span>rowid<span class="org-rainbow-delimiters-depth-1">)</span> num                                                                          
+<span class="org-keyword">from</span> dept;
+
+<span class="org-keyword">select</span> object_name,object_id
+<span class="org-keyword">from</span> dba_objects <span class="org-keyword">where</span> object_name=<span class="org-string">'DEPT'</span> <span class="org-keyword">and</span> owner=<span class="org-string">'SCOTT'</span>; <span class="org-comment">--&gt; &#26597;&#30475;&#23545;&#35937;id</span>
+</pre>
+</div>
+
+<p>
+比如，如果某行数据的 rowid 是 <code>AAAO0fAAFAAAAlmAAA</code>, 那么可以根据它直接定位数据的物理地址：
+</p>
+<table>
+
+
+<colgroup>
+<col  class="left">
+
+<col  class="left">
+
+<col  class="left">
+
+<col  class="left">
+</colgroup>
+<tbody>
+<tr>
+<td class="left">AAAO0f</td>
+<td class="left">AAF</td>
+<td class="left">AAAAlm</td>
+<td class="left">AAA</td>
+</tr>
+
+<tr>
+<td class="left">对象号(6个字符)</td>
+<td class="left">文件号(3个字符)</td>
+<td class="left">块号(6个字符)</td>
+<td class="left">行号(3个字符)</td>
+</tr>
+</tbody>
+</table>
+
+<p>
+<b>ROWNUM，为查询出的结果集赋予从1开始的行号。主要用于分页。</b>
+</p>
+</div>
+</div>
+
+<div id="outline-container-sec-6-1-7" class="outline-4">
+<h4 id="sec-6-1-7"><span class="section-number-4">6.1.7</span> NULL</h4>
+<div class="outline-text-4" id="text-6-1-7">
+<p>
+表示空，类型不确定。
+常跟 nvl 函数一起使用。
+所有跟 null 进行运算的结果仍然是 null.
+</p>
+<pre class="example">
+select 1+null from dual;
+</pre>
+</div>
 </div>
 </div>
 </section>
@@ -1373,8 +1673,8 @@ grant dba to xxx identified by yyy;  -- 创建一个用户 xxx，密码为 yyy�
 </div>
 <div id="postamble" class="status">
 <p class="author">Author: imfine</p>
-<p class="date">Created: 2017-08-30 Wed 15:28</p>
-<p class="creator"><a href="http://www.gnu.org/software/emacs/">Emacs</a> 25.2.1 (<a href="http://orgmode.org">Org</a> mode 8.2.10)</p>
+<p class="date">Created: 2017-08-30 Wed 17:50</p>
+<p class="creator"><a href="http://www.gnu.org/software/emacs/">Emacs</a> 25.1.50.1 (<a href="http://orgmode.org">Org</a> mode 8.2.10)</p>
 <p class="validation">Go ahead, never stop.</p>
 </div>
 </body>

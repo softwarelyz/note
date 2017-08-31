@@ -1,4 +1,4 @@
-﻿<html>
+<html>
 <head>
     <meta charset="UTF-8">
 	<title>134班众英雄座次</title>
@@ -94,7 +94,6 @@
 		
 		//点击单选时
 		dan.onclick=function(){
-			
 			if(z==2||names.length==1){
 				strs="";
 				for(let i=0;i<g1.length;i++){
@@ -150,6 +149,7 @@
 				strs= new Array();
 				dan.innerText="单选";
 				clearInterval(time);
+				time="";
 				for(var i=0;i<names.length;i++){
 					if(td[old].innerText==names[i]){
 						names.splice(i,1);
@@ -219,6 +219,7 @@
 				strs= new Array();
 				duo.innerText="多选";
 				clearInterval(time);
+				time="";
 				for(var i=0;i<names.length;i++){
 					if(td[old].innerText==names[i]){
 						names.splice(i,1);
@@ -322,6 +323,42 @@
 </table>
 <div style=" position:absolute; bottom:20px; z-index:2; font-size:2px; text-align:center;color:#C2C2C2">暴走猪头统一商标&nbsp;版本号：1.2&nbsp;<span id="sp1">点此查看1.3版本</span></div>
 
+
+<table id="xxx">
+
     
+</table>
+
+
+
+<script>
+ // all
+ // 名字/组名
+ const all  = [
+     "李远志/1/", "李远志/1", "李远志/1", "李远志/1",
+     "李远志/2", "李远志/2/", "李远志/2", "李远志/2",
+     "李远志/2/", "李远志/3", "", "李远志/1",
+     "李远志/1", "李远志/3/", "李远志/3", "李远志/1",
+     "李远志/4", "李远志/3", "李远志/4", "李远志/4/",
+ ];
+
+ let result = new Array();
+ for(const [i, s] of all.entries()) {
+     let sarr = s.split("/");
+     let name = sarr[0];
+     let styleClass = "g" + sarr[1] + (sarr.length > 2 ? " m" : "");
+
+     if(i % 4 == 0)
+         result.push("<tr>");
+     
+     result.push(`    <td class='${styleClass}'>${name}</td>`);
+
+     if(i % 4 == 3 && i != all.length)
+         result.push("</tr>");
+ }
+
+ document.querySelector("#xxx").innerHTML = result.join("\n");
+ 
+</script>
 </body>
 </html>

@@ -191,6 +191,7 @@
    #+END_SRC
 
 * 冷饮
+** 学生管理系统
 根据我们学校的实际情况，请帮助设计一个学生管理系统。
 : 比如, 学生，老师，班级，课程。按照你自己的设计，酌情增加。
 
@@ -209,6 +210,93 @@
 
 4. 最后，将图跟语句一起上交。这个过程着重思考下项目从设计到编码是怎么一个过程。
    : 需求分析 -> *概要设计* -> 详细实现。 
+
+** 简单查询
+- 查询工资为 2500 到 4000 的人的数量（用不同方式查询）
+  #+BEGIN_SRC sql
+    select count(*) from emp where sal >= 2500 and sal <= 4000;
+    -- vs.
+    select count(*) from emp where sal between 2500 and 4000;
+  #+END_SRC
+- 查询部门编号为 10 和 30 的所有人（用不同方式查询）
+- 查询部门编号为 10 和 30 中名字中不含有 'C' 的所有人
+- 查询部门编号为 10 和 30 中名字首字母之外不含有 'C' 的所有人
+- 查询部门编号为 10 和 30 中所有的经理以及名字首字母之外不含有 'C' 的所有人
+- 查询纽约和芝加哥地区所有的经理以及名字首字母之外不含有 'C' 的所有人
+- 查询纽约和芝加哥地区所有的经理以及顶头上司名字的首字母之外不含有 'C' 的所有人
+- 查询每个人的工资等级
+  #+BEGIN_SRC sql
+    -- 初始化数据
+    create table salgrade as select * from scott.salgrade;
+
+    -- 分别查看数据
+    select * from emp;
+    select * from salgrade;
+
+    -- 杂交
+    select * from emp, salgrade;
+
+    -- 过滤掉不合适的
+    select ename, grade from emp e, salgrade s where e.sal between s.losal and s.hisal;
+  #+END_SRC
+- 查询每个部门的平均工资的等级
+  #+BEGIN_SRC sql
+    -- 分析题目
+    -- 1. 需要先查询出每个部门的平均工资
+    -- 2. 根据 salgrade 表中的数据，获取每个部门平均工资的等级
+
+    -- 这是所有的人
+    select * from emp;
+    -- 按照部门分组
+    select deptno, avg(sal) from emp group by deptno;
+    -- 结果：
+    -- | DEPTNO |   AVG(SAL)    |
+    -- |     30  | 1566.66667  |
+    -- |     20 |  2258.33333  |
+    -- |     10 |  2916.66667  |
+
+    -- 跟 salgrade 表，杂交，总共 15 条结果
+    select * from
+      (select deptno, avg(sal) sal from emp group by deptno) t,
+      salgrade s;
+
+    -- 过滤掉工资范围不合适的数据
+    select * from
+      (select deptno, avg(sal) sal from emp group by deptno) t,
+      salgrade s
+    where
+      t.sal between s.losal and s.hisal;
+    -- 结果就是这样，就对了
+    -- | DEPTNO |  SAL        |  GRADE |  LOSAL |  HISAL  |
+    -- |     10 |  2916.66667 |      4 |   2001 |   3000  |
+    -- |     20 |  2258.33333 |      4 |   2001 |   3000  |
+    -- |     30 |  1566.66667 |      3 |   1401 |   2000  |
+
+
+    -- 需要将部门名称显示出来，再杂交->过滤一次就可以了
+    select * from
+      (select deptno, avg(sal) sal from emp group by deptno) t,
+      salgrade s,
+      dept d
+    where
+      t.deptno = d.deptno and
+      t.sal between s.losal and s.hisal;
+
+
+    -- 最后的最后，设置显示字段
+    select dname, grade from
+      (select deptno, avg(sal) sal from emp group by deptno) t,
+      salgrade s,
+      dept d
+    where
+      t.deptno = d.deptno and
+      t.sal between s.losal and s.hisal;
+    -- 最终结果，完美
+    --| DNAME      |  GRADE  |
+    --| ACCOUNTING |      4  |
+    --| RESEARCH   |      4  |
+    --| SALES      |      3  |
+  #+END_SRC
 
 * 体系结构
 Oracle 采取的是 Client/Server 架构。
@@ -998,29 +1086,204 @@ Oracle 提供了 =DBMS_LOG= 包对 LOB 类型的数据进行处理。
   #+END_SRC
 
 *** 伪列(Pseudo Column)
-*ROWID，映射的是数据的物理地址*
-  #+BEGIN_SRC sql
-    select dbms_rowid.rowid_object(rowid) object_id,   --> 使用dbms_rowid包获得rowid的十进制信息                      
-      dbms_rowid.rowid_relative_fno(rowid) file_id,                                                                   
-      dbms_rowid.rowid_block_number(rowid) block_id,                                                                  
-      dbms_rowid.rowid_row_number(rowid) num                                                                          
-    from dept;
+**** rowid
+rowid 是 oracle 中的伪列。可以通过下面语句显示:
+: select d.rowid, d.* from dept d
 
-    select object_name,object_id
-    from dba_objects where object_name='DEPT' and owner='SCOTT'; --> 查看对象id
-  #+END_SRC
+它是唯一的，不可变的，固定长度的。
+
+它是数据存储物理地址的一种映射。一共有18位，前6位表示对象id，后3位表示fno，后6位表示块编号，最后3位表示行编号。 所以，通过rowid可以最快速度地定位到数据所在的位置。
 
 比如，如果某行数据的 rowid 是 =AAAO0fAAFAAAAlmAAA=, 那么可以根据它直接定位数据的物理地址：
 | AAAO0f          | AAF             | AAAAlm        | AAA           |
 | 对象号(6个字符) | 文件号(3个字符) | 块号(6个字符) | 行号(3个字符) |
 
-*ROWNUM，为查询出的结果集赋予从1开始的行号。主要用于分页。*
+rowid 是 oracle 特有的。
+
+不建议使用 rowid 作为表的主键。迁移的需求，有改变的风险。
+
+**** rownum
+
+列出每一行数据的行数，从1开始，自然增长。
+
+#+BEGIN_SRC sql
+  -- 基本用法
+  select rownum, d.* from dept;
+  select rownum, d.* from dept d where rownum < 3;     -- 显示前两条
+  select * from (select rownum rn, d.* from dept d) t where t.rn = 3;   -- 只显示第三条
+  select * from (select * from emp order by sal desc) where rownum<=3;  -- 显示 emp 表中工资前三位的雇员信息。
+#+END_SRC
 
 *** NULL
-表示空，类型不确定。
-常跟 nvl 函数一起使用。
-所有跟 null 进行运算的结果仍然是 null.
-: select 1+null from dual;
+它是 Oracle 中非常特殊的一种类型。它表示不确定，表示没有值。并且它能转化成所有的类型。 向数据库中插入空字符串时，oracle 会把它自动转化为 null 类型。所以，在查询空字符的时候：
+: select * from n3 where s = '';
+
+上面的语句是非法，不合适的。应该这样查：
+: select * from n3 where s is null;
+: select * from n3 where s is not null;
+
+创建表的时候，为了约束插入的数据不能为空，应该在字段的后面写上 not null 约束。
+: create table n5 (s varchar2(20) not null);
+
+跟 null 做任何的运算，结果仍然是 null.
+: select null + '' from dual;   -- null
+
+** 运算符
+*** 算术运算符
+加 / 减 / 乘 / 除
+
+*** 连接运算符
+是用来连接字符串的。跟java中的 + 是一致的。
+#+BEGIN_SRC sql
+  select 'abc' || ' bcd ' as 连接后的结果 from dual;
+  select d.dname || ' 部门' from dept d;
+#+END_SRC
+
+*** 比较运算符
+> / < / >= / <= / != / <> /IS NULL / Like / Between / In / Exsist
+
+#+BEGIN_SRC sql
+  -- 判断 null 值
+  select * from n5 where s is null;
+  select * from n5 where s is not null;
+
+  -- like 模糊查询。慎用，有可能会导致全表扫描，效率低。
+  -- % 匹配0到多个字符，_ 匹配一个字符
+  select username from dba_users where username like 'VI_';
+  select username from dba_users where username like 'SC%';
+  select username from dba_users where username like '%SC%';
+
+  -- in，是 where x = a or x = b or x = c 的一种缩写。下面两条是等价的。
+  select * from emp where empno in (700, 800, 900);
+  select * from emp where empno = 700 or empno = 800 or empno = 900;
+  -- in 后面跟的不一定是逗号分隔的单项，也可能是一个完整的查询语句。
+  -- 下面两条结果是一致的
+  -- 这种 in 慎用
+  select * from emp where deptno in (select deptno from dept where dname = 'SALES');
+  select a.* from emp a,dept d where a.deptno =d.deptno and d.dname='SALES';
+
+
+  -- between...and
+  select * from emp where empno between 7800 and 9000;
+  -- 等同于：
+  select * from emp where empno >= 7800 and empno <= 9000;
+
+#+END_SRC
+
+*** 逻辑运算符
+and / or / not
+
+*not 的优先级 > and 的优先级 > or 的优先级*
+
+*** 集合操作符
+Union / UnionAll / Intersect / Minus
+
+#+BEGIN_SRC sql
+  -- 生成测试数据
+  create table dept_01 as select * from dept where rownum < 6;
+  create table dept_02 as select * from dept where rownum < 4;
+  insert into dept_02 values (98, '小吃部', '斗门');
+  insert into dept_02 values (99, '外卖部', '香洲');
+  commit;
+
+  select * from dept_01
+  union
+  select * from dept_02;
+
+  select * from dept_01
+  union all
+  select * from dept_02;
+
+  select * from dept_01
+  intersect
+  select * from dept_02;
+
+  select * from dept_01
+  minus
+  select * from dpet_02;
+#+END_SRC
+
+** join query
+
+#+BEGIN_SRC sql
+  -- 初始化表
+  create table loc (id int primary key, name varchar2(20));
+  create table person (name varchar2(20), locid references loc);
+
+  -- 初始化数据
+  insert into gp values (1, '和平', '万岁');
+  insert into gp values (2, '自由', '很好');
+  insert into gp values (3, '民主', '爱国');
+  insert into gp values (4, '敬业', '友善');
+  insert into loc values (11, '广东');
+  insert into loc values (22, '山东');
+  insert into loc values (33, '湖南');
+  insert into loc values (44, '江西');
+  insert into person values ('王新炜', 33);
+  insert into person values ('吴英平', 33);
+  insert into person values ('杜志海', 44);
+  insert into person values ('范锐', 11);
+  commit;
+
+  select * from person;
+  select * from loc;
+
+  -- 查询就是一个逐步过滤的过程
+  -- 叉乘，内部杂交，虚拟表，16条数据
+  select * from person, loc;
+  -- 过滤掉不符合条件的数据。即完成一次外连接。
+  -- 即：增一表，加一条件。
+  select * from person, loc where person.locid = loc.id;
+  -- 其他条件，即在上面的基础上继续过滤
+  select * from person, loc where person.locid = loc.id and person.name like '王%';
+
+
+  -- 增加另一个表
+  create table gp (id int primary key, name varchar2(20), logo varchar2(10)); 
+  alter table person add  (gpid int references gp);
+  -- 修改每个人的 group
+  -- update ..
+
+  select * from gp;
+  select * from loc;
+  select * from person;
+
+  update loc set name='中华人民共和国湖南省' where id=33;
+  commit;
+
+  select * from person p, loc l, gp g;
+  -- 将不符合的排除掉
+  select * from person p, loc l, gp g
+    where p.locid = l.id
+      and p.gpid = g.id
+      -- and   l.name = '江西'
+      and g.name='和平'
+      and p.name like '王%';
+
+  -- 
+  -- oracle 写法，非标准
+  select * from person p, loc l, gp g
+    where p.locid = l.id and p.gpid = g.id;
+
+  -- ansi sql 写法，join 默认是 inner join
+  select * from person p
+     join loc l on p.locid = l.id
+     join gp g on p.gpid = g.id;
+
+
+  -- 增加一个没有地区的人
+  insert into person values ('黄秀', null, null);
+  commit;
+
+  -- 显示所有人，并将其地区信息查询出来。
+  -- 需要使用外连接，将即使不匹配的人也查询出来
+  -- oracle 写法
+  select * from person, loc
+    where person.locid = loc.id(+);
+  -- 标准写法
+  select * from person p
+    left outer join loc l on p.locid = l.id;
+#+END_SRC
 
 * Objects
 * PL/SQL编程

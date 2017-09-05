@@ -1203,8 +1203,7 @@ Union / UnionAll / Intersect / Minus
   select * from dpet_02;
 #+END_SRC
 
-** join query
-
+** Join Query
 #+BEGIN_SRC sql
   -- 初始化表
   create table loc (id int primary key, name varchar2(20));
@@ -1284,6 +1283,122 @@ Union / UnionAll / Intersect / Minus
   select * from person p
     left outer join loc l on p.locid = l.id;
 #+END_SRC
+
+** Functions
+*** Numeric
+- abs/mod 绝对值/求模
+- sqrt/power/exp    求幂
+- ceil/floor/round  取整
+- trunc 截取小数点
+- sin/cos/ln/log   数学函数
+
+*** Charactor
+- chr/ascii   ascii码      
+- length/lengthb   字符/字节长度
+- initcap/upper/lower   字母大小写   
+- substr/translate/replace/instr   子串/替换    
+- ltrim/rtrim/lpad/rpad   修剪/填充    
+*** Datetime
+#+BEGIN_SRC sql
+  select sysdate, systimestamp, current_date from dual;
+  -- x 天之后的日期
+  select sysdate + 365 from dual;
+  -- x 个月后的日期
+  select add_months(sysdate, -5) from dual;
+  -- 相差几个月
+  select months_between(to_date('20180501'), sysdate) from dual;
+  -- 下周 x 的日期
+  select next_day(sysdate, '星期一') from dual;
+  select next_day(sysdate, 2) from dual;  -- 1 代表星期天, 0 代表星期一, 类推
+  -- 一个月的最后一天/第一天
+  select last_day(sysdate) from dual;
+  select trunc(sysdate,'MONTH') from dual;
+  select trunc(sysdate,'YEAR') from dual;
+  -- 获取日期的单个字段
+  select extract(day from sysdate) from dual;
+  -- 对日期进行截取
+  select round(to_date('20170916'),'MONTH') from dual; -- 四舍五入
+  select trunc(to_date('20170916'),'MONTH') from dual;
+#+END_SRC
+
+
+*** Nullable
+- nvl/nvl2/nullif
+*** Miscellaneous
+*decode/case when*:
+#+BEGIN_SRC sql
+  -- 生成数据
+  create table sss (name varchar2(20), gender int);
+  insert into sss values ('樱桃小丸子', 2);
+  insert into sss values ('路飞', 1);
+  insert into sss values ('大熊', 3);
+  insert into sss values ('光头强', 1);
+  commit;
+
+  -- 查询，将 gender 的数字转化为男女
+  -- 1. decode 函数的方式
+  select name, decode(gender, 1, '雄性',
+                              2, '雌性',
+                                 '未知性别') "性别" from sss;
+  -- 2. case when 的方式                               
+  select name, case gender
+                  when 1 then '雄性'
+                  when 2 then '雌性'
+                    else '未知性别'
+               end "性别" from sss;
+
+  -- 3. case when 的另一种方式             
+  select name, case 
+                  when gender <= 1 then '雄性'
+                  when gender >= 2 then '雌性'
+                    else '未知性别'
+                end "性别" from sss;
+
+  -- 给 emp 中的人加工资：
+  ---- 1000 元以下的，加 50%
+  ---- 2000 元以下的，加 30%
+  ---- 3000 元以下的，加 20%
+  ---- 其他人 5%
+  create table emp3 as select * from emp;
+  -- 如果要将所有的工资翻倍，这么写：
+  update emp3 set sal = sal*2;
+  -- 如果不同的人加不同的工资，需要用到 case when:
+  update emp3 set sal = (case
+                           when sal <= 1000 then sal*1.5
+                           when sal <= 2000 then sal*1.3
+                           when sal <= 3000 then sal*1.2
+                           else sal*1.05
+                         end);
+  -- 如果 1981/5/1 之前来公司的人按照上面调薪，其他人只调 1% 呢？
+  -- [TODO]
+#+END_SRC
+
+*** Aggregate Function
+- max/min/count/avg/sum
+*** Analytic Function
+https://docs.oracle.com/cd/E11882_01/server.112/e41084/functions004.htm#SQLRF06174
+#+BEGIN_SRC sql
+  select sum(sal) over (partition by deptno order by ename) max_sal, e.* from emp e;
+  select row_number() over (partition by deptno order by ename) rn, e.* from emp e;
+#+END_SRC
+** 查询语句执行顺序
+完整的查询语句类似是这样的：
+#+BEGIN_SRC sql
+  select ..., ROWNUM
+    from table
+   where <where clause>
+   group by <columns>
+  having <having clause>
+   order by <columns>;
+#+END_SRC
+
+它的处理顺序是：
+1. 首先，执行 FROM/WHERE 语句
+2. 为结果赋予 ROWNUM 并同时根据 FROM/WHERE 语句进行 rownum 过滤
+3. 执行 SELECT
+4. 执行 GROUP BY
+5. 执行 HAVING
+6. 执行 ORDER BY
 
 * Objects
 * PL/SQL编程

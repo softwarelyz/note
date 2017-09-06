@@ -1374,12 +1374,113 @@ Union / UnionAll / Intersect / Minus
 #+END_SRC
 
 *** Aggregate Function
-- max/min/count/avg/sum
+聚合函数是用来统计每个分组的统计信息，它们要跟 group by 一起使用，用来将每个分组所有数据 *聚合* 成一条统计数据。
+
+包括 max/min/count/avg/sum 等。
+#+BEGIN_SRC sql
+  -- 按照部门进行分组统计的语句
+  select deptno,             -- 因为按照 deptno 分组，select 中只能有 deptno 字段
+         count(*),           -- 每个分组多少条数据
+         max(sal),           -- 每个分组工资的最大值
+         min(sal),           -- 每个分组工资的最小值
+         avg(sal),           -- 每个分组工资的均值
+         sum(nvl(comm, 0))   -- 每个分组奖金总和，因为奖金可能为 null，所以需要使用 nvl 进行去空
+    from emp
+   group by deptno;          -- 分组依据
+
+
+  -- 可以用 having 对结果进行过滤
+  -- 整个 select 语句执行顺序大致是: where -> group by -> having -> order by
+  select deptno, count(*), max(sal), min(sal), avg(sal), sum(comm)
+    from emp
+   group by deptno
+   having avg(sal) > 2000;
+
+  -- having 等价于嵌套的 where，即上面语句跟下面这条等效。
+  select * from (
+    select deptno, count(*), max(sal), min(sal), avg(sal) asal, sum(comm)
+      from emp
+     group by deptno
+   ) where asal > 2000;
+#+END_SRC
+
 *** Analytic Function
 https://docs.oracle.com/cd/E11882_01/server.112/e41084/functions004.htm#SQLRF06174
+
+聚合函数统计的是一个分组的信息，聚合之后每个分组只能得到一条信息，但并不能够获取分组内成员的具体信息。
+
+而分析函数可以详细显示分组内部的统计信息，它显示的信息更全面，语法也更复杂。
+
+大致来说，分析函数的使用语法是这样的:
+: 分析函数() over ([partition by xxx] order by yyy [rows/range ...])
+
+解释：
+- 一个分析函数，需要跟着一个窗口函数。
+- 以 over 开始的部分叫 *窗口函数*, 它描述了要对哪些数据、按照什么方式进行分析的行为。
+- 窗口函数内部分为三部分，其中 order by 是必须的，其它可选
+- =partition by= 指定了数据按照什么方式 分组/分区
+- =order by= 指定了在分区之内，数据的排序方式
+- =rows/range= 可以对分区的数据进行限定
+- 分析函数有很多，比如 row_number/rank/dense_rank/max/count 等，row_number 等有如下区别
+  : ROW_NUMBER 返回连续的排位，不论值是否相等
+  : RANK 具有相等值的行排位相同，序数随后跳跃
+  : DENSE_RANK 具有相等值的行排位相同，序号是连续的
+- *需要查询组本身的信息，用聚合函数 group by; 需要查询组成员的统计信息，需要用分析函数。*
+
+示例：
 #+BEGIN_SRC sql
-  select sum(sal) over (partition by deptno order by ename) max_sal, e.* from emp e;
-  select row_number() over (partition by deptno order by ename) rn, e.* from emp e;
+  -- 最基本，窗口描述内只有 order by
+  select e.*, sum(sal) over (order by sal) from emp e;
+  select e.*, row_number() over (order by sal) from emp e;
+
+  -- 以组为单位，进行排序
+  select e.*, sum(sal) over (partition by deptno order by sal) from emp e;
+  select e.*, row_number() over (partition by deptno order by sal) from emp e;
+
+
+  -- 比如，要查询每个组的最高工资，可以用聚合函数
+  select deptno, max(sal) from emp group by deptno;
+  -- 但如果要查看工资最高的那个人，聚合函数无能为力，需要用到分析函数
+  ---- 1. 首先按组排序
+  select e.*, row_number() over (partition by deptno order by sal desc) from emp e;
+  ---- 2. 过滤，只取排名第一的那个人，ok
+  select * from
+    (select e.*, row_number() over (partition by deptno order by sal desc) rn from emp e)
+   where rn = 1;
+#+END_SRC
+
+** Pagination
+使用 rownum 或者 row_number()：
+#+BEGIN_SRC sql
+  -- 注意，这种写法是无效的，因为：rownum > n 这种写法无意义
+  select * from emp where rownum > 4 and rownum < 8;
+
+  -- 为了能使用 rownum>n，我们只需要嵌套一层查询即可
+  select *
+    from (select rownum rn, e.* from emp e)
+   where rn > 4
+     and rn < 8;
+
+  -- 同样，使用 row_number() 分析函数，我们也需要嵌套一层
+  select *
+    from (select row_number() over(order by rowid) rn, e.* from emp e)
+   where rn > 4
+     and rn < 8;
+
+  -- 而下面这种写法，基本上是最合理，最高效的：
+  select * from (
+    select a.*, rownum rn from (
+      select * from emp
+    ) a where rownum < 8)
+   where rn > 4;
+
+  -- 即:
+  SELECT * FROM (
+    SELECT a.*, ROWNUM rn FROM (
+      -- 要查询的语句
+    ) a where ROWNUM < '#最大序号#')
+   WHERE rn > '#最小序号#';
+
 #+END_SRC
 ** 查询语句执行顺序
 完整的查询语句类似是这样的：
@@ -1399,6 +1500,8 @@ https://docs.oracle.com/cd/E11882_01/server.112/e41084/functions004.htm#SQLRF061
 4. 执行 GROUP BY
 5. 执行 HAVING
 6. 执行 ORDER BY
+
+PS: 如果存在分析函数(row_number etc)，那么，分析函数的执行会在 order by 之前。
 
 * Objects
 * PL/SQL编程

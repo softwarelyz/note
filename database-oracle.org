@@ -1503,6 +1503,142 @@ https://docs.oracle.com/cd/E11882_01/server.112/e41084/functions004.htm#SQLRF061
 
 PS: 如果存在分析函数(row_number etc)，那么，分析函数的执行会在 order by 之前。
 
+** DDL
+表的约束
+- 是加在表上的一种对象，能保证每次插入或修改数据的时候，对数据的合法性进行检查，从而避免插入不合理数据。
+- 优点：通过检查，能保证数据的完整性和一致性。
+- 缺点：消耗一定的存储，数据量大的时候，每次检查会有一定的资源损耗
+
+#+BEGIN_SRC sql
+  -- 首先，创建表：类型、长度、非空
+  create table ddl_test1 (
+     id int,
+     name varchar2(20) not null,
+     birthday date,
+     sex int
+  );
+
+  -- 在表 ddl_test1 上增加一个名字为 fk_ddl_sex_01 的约束
+  -- 作用在 sex 列上 / 关联到 ddl_sex 表的 id 列
+  alter table ddl_test1
+     add constraint fk_ddl_sex_01 foreign key (sex) references ddl_sex (id);
+
+  create table ddl_sex (
+     id int,
+     value varchar2(10)
+  );
+
+  alter table ddl_sex add constraint pk_ddl_sex primary key(id);
+  select * from ddl_sex;
+
+
+  ---- 创建约束的几种方式
+  ---- 第一种方式，先创建表，再初始化数据，最后再加约束
+  -- 创建表
+  create table ddl_test2 (
+     id int,
+     name varchar2(20) not null,
+     birthday date,
+     sex int
+  );
+  create table ddl_sex2 (
+     id int,
+     value varchar2(10)
+  );
+  -- 插入数据
+  insert into ddl_sex values (1, '男');
+  insert into ddl_sex values (2, '女');
+  insert into ddl_test2 values (2, 'xx', sysdate, 1);
+  insert into ddl_sex values (3, '不知');
+  insert into ddl_test2 values (1, 'xx', sysdate, 1);
+  insert into ddl_test2 values (3, 'xx', sysdate, 1);
+  insert into ddl_test2 values (4, 'xx', sysdate, 1);
+  -- 增加索引
+  alter table ddl_test2 add constraint fk_0023 foreign key (sex) references ddl_sex;
+  alter table ddl_test2 add constraint pk_test2 primary key (id);
+
+  ---- 第二种方式，在建表的字段上直接建立约束
+  create table ddl_test4
+  ( 
+     id int primary key,
+     name varchar2(20) not null,
+     sex constraint hello250 references ddl_sex
+  );
+
+  ---- 第三种方式，将建立约束的语句，放到建表语句最后。优点，清晰易于管理。
+  create table ddl_test5
+  (
+     id int,
+     name varchar2(20) not null,
+     sex int,
+     
+     constraint hello260 primary key(id),
+     foreign key (sex) references ddl_sex
+   );
+
+  ---- 约束的种类
+  ---- 主要有：主键约束、非空约束、唯一约束、检查约束、外键约束等
+  create table ddl_test6 (
+    id int,
+    sal number(5)
+  );
+  alter table ddl_test6 add constraint pk_test6 primary key (id);
+  alter table ddl_test6 add constraint ck_2323 check(sal > 1250);
+  insert into ddl_test6 values (1, 500);
+  insert into ddl_test6 values (2, 3500);
+  select * from ddl_test6;
+#+END_SRC
+
+表的命名
+- 简
+- 明
+
+另外：
+1. 表名等在数据库内部会自动转化为大写的形式。如果想使用小写的形式，需要在创建的时候，加双引号。
+   : create table "lowcase_name" (...);
+2. 表名尽量使用英文单词，或英文单词缩写词。如果有多个单词连接，请使用下划线。
+3. 不要使用复数形式。比如使用 =boy= 而不是 =boys=, 使用 =student= 而非 =students=.
+4. 字段名字有两种方式:
+   #+BEGIN_SRC sql
+     -- 清晰明了不拖泥带水，但多表联合查询，可能出现重复字段
+     create table boy (id int, name varchar2(20), wechat varchar2(20));
+     -- 写法丑，但联合查询不会出现重复字段
+     create table girl (girl_id int, girl_name varchar2(20), girl_wechat varchar2(20));
+   #+END_SRC
+5. 主键请使用 *代理主键*, 即没有任何业务关联的字段作为主键。因为直觉上不变的东西，在特定情况下都可能发生变化。
+6. 自增，请使用 *序列*, 最好为每个单独的主键创建一个专用的序列。
+   #+BEGIN_SRC sql
+     -- 首先，保证有创建序列的权限
+     GRANT CREATE SEQUENCE TO VIP;
+
+     -- 创建序列的最简语句
+     -- 注意，命名中，最好带 seq 等字段，表示这是一个序列
+     CREATE SEQUENCE seq_boy;
+
+     -- 使用的方式很简单
+     insert into boy values (seq_boy.nextval, 'xxx');
+     select seq_boy.currval  -- 序列当前值
+            seq_boy.nextval  -- 序列下一个值
+       from dual;
+
+     -- 序列可以有更多参数
+     create sequence seq_boy2
+       minvalue 2      -- 最小值，默认 1
+       maxvalue 1000   -- 最大值，默认无限
+       start with 4    -- 初始值，默认跟 minvalue 相同
+       increment by 2  -- 步进
+       nocycle         -- 如果到达最大值，是否从开始再次循环
+       nocache         -- 设置缓存
+       ;
+
+     -- 修改
+     alter sequence seq_boy2 cache 10;
+     alter sequence seq_boy2 maxvalue 2000 increment 5;
+
+     -- 删除
+     drop sequence seq_boy2;
+   #+END_SRC
+
 * Objects
 * PL/SQL编程
 * 锁/事务

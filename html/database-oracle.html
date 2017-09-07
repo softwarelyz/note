@@ -2,7 +2,7 @@
 <html>
 <head>
 <title>Oracle 数据库</title>
-<!-- 2017-09-06 Wed 14:50 -->
+<!-- 2017-09-07 Thu 14:57 -->
 <meta  charset="utf-8">
 <meta  name="generator" content="Org-mode">
 <meta  name="author" content="imfine">
@@ -100,6 +100,7 @@
 </li>
 <li><a href="#sec-6-5">6.5. Pagination</a></li>
 <li><a href="#sec-6-6">6.6. 查询语句执行顺序</a></li>
+<li><a href="#sec-6-7">6.7. DDL</a></li>
 </ul>
 </li>
 <li><a href="#sec-7">7. Objects</a></li>
@@ -2360,6 +2361,177 @@ PS: 如果存在分析函数(row_number etc)，那么，分析函数的执行会
 </p>
 </div>
 </div>
+
+<div id="outline-container-sec-6-7" class="outline-3">
+<h3 id="sec-6-7"><span class="section-number-3">6.7</span> DDL</h3>
+<div class="outline-text-3" id="text-6-7">
+<p>
+表的约束
+</p>
+<ul class="org-ul">
+<li>是加在表上的一种对象，能保证每次插入或修改数据的时候，对数据的合法性进行检查，从而避免插入不合理数据。
+</li>
+<li>优点：通过检查，能保证数据的完整性和一致性。
+</li>
+<li>缺点：消耗一定的存储，数据量大的时候，每次检查会有一定的资源损耗
+</li>
+</ul>
+
+<div class="org-src-container">
+
+<pre class="src src-sql"><span class="org-comment">-- &#39318;&#20808;&#65292;&#21019;&#24314;&#34920;&#65306;&#31867;&#22411;&#12289;&#38271;&#24230;&#12289;&#38750;&#31354;</span>
+<span class="org-keyword">create</span> <span class="org-keyword">table</span> <span class="org-function-name">ddl_test1</span> <span class="org-rainbow-delimiters-depth-1">(</span>
+   id <span class="org-type">int</span>,
+   <span class="org-keyword">name</span> varchar2<span class="org-rainbow-delimiters-depth-2">(</span>20<span class="org-rainbow-delimiters-depth-2">)</span> <span class="org-keyword">not</span> <span class="org-keyword">null</span>,
+   birthday <span class="org-type">date</span>,
+   sex <span class="org-type">int</span>
+<span class="org-rainbow-delimiters-depth-1">)</span>;
+
+<span class="org-comment">-- &#22312;&#34920; ddl_test1 &#19978;&#22686;&#21152;&#19968;&#20010;&#21517;&#23383;&#20026; fk_ddl_sex_01 &#30340;&#32422;&#26463;</span>
+<span class="org-comment">-- &#20316;&#29992;&#22312; sex &#21015;&#19978; / &#20851;&#32852;&#21040; ddl_sex &#34920;&#30340; id &#21015;</span>
+<span class="org-keyword">alter</span> <span class="org-keyword">table</span> <span class="org-function-name">ddl_test1</span>
+   <span class="org-keyword">add</span> <span class="org-keyword">constraint</span> fk_ddl_sex_01 <span class="org-keyword">foreign</span> <span class="org-keyword">key</span> <span class="org-rainbow-delimiters-depth-1">(</span>sex<span class="org-rainbow-delimiters-depth-1">)</span> <span class="org-keyword">references</span> ddl_sex <span class="org-rainbow-delimiters-depth-1">(</span>id<span class="org-rainbow-delimiters-depth-1">)</span>;
+
+<span class="org-keyword">create</span> <span class="org-keyword">table</span> <span class="org-function-name">ddl_sex</span> <span class="org-rainbow-delimiters-depth-1">(</span>
+   id <span class="org-type">int</span>,
+   <span class="org-keyword">value</span> varchar2<span class="org-rainbow-delimiters-depth-2">(</span>10<span class="org-rainbow-delimiters-depth-2">)</span>
+<span class="org-rainbow-delimiters-depth-1">)</span>;
+
+<span class="org-keyword">alter</span> <span class="org-keyword">table</span> <span class="org-function-name">ddl_sex</span> <span class="org-keyword">add</span> <span class="org-keyword">constraint</span> pk_ddl_sex <span class="org-keyword">primary</span> <span class="org-keyword">key</span><span class="org-rainbow-delimiters-depth-1">(</span>id<span class="org-rainbow-delimiters-depth-1">)</span>;
+<span class="org-keyword">select</span> * <span class="org-keyword">from</span> ddl_sex;
+
+
+<span class="org-comment">---- &#21019;&#24314;&#32422;&#26463;&#30340;&#20960;&#31181;&#26041;&#24335;</span>
+<span class="org-comment">---- &#31532;&#19968;&#31181;&#26041;&#24335;&#65292;&#20808;&#21019;&#24314;&#34920;&#65292;&#20877;&#21021;&#22987;&#21270;&#25968;&#25454;&#65292;&#26368;&#21518;&#20877;&#21152;&#32422;&#26463;</span>
+<span class="org-comment">-- &#21019;&#24314;&#34920;</span>
+<span class="org-keyword">create</span> <span class="org-keyword">table</span> <span class="org-function-name">ddl_test2</span> <span class="org-rainbow-delimiters-depth-1">(</span>
+   id <span class="org-type">int</span>,
+   <span class="org-keyword">name</span> varchar2<span class="org-rainbow-delimiters-depth-2">(</span>20<span class="org-rainbow-delimiters-depth-2">)</span> <span class="org-keyword">not</span> <span class="org-keyword">null</span>,
+   birthday <span class="org-type">date</span>,
+   sex <span class="org-type">int</span>
+<span class="org-rainbow-delimiters-depth-1">)</span>;
+<span class="org-keyword">create</span> <span class="org-keyword">table</span> <span class="org-function-name">ddl_sex2</span> <span class="org-rainbow-delimiters-depth-1">(</span>
+   id <span class="org-type">int</span>,
+   <span class="org-keyword">value</span> varchar2<span class="org-rainbow-delimiters-depth-2">(</span>10<span class="org-rainbow-delimiters-depth-2">)</span>
+<span class="org-rainbow-delimiters-depth-1">)</span>;
+<span class="org-comment">-- &#25554;&#20837;&#25968;&#25454;</span>
+<span class="org-keyword">insert</span> <span class="org-keyword">into</span> ddl_sex <span class="org-keyword">values</span> <span class="org-rainbow-delimiters-depth-1">(</span>1, <span class="org-string">'&#30007;'</span><span class="org-rainbow-delimiters-depth-1">)</span>;
+<span class="org-keyword">insert</span> <span class="org-keyword">into</span> ddl_sex <span class="org-keyword">values</span> <span class="org-rainbow-delimiters-depth-1">(</span>2, <span class="org-string">'&#22899;'</span><span class="org-rainbow-delimiters-depth-1">)</span>;
+<span class="org-keyword">insert</span> <span class="org-keyword">into</span> ddl_test2 <span class="org-keyword">values</span> <span class="org-rainbow-delimiters-depth-1">(</span>2, <span class="org-string">'xx'</span>, sysdate, 1<span class="org-rainbow-delimiters-depth-1">)</span>;
+<span class="org-keyword">insert</span> <span class="org-keyword">into</span> ddl_sex <span class="org-keyword">values</span> <span class="org-rainbow-delimiters-depth-1">(</span>3, <span class="org-string">'&#19981;&#30693;'</span><span class="org-rainbow-delimiters-depth-1">)</span>;
+<span class="org-keyword">insert</span> <span class="org-keyword">into</span> ddl_test2 <span class="org-keyword">values</span> <span class="org-rainbow-delimiters-depth-1">(</span>1, <span class="org-string">'xx'</span>, sysdate, 1<span class="org-rainbow-delimiters-depth-1">)</span>;
+<span class="org-keyword">insert</span> <span class="org-keyword">into</span> ddl_test2 <span class="org-keyword">values</span> <span class="org-rainbow-delimiters-depth-1">(</span>3, <span class="org-string">'xx'</span>, sysdate, 1<span class="org-rainbow-delimiters-depth-1">)</span>;
+<span class="org-keyword">insert</span> <span class="org-keyword">into</span> ddl_test2 <span class="org-keyword">values</span> <span class="org-rainbow-delimiters-depth-1">(</span>4, <span class="org-string">'xx'</span>, sysdate, 1<span class="org-rainbow-delimiters-depth-1">)</span>;
+<span class="org-comment">-- &#22686;&#21152;&#32034;&#24341;</span>
+<span class="org-keyword">alter</span> <span class="org-keyword">table</span> <span class="org-function-name">ddl_test2</span> <span class="org-keyword">add</span> <span class="org-keyword">constraint</span> fk_0023 <span class="org-keyword">foreign</span> <span class="org-keyword">key</span> <span class="org-rainbow-delimiters-depth-1">(</span>sex<span class="org-rainbow-delimiters-depth-1">)</span> <span class="org-keyword">references</span> ddl_sex;
+<span class="org-keyword">alter</span> <span class="org-keyword">table</span> <span class="org-function-name">ddl_test2</span> <span class="org-keyword">add</span> <span class="org-keyword">constraint</span> pk_test2 <span class="org-keyword">primary</span> <span class="org-keyword">key</span> <span class="org-rainbow-delimiters-depth-1">(</span>id<span class="org-rainbow-delimiters-depth-1">)</span>;
+
+<span class="org-comment">---- &#31532;&#20108;&#31181;&#26041;&#24335;&#65292;&#22312;&#24314;&#34920;&#30340;&#23383;&#27573;&#19978;&#30452;&#25509;&#24314;&#31435;&#32422;&#26463;</span>
+<span class="org-keyword">create</span> <span class="org-keyword">table</span> <span class="org-function-name">ddl_test4</span>
+<span class="org-rainbow-delimiters-depth-1">(</span> 
+   id <span class="org-type">int</span> <span class="org-keyword">primary</span> <span class="org-keyword">key</span>,
+   <span class="org-keyword">name</span> varchar2<span class="org-rainbow-delimiters-depth-2">(</span>20<span class="org-rainbow-delimiters-depth-2">)</span> <span class="org-keyword">not</span> <span class="org-keyword">null</span>,
+   sex <span class="org-keyword">constraint</span> hello250 <span class="org-keyword">references</span> ddl_sex
+<span class="org-rainbow-delimiters-depth-1">)</span>;
+
+<span class="org-comment">---- &#31532;&#19977;&#31181;&#26041;&#24335;&#65292;&#23558;&#24314;&#31435;&#32422;&#26463;&#30340;&#35821;&#21477;&#65292;&#25918;&#21040;&#24314;&#34920;&#35821;&#21477;&#26368;&#21518;&#12290;&#20248;&#28857;&#65292;&#28165;&#26224;&#26131;&#20110;&#31649;&#29702;&#12290;</span>
+<span class="org-keyword">create</span> <span class="org-keyword">table</span> <span class="org-function-name">ddl_test5</span>
+<span class="org-rainbow-delimiters-depth-1">(</span>
+   id <span class="org-type">int</span>,
+   <span class="org-keyword">name</span> varchar2<span class="org-rainbow-delimiters-depth-2">(</span>20<span class="org-rainbow-delimiters-depth-2">)</span> <span class="org-keyword">not</span> <span class="org-keyword">null</span>,
+   sex <span class="org-type">int</span>,
+
+   <span class="org-keyword">constraint</span> hello260 <span class="org-keyword">primary</span> <span class="org-keyword">key</span><span class="org-rainbow-delimiters-depth-2">(</span>id<span class="org-rainbow-delimiters-depth-2">)</span>,
+   <span class="org-keyword">foreign</span> <span class="org-keyword">key</span> <span class="org-rainbow-delimiters-depth-2">(</span>sex<span class="org-rainbow-delimiters-depth-2">)</span> <span class="org-keyword">references</span> ddl_sex
+ <span class="org-rainbow-delimiters-depth-1">)</span>;
+
+<span class="org-comment">---- &#32422;&#26463;&#30340;&#31181;&#31867;</span>
+<span class="org-comment">---- &#20027;&#35201;&#26377;&#65306;&#20027;&#38190;&#32422;&#26463;&#12289;&#38750;&#31354;&#32422;&#26463;&#12289;&#21807;&#19968;&#32422;&#26463;&#12289;&#26816;&#26597;&#32422;&#26463;&#12289;&#22806;&#38190;&#32422;&#26463;&#31561;</span>
+<span class="org-keyword">create</span> <span class="org-keyword">table</span> <span class="org-function-name">ddl_test6</span> <span class="org-rainbow-delimiters-depth-1">(</span>
+  id <span class="org-type">int</span>,
+  sal <span class="org-keyword">number</span><span class="org-rainbow-delimiters-depth-2">(</span>5<span class="org-rainbow-delimiters-depth-2">)</span>
+<span class="org-rainbow-delimiters-depth-1">)</span>;
+<span class="org-keyword">alter</span> <span class="org-keyword">table</span> <span class="org-function-name">ddl_test6</span> <span class="org-keyword">add</span> <span class="org-keyword">constraint</span> pk_test6 <span class="org-keyword">primary</span> <span class="org-keyword">key</span> <span class="org-rainbow-delimiters-depth-1">(</span>id<span class="org-rainbow-delimiters-depth-1">)</span>;
+<span class="org-keyword">alter</span> <span class="org-keyword">table</span> <span class="org-function-name">ddl_test6</span> <span class="org-keyword">add</span> <span class="org-keyword">constraint</span> ck_2323 <span class="org-keyword">check</span><span class="org-rainbow-delimiters-depth-1">(</span>sal &gt; 1250<span class="org-rainbow-delimiters-depth-1">)</span>;
+<span class="org-keyword">insert</span> <span class="org-keyword">into</span> ddl_test6 <span class="org-keyword">values</span> <span class="org-rainbow-delimiters-depth-1">(</span>1, 500<span class="org-rainbow-delimiters-depth-1">)</span>;
+<span class="org-keyword">insert</span> <span class="org-keyword">into</span> ddl_test6 <span class="org-keyword">values</span> <span class="org-rainbow-delimiters-depth-1">(</span>2, 3500<span class="org-rainbow-delimiters-depth-1">)</span>;
+<span class="org-keyword">select</span> * <span class="org-keyword">from</span> ddl_test6;
+</pre>
+</div>
+
+<p>
+表的命名
+</p>
+<ul class="org-ul">
+<li>简
+</li>
+<li>明
+</li>
+</ul>
+
+<p>
+另外：
+</p>
+<ol class="org-ol">
+<li>表名等在数据库内部会自动转化为大写的形式。如果想使用小写的形式，需要在创建的时候，加双引号。
+<pre class="example">
+create table "lowcase_name" (...);
+</pre>
+</li>
+<li>表名尽量使用英文单词，或英文单词缩写词。如果有多个单词连接，请使用下划线。
+</li>
+<li>不要使用复数形式。比如使用 <code>boy</code> 而不是 <code>boys</code>, 使用 <code>student</code> 而非 <code>students</code>.
+</li>
+<li>字段名字有两种方式:
+<div class="org-src-container">
+
+<pre class="src src-sql"><span class="org-comment">-- &#28165;&#26224;&#26126;&#20102;&#19981;&#25302;&#27877;&#24102;&#27700;&#65292;&#20294;&#22810;&#34920;&#32852;&#21512;&#26597;&#35810;&#65292;&#21487;&#33021;&#20986;&#29616;&#37325;&#22797;&#23383;&#27573;</span>
+<span class="org-keyword">create</span> <span class="org-keyword">table</span> <span class="org-function-name">boy</span> <span class="org-rainbow-delimiters-depth-1">(</span>id <span class="org-type">int</span>, <span class="org-keyword">name</span> varchar2<span class="org-rainbow-delimiters-depth-2">(</span>20<span class="org-rainbow-delimiters-depth-2">)</span>, wechat varchar2<span class="org-rainbow-delimiters-depth-2">(</span>20<span class="org-rainbow-delimiters-depth-2">)</span><span class="org-rainbow-delimiters-depth-1">)</span>;
+<span class="org-comment">-- &#20889;&#27861;&#19985;&#65292;&#20294;&#32852;&#21512;&#26597;&#35810;&#19981;&#20250;&#20986;&#29616;&#37325;&#22797;&#23383;&#27573;</span>
+<span class="org-keyword">create</span> <span class="org-keyword">table</span> <span class="org-function-name">girl</span> <span class="org-rainbow-delimiters-depth-1">(</span>girl_id <span class="org-type">int</span>, girl_name varchar2<span class="org-rainbow-delimiters-depth-2">(</span>20<span class="org-rainbow-delimiters-depth-2">)</span>, girl_wechat varchar2<span class="org-rainbow-delimiters-depth-2">(</span>20<span class="org-rainbow-delimiters-depth-2">)</span><span class="org-rainbow-delimiters-depth-1">)</span>;
+</pre>
+</div>
+</li>
+<li>主键请使用 <b>代理主键</b>, 即没有任何业务关联的字段作为主键。因为直觉上不变的东西，在特定情况下都可能发生变化。
+</li>
+<li>自增，请使用 <b>序列</b>, 最好为每个单独的主键创建一个专用的序列。
+<div class="org-src-container">
+
+<pre class="src src-sql"><span class="org-comment">-- &#39318;&#20808;&#65292;&#20445;&#35777;&#26377;&#21019;&#24314;&#24207;&#21015;&#30340;&#26435;&#38480;</span>
+<span class="org-keyword">GRANT</span> <span class="org-keyword">CREATE</span> <span class="org-keyword">SEQUENCE</span> <span class="org-keyword">TO</span> VIP;
+
+<span class="org-comment">-- &#21019;&#24314;&#24207;&#21015;&#30340;&#26368;&#31616;&#35821;&#21477;</span>
+<span class="org-comment">-- &#27880;&#24847;&#65292;&#21629;&#21517;&#20013;&#65292;&#26368;&#22909;&#24102; seq &#31561;&#23383;&#27573;&#65292;&#34920;&#31034;&#36825;&#26159;&#19968;&#20010;&#24207;&#21015;</span>
+<span class="org-keyword">CREATE</span> <span class="org-keyword">SEQUENCE</span> <span class="org-function-name">seq_boy</span>;
+
+<span class="org-comment">-- &#20351;&#29992;&#30340;&#26041;&#24335;&#24456;&#31616;&#21333;</span>
+<span class="org-keyword">insert</span> <span class="org-keyword">into</span> boy <span class="org-keyword">values</span> <span class="org-rainbow-delimiters-depth-1">(</span>seq_boy.nextval, <span class="org-string">'xxx'</span><span class="org-rainbow-delimiters-depth-1">)</span>;
+<span class="org-keyword">select</span> seq_boy.currval  <span class="org-comment">-- &#24207;&#21015;&#24403;&#21069;&#20540;</span>
+       seq_boy.nextval  <span class="org-comment">-- &#24207;&#21015;&#19979;&#19968;&#20010;&#20540;</span>
+  <span class="org-keyword">from</span> dual;
+
+<span class="org-comment">-- &#24207;&#21015;&#21487;&#20197;&#26377;&#26356;&#22810;&#21442;&#25968;</span>
+<span class="org-keyword">create</span> <span class="org-keyword">sequence</span> <span class="org-function-name">seq_boy2</span>
+  minvalue 2      <span class="org-comment">-- &#26368;&#23567;&#20540;&#65292;&#40664;&#35748; 1</span>
+  maxvalue 1000   <span class="org-comment">-- &#26368;&#22823;&#20540;&#65292;&#40664;&#35748;&#26080;&#38480;</span>
+  <span class="org-keyword">start</span> <span class="org-keyword">with</span> 4    <span class="org-comment">-- &#21021;&#22987;&#20540;&#65292;&#40664;&#35748;&#36319; minvalue &#30456;&#21516;</span>
+  increment <span class="org-keyword">by</span> 2  <span class="org-comment">-- &#27493;&#36827;</span>
+  nocycle         <span class="org-comment">-- &#22914;&#26524;&#21040;&#36798;&#26368;&#22823;&#20540;&#65292;&#26159;&#21542;&#20174;&#24320;&#22987;&#20877;&#27425;&#24490;&#29615;</span>
+  nocache         <span class="org-comment">-- &#35774;&#32622;&#32531;&#23384;</span>
+  ;
+
+<span class="org-comment">-- &#20462;&#25913;</span>
+<span class="org-keyword">alter</span> <span class="org-keyword">sequence</span> <span class="org-function-name">seq_boy2</span> cache 10;
+<span class="org-keyword">alter</span> <span class="org-keyword">sequence</span> <span class="org-function-name">seq_boy2</span> maxvalue 2000 increment 5;
+
+<span class="org-comment">-- &#21024;&#38500;</span>
+<span class="org-keyword">drop</span> <span class="org-keyword">sequence</span> <span class="org-function-name">seq_boy2</span>;
+</pre>
+</div>
+</li>
+</ol>
+</div>
+</div>
 </section>
 
 <section id="outline-container-sec-7" class="outline-2">
@@ -2391,7 +2563,7 @@ PS: 如果存在分析函数(row_number etc)，那么，分析函数的执行会
 </div>
 <div id="postamble" class="status">
 <p class="author">Author: imfine</p>
-<p class="date">Created: 2017-09-06 Wed 14:50</p>
+<p class="date">Created: 2017-09-07 Thu 14:57</p>
 <p class="creator"><a href="http://www.gnu.org/software/emacs/">Emacs</a> 25.2.1 (<a href="http://orgmode.org">Org</a> mode 8.2.10)</p>
 <p class="validation">Go ahead, never stop.</p>
 </div>

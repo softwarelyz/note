@@ -2,7 +2,7 @@
 <html>
 <head>
 <title>Oracle 数据库</title>
-<!-- 2017-09-07 Thu 14:57 -->
+<!-- 2017-09-08 Fri 16:10 -->
 <meta  charset="utf-8">
 <meta  name="generator" content="Org-mode">
 <meta  name="author" content="imfine">
@@ -100,16 +100,28 @@
 </li>
 <li><a href="#sec-6-5">6.5. Pagination</a></li>
 <li><a href="#sec-6-6">6.6. 查询语句执行顺序</a></li>
-<li><a href="#sec-6-7">6.7. DDL</a></li>
+<li><a href="#sec-6-7">6.7. DDL/DML/TCL/DCL</a></li>
 </ul>
 </li>
-<li><a href="#sec-7">7. Objects</a></li>
-<li><a href="#sec-8">8. PL/SQL编程</a></li>
-<li><a href="#sec-9">9. 锁/事务</a></li>
-<li><a href="#sec-10">10. hint/explain</a></li>
-<li><a href="#sec-11">11. Miscellaneous</a>
+<li><a href="#sec-7">7. 同义词/视图</a>
 <ul>
-<li><a href="#sec-11-1">11.1. 操作系统历史 (Operate System History)</a></li>
+<li><a href="#sec-7-1">7.1. 同义词(Synonym)</a></li>
+<li><a href="#sec-7-2">7.2. 视图(View)</a></li>
+</ul>
+</li>
+<li><a href="#sec-8">8. 性能优化</a>
+<ul>
+<li><a href="#sec-8-1">8.1. 表分区</a></li>
+<li><a href="#sec-8-2">8.2. 物化视图</a></li>
+<li><a href="#sec-8-3">8.3. 索引</a></li>
+</ul>
+</li>
+<li><a href="#sec-9">9. PL/SQL编程</a></li>
+<li><a href="#sec-10">10. 锁/事务</a></li>
+<li><a href="#sec-11">11. hint/explain</a></li>
+<li><a href="#sec-12">12. Miscellaneous</a>
+<ul>
+<li><a href="#sec-12-1">12.1. 操作系统历史 (Operate System History)</a></li>
 </ul>
 </li>
 </ul>
@@ -2363,10 +2375,10 @@ PS: 如果存在分析函数(row_number etc)，那么，分析函数的执行会
 </div>
 
 <div id="outline-container-sec-6-7" class="outline-3">
-<h3 id="sec-6-7"><span class="section-number-3">6.7</span> DDL</h3>
+<h3 id="sec-6-7"><span class="section-number-3">6.7</span> DDL/DML/TCL/DCL</h3>
 <div class="outline-text-3" id="text-6-7">
 <p>
-表的约束
+<b>表的约束:</b>
 </p>
 <ul class="org-ul">
 <li>是加在表上的一种对象，能保证每次插入或修改数据的时候，对数据的合法性进行检查，从而避免插入不合理数据。
@@ -2422,7 +2434,7 @@ PS: 如果存在分析函数(row_number etc)，那么，分析函数的执行会
 <span class="org-keyword">insert</span> <span class="org-keyword">into</span> ddl_test2 <span class="org-keyword">values</span> <span class="org-rainbow-delimiters-depth-1">(</span>1, <span class="org-string">'xx'</span>, sysdate, 1<span class="org-rainbow-delimiters-depth-1">)</span>;
 <span class="org-keyword">insert</span> <span class="org-keyword">into</span> ddl_test2 <span class="org-keyword">values</span> <span class="org-rainbow-delimiters-depth-1">(</span>3, <span class="org-string">'xx'</span>, sysdate, 1<span class="org-rainbow-delimiters-depth-1">)</span>;
 <span class="org-keyword">insert</span> <span class="org-keyword">into</span> ddl_test2 <span class="org-keyword">values</span> <span class="org-rainbow-delimiters-depth-1">(</span>4, <span class="org-string">'xx'</span>, sysdate, 1<span class="org-rainbow-delimiters-depth-1">)</span>;
-<span class="org-comment">-- &#22686;&#21152;&#32034;&#24341;</span>
+<span class="org-comment">-- &#22686;&#21152;&#32422;&#26463;</span>
 <span class="org-keyword">alter</span> <span class="org-keyword">table</span> <span class="org-function-name">ddl_test2</span> <span class="org-keyword">add</span> <span class="org-keyword">constraint</span> fk_0023 <span class="org-keyword">foreign</span> <span class="org-keyword">key</span> <span class="org-rainbow-delimiters-depth-1">(</span>sex<span class="org-rainbow-delimiters-depth-1">)</span> <span class="org-keyword">references</span> ddl_sex;
 <span class="org-keyword">alter</span> <span class="org-keyword">table</span> <span class="org-function-name">ddl_test2</span> <span class="org-keyword">add</span> <span class="org-keyword">constraint</span> pk_test2 <span class="org-keyword">primary</span> <span class="org-keyword">key</span> <span class="org-rainbow-delimiters-depth-1">(</span>id<span class="org-rainbow-delimiters-depth-1">)</span>;
 
@@ -2460,7 +2472,7 @@ PS: 如果存在分析函数(row_number etc)，那么，分析函数的执行会
 </div>
 
 <p>
-表的命名
+<b>表的命名:</b>
 </p>
 <ul class="org-ul">
 <li>简
@@ -2522,7 +2534,7 @@ create table "lowcase_name" (...);
 
 <span class="org-comment">-- &#20462;&#25913;</span>
 <span class="org-keyword">alter</span> <span class="org-keyword">sequence</span> <span class="org-function-name">seq_boy2</span> cache 10;
-<span class="org-keyword">alter</span> <span class="org-keyword">sequence</span> <span class="org-function-name">seq_boy2</span> maxvalue 2000 increment 5;
+<span class="org-keyword">alter</span> <span class="org-keyword">sequence</span> <span class="org-function-name">seq_boy2</span> maxvalue 2000 increment <span class="org-keyword">by</span> 5;
 
 <span class="org-comment">-- &#21024;&#38500;</span>
 <span class="org-keyword">drop</span> <span class="org-keyword">sequence</span> <span class="org-function-name">seq_boy2</span>;
@@ -2530,28 +2542,207 @@ create table "lowcase_name" (...);
 </div>
 </li>
 </ol>
+
+<p>
+<b>修改, ALTER:</b>
+</p>
+<div class="org-src-container">
+
+<pre class="src src-sql"><span class="org-comment">-- &#21019;&#24314;&#31034;&#20363;&#34920;</span>
+<span class="org-keyword">create</span> <span class="org-keyword">table</span> <span class="org-function-name">ddl_test1</span>
+<span class="org-rainbow-delimiters-depth-1">(</span>
+   id <span class="org-type">int</span> <span class="org-keyword">primary</span> <span class="org-keyword">key</span>,
+   <span class="org-keyword">name</span> <span class="org-type">varchar</span><span class="org-rainbow-delimiters-depth-2">(</span>2<span class="org-rainbow-delimiters-depth-2">)</span> <span class="org-keyword">not</span> <span class="org-keyword">null</span>,
+   birth <span class="org-type">date</span> <span class="org-keyword">default</span> sysdate
+<span class="org-rainbow-delimiters-depth-1">)</span>;
+
+<span class="org-comment">-- &#21508;&#31181;&#20462;&#25913;</span>
+<span class="org-keyword">alter</span> <span class="org-keyword">table</span> <span class="org-function-name">ddl_test1</span> rename <span class="org-keyword">column</span> id <span class="org-keyword">to</span> testid;
+<span class="org-keyword">alter</span> <span class="org-keyword">table</span> <span class="org-function-name">ddl_test1</span> <span class="org-keyword">modify</span> <span class="org-rainbow-delimiters-depth-1">(</span><span class="org-keyword">name</span> varchar2<span class="org-rainbow-delimiters-depth-2">(</span>40<span class="org-rainbow-delimiters-depth-2">)</span>, birth <span class="org-type">timestamp</span><span class="org-rainbow-delimiters-depth-1">)</span>;
+<span class="org-keyword">alter</span> <span class="org-keyword">table</span> <span class="org-function-name">ddl_test1</span> <span class="org-keyword">add</span> gender varchar2<span class="org-rainbow-delimiters-depth-1">(</span>10<span class="org-rainbow-delimiters-depth-1">)</span> <span class="org-keyword">not</span> <span class="org-keyword">null</span>;
+<span class="org-keyword">alter</span> <span class="org-keyword">table</span> <span class="org-function-name">ddl_test1</span> <span class="org-keyword">drop</span> <span class="org-keyword">column</span> gender;
+
+<span class="org-comment">-- &#20316;&#29992;&#22312;&#24207;&#21015;&#19978;&#30340; DDL</span>
+<span class="org-keyword">create</span> <span class="org-keyword">sequence</span> <span class="org-function-name">seq_aaa</span>;
+<span class="org-keyword">alter</span> <span class="org-keyword">sequence</span> <span class="org-function-name">seq_aaa</span> <span class="org-keyword">start</span> <span class="org-keyword">with</span> 222;
+<span class="org-keyword">drop</span> <span class="org-keyword">sequence</span> <span class="org-function-name">seq_bbb</span>;
+</pre>
+</div>
 </div>
 </div>
 </section>
 
 <section id="outline-container-sec-7" class="outline-2">
-<h2 id="sec-7"><span class="section-number-2">7</span> Objects</h2>
+<h2 id="sec-7"><span class="section-number-2">7</span> 同义词/视图</h2>
+<div class="outline-text-2" id="text-7">
+<p>
+这两种都用来：
+</p>
+<ol class="org-ol">
+<li>精简语句
+</li>
+<li>隐藏细节
+</li>
+</ol>
+</div>
+
+<div id="outline-container-sec-7-1" class="outline-3">
+<h3 id="sec-7-1"><span class="section-number-3">7.1</span> 同义词(Synonym)</h3>
+<div class="outline-text-3" id="text-7-1">
+<p>
+为表创建别名：
+</p>
+<ul class="org-ul">
+<li>可以简化 sql 语句
+</li>
+<li>可以隐藏细节
+</li>
+<li>提供公共访问（公有同义词）
+</li>
+</ul>
+
+<div class="org-src-container">
+
+<pre class="src src-sql"><span class="org-comment">-- &#26597;&#30475;&#36319;&#21516;&#20041;&#35789;&#26377;&#20851;&#30340;&#26435;&#38480;</span>
+<span class="org-comment">-- &#20998;&#20004;&#31181;&#65306;</span>
+<span class="org-comment">--- synonym, &#21019;&#24314;&#26469;&#33258;&#24049;&#20351;&#29992;</span>
+<span class="org-comment">--- public synonym, &#21019;&#24314;&#26469;&#25152;&#26377;&#20154;&#37117;&#21487;&#20197;&#20351;&#29992;</span>
+<span class="org-keyword">select</span> * <span class="org-keyword">from</span> system_privilege_map <span class="org-keyword">where</span> <span class="org-keyword">name</span> <span class="org-keyword">like</span> <span class="org-builtin">upper</span><span class="org-rainbow-delimiters-depth-1">(</span><span class="org-string">'%syn%'</span><span class="org-rainbow-delimiters-depth-1">)</span>;
+
+<span class="org-comment">-- &#23558;&#21019;&#24314;&#21516;&#20041;&#35789;&#30340;&#26435;&#38480;&#25480;&#26435;&#32473;&#29992;&#25143;</span>
+<span class="org-keyword">grant</span> <span class="org-keyword">create</span> synonym <span class="org-keyword">to</span> vip;
+<span class="org-keyword">grant</span> <span class="org-keyword">create</span> <span class="org-keyword">public</span> synonym <span class="org-keyword">to</span> vip;
+
+<span class="org-comment">-- &#21019;&#24314;</span>
+<span class="org-keyword">create</span> synonym e <span class="org-keyword">for</span> scott.emp;
+<span class="org-keyword">create</span> <span class="org-keyword">or</span> replace <span class="org-keyword">public</span> synonym d <span class="org-keyword">for</span> scott.dept;
+
+<span class="org-comment">-- &#21487;&#20197;&#20026;&#34920;&#20043;&#22806;&#30340;&#23545;&#35937;&#21019;&#24314;&#21516;&#20041;&#35789;</span>
+<span class="org-keyword">create</span> <span class="org-keyword">sequence</span> <span class="org-function-name">seq_aaaaaaforme</span>;
+<span class="org-keyword">create</span> synonym seq_aaa <span class="org-keyword">for</span> seq_aaaaaaforme;
+
+<span class="org-comment">-- &#20351;&#29992;&#65292;&#22312;&#19968;&#20999;&#21487;&#20197;&#20351;&#29992;&#21407;&#20808;&#23545;&#35937;&#30340;&#22320;&#26041;</span>
+<span class="org-keyword">select</span> * <span class="org-keyword">from</span> e <span class="org-keyword">join</span> d <span class="org-keyword">using</span> <span class="org-rainbow-delimiters-depth-1">(</span>deptno<span class="org-rainbow-delimiters-depth-1">)</span>;
+<span class="org-keyword">desc</span> d;
+<span class="org-keyword">select</span> seq_aaa.nextval <span class="org-keyword">from</span> dual;
+
+<span class="org-comment">-- &#21024;&#38500;</span>
+<span class="org-keyword">drop</span> synonym d;
+<span class="org-keyword">drop</span> <span class="org-keyword">public</span> synonym d;
+</pre>
+</div>
+</div>
+</div>
+
+<div id="outline-container-sec-7-2" class="outline-3">
+<h3 id="sec-7-2"><span class="section-number-3">7.2</span> 视图(View)</h3>
+<div class="outline-text-3" id="text-7-2">
+<p>
+视图, 默认指的是关系视图, 又叫虚表。
+</p>
+<ul class="org-ul">
+<li>不占用数据空间
+</li>
+<li>可以简化语句
+</li>
+<li>可以隐藏细节
+</li>
+<li>可以提升安全
+</li>
+</ul>
+
+<p>
+除了关系视图，广义的视图包括：
+</p>
+<ol class="org-ol">
+<li>关系视图(狭义的视图，虚表)
+</li>
+<li>内嵌视图(子查询中的临时结果)
+</li>
+<li>对象视图(面向对象)
+</li>
+<li>物化视图(以空间换时间)
+</li>
+</ol>
+
+<div class="org-src-container">
+
+<pre class="src src-sql"><span class="org-comment">-- &#26597;&#35810;&#36319;&#35270;&#22270;&#30456;&#20851;&#30340;&#26435;&#38480;</span>
+<span class="org-keyword">select</span> * <span class="org-keyword">from</span> system_privilege_map <span class="org-keyword">where</span> <span class="org-keyword">name</span> <span class="org-keyword">like</span> <span class="org-string">'%VIEW%'</span>;
+<span class="org-comment">-- &#30830;&#20445;&#29992;&#25143;&#26377;&#36275;&#22815;&#26435;&#38480;</span>
+<span class="org-keyword">grant</span> <span class="org-keyword">create</span> <span class="org-keyword">view</span> <span class="org-keyword">to</span> vip;
+<span class="org-keyword">grant</span> <span class="org-keyword">all</span> <span class="org-keyword">on</span> scott.emp <span class="org-keyword">to</span> vip;
+<span class="org-keyword">grant</span> <span class="org-keyword">all</span> <span class="org-keyword">on</span> scott.dept <span class="org-keyword">to</span> vip;
+
+<span class="org-comment">-- &#21019;&#24314;&#35270;&#22270;</span>
+<span class="org-keyword">create</span> <span class="org-keyword">view</span> <span class="org-function-name">vemp</span> <span class="org-keyword">as</span> <span class="org-keyword">select</span> * <span class="org-keyword">from</span> scott.emp;  <span class="org-comment">-- &#26368;&#31616;&#24418;&#24335;&#65292;&#20026;&#21333;&#20010;&#34920;&#21019;&#24314;&#35270;&#22270;</span>
+<span class="org-keyword">create</span> <span class="org-keyword">view</span> <span class="org-function-name">v_emp_vip</span> <span class="org-keyword">as</span> <span class="org-keyword">select</span> * <span class="org-keyword">from</span> scott.emp <span class="org-keyword">where</span> sal &gt;= 2000;  <span class="org-comment">-- &#21487;&#20197;&#20026;&#34920;&#30340;&#37096;&#20998;&#25968;&#25454;&#21019;&#24314;&#35270;&#22270;</span>
+<span class="org-keyword">create</span> <span class="org-keyword">view</span> <span class="org-function-name">vvevip</span> <span class="org-keyword">as</span> <span class="org-keyword">select</span> * <span class="org-keyword">from</span> vevip;  <span class="org-comment">-- &#21487;&#20197;&#20026;&#35270;&#22270;&#26597;&#35810;&#21019;&#24314;&#35270;&#22270;</span>
+<span class="org-keyword">create</span> <span class="org-keyword">or</span> replace <span class="org-keyword">view</span> <span class="org-function-name">vevip</span> <span class="org-keyword">as</span>     <span class="org-comment">-- &#21487;&#20197;&#20026;&#22810;&#34920;&#32852;&#21512;&#26597;&#35810;&#30340;&#32467;&#26524;&#38598;&#21019;&#24314;&#35270;&#22270;&#12290;</span>
+  <span class="org-keyword">select</span> e.*, d.dname, d.loc
+    <span class="org-keyword">from</span> emp e, dept d
+   <span class="org-keyword">where</span> e.deptno = d.deptno<span class="org-rainbow-delimiters-depth-1">(</span>+<span class="org-rainbow-delimiters-depth-1">)</span>
+     <span class="org-keyword">and</span> e.sal &gt;= 2000;
+
+<span class="org-comment">-- &#20351;&#29992;</span>
+<span class="org-keyword">select</span> * <span class="org-keyword">from</span> e;
+<span class="org-keyword">select</span> * <span class="org-keyword">from</span> vemp;
+<span class="org-keyword">select</span> * <span class="org-keyword">from</span> v_emp_vip;
+<span class="org-keyword">select</span> * <span class="org-keyword">from</span> vevip;
+<span class="org-keyword">select</span> * <span class="org-keyword">from</span> vvevip;
+
+<span class="org-comment">-- &#21024;&#38500;</span>
+<span class="org-keyword">drop</span> <span class="org-keyword">view</span> <span class="org-function-name">vemp</span>;
+
+
+<span class="org-comment">-- force &#24378;&#36843;&#65281;&#65281;&#65281;&#19981;&#31649; select &#35821;&#21477;&#26159;&#21542;&#26377;&#38169;&#65292;&#37117;&#35201;&#21019;&#24314;&#12290;</span>
+<span class="org-comment">-- or replace, &#22914;&#26524;&#35270;&#22270;&#24050;&#23384;&#22312;&#65292;&#35206;&#30422;</span>
+<span class="org-comment">-- with read only, &#21019;&#24314;&#21482;&#35835;&#35270;&#22270;</span>
+<span class="org-keyword">create</span> <span class="org-keyword">or</span> replace force <span class="org-keyword">view</span> <span class="org-function-name">vaaa</span> <span class="org-keyword">as</span> <span class="org-keyword">select</span> * <span class="org-keyword">from</span> wohaoshuai <span class="org-keyword">with</span> <span class="org-keyword">read</span> <span class="org-keyword">only</span>;
+
+<span class="org-comment">-- with check option, &#38450;&#27490;&#26356;&#26032;&#21518;&#30340;&#25968;&#25454;, &#36229;&#20986;&#35270;&#22270;&#30340;&#33539;&#22260;</span>
+<span class="org-keyword">insert</span> <span class="org-keyword">into</span> emp <span class="org-rainbow-delimiters-depth-1">(</span>empno, ename, sal<span class="org-rainbow-delimiters-depth-1">)</span> <span class="org-keyword">values</span> <span class="org-rainbow-delimiters-depth-1">(</span>9988, <span class="org-string">'&#24352;&#24605;'</span>, 3333<span class="org-rainbow-delimiters-depth-1">)</span>;
+<span class="org-keyword">create</span> <span class="org-keyword">or</span> replace <span class="org-keyword">view</span> <span class="org-function-name">vbbb</span> <span class="org-keyword">as</span> <span class="org-keyword">select</span> * <span class="org-keyword">from</span> emp <span class="org-keyword">where</span> sal &gt; 3332;
+<span class="org-keyword">select</span> * <span class="org-keyword">from</span> vbbb; <span class="org-comment">-- &#20004;&#26465;&#25968;&#25454;&#65292;King &#21644; &#24352;&#24605;</span>
+<span class="org-keyword">update</span> vbbb <span class="org-keyword">set</span> sal = 2000 <span class="org-keyword">where</span> empno = 9988;
+<span class="org-keyword">select</span> * <span class="org-keyword">from</span> vbbb; <span class="org-comment">-- &#21482;&#21097;&#19968;&#26465;&#25968;&#25454;&#12290;</span>
+<span class="org-comment">-- &#25353;&#29031;&#36947;&#29702;&#65292;update &#21482;&#26159;&#26356;&#26032;&#25968;&#25454;&#65292;&#19981;&#24212;&#35813;&#23548;&#33268;&#32467;&#26524;&#38598;&#21464;&#23569;&#12290;&#25152;&#20197;&#65292;&#38656;&#35201;&#36890;&#36807; with check option &#26469;&#38480;&#21046;&#19981;&#21512;&#29702;&#30340;&#20462;&#25913;</span>
+<span class="org-keyword">create</span> <span class="org-keyword">or</span> replace <span class="org-keyword">view</span> <span class="org-function-name">vcc</span> <span class="org-keyword">as</span> <span class="org-keyword">select</span> * <span class="org-keyword">from</span> emp <span class="org-keyword">where</span> sal &gt; 1500  <span class="org-keyword">with</span> <span class="org-keyword">check</span> <span class="org-keyword">option</span>;
+<span class="org-keyword">update</span> vbbb <span class="org-keyword">set</span> sal = 1000 <span class="org-keyword">where</span> empno = 9988;  <span class="org-comment">-- &#20250;&#25253;&#38169;</span>
+</pre>
+</div>
+</div>
+</div>
 </section>
+
 <section id="outline-container-sec-8" class="outline-2">
-<h2 id="sec-8"><span class="section-number-2">8</span> PL/SQL编程</h2>
+<h2 id="sec-8"><span class="section-number-2">8</span> 性能优化</h2>
+<div class="outline-text-2" id="text-8">
+</div><div id="outline-container-sec-8-1" class="outline-3">
+<h3 id="sec-8-1"><span class="section-number-3">8.1</span> 表分区</h3>
+</div>
+<div id="outline-container-sec-8-2" class="outline-3">
+<h3 id="sec-8-2"><span class="section-number-3">8.2</span> 物化视图</h3>
+</div>
+<div id="outline-container-sec-8-3" class="outline-3">
+<h3 id="sec-8-3"><span class="section-number-3">8.3</span> 索引</h3>
+</div>
 </section>
 <section id="outline-container-sec-9" class="outline-2">
-<h2 id="sec-9"><span class="section-number-2">9</span> 锁/事务</h2>
+<h2 id="sec-9"><span class="section-number-2">9</span> PL/SQL编程</h2>
 </section>
 <section id="outline-container-sec-10" class="outline-2">
-<h2 id="sec-10"><span class="section-number-2">10</span> hint/explain</h2>
+<h2 id="sec-10"><span class="section-number-2">10</span> 锁/事务</h2>
 </section>
 <section id="outline-container-sec-11" class="outline-2">
-<h2 id="sec-11"><span class="section-number-2">11</span> Miscellaneous</h2>
-<div class="outline-text-2" id="text-11">
-</div><div id="outline-container-sec-11-1" class="outline-3">
-<h3 id="sec-11-1"><span class="section-number-3">11.1</span> 操作系统历史 (Operate System History)</h3>
-<div class="outline-text-3" id="text-11-1">
+<h2 id="sec-11"><span class="section-number-2">11</span> hint/explain</h2>
+</section>
+<section id="outline-container-sec-12" class="outline-2">
+<h2 id="sec-12"><span class="section-number-2">12</span> Miscellaneous</h2>
+<div class="outline-text-2" id="text-12">
+</div><div id="outline-container-sec-12-1" class="outline-3">
+<h3 id="sec-12-1"><span class="section-number-3">12.1</span> 操作系统历史 (Operate System History)</h3>
+<div class="outline-text-3" id="text-12-1">
 
 <figure>
 <p><img src="assets/dot/os_history.jpg" alt="os_history.jpg">
@@ -2563,7 +2754,7 @@ create table "lowcase_name" (...);
 </div>
 <div id="postamble" class="status">
 <p class="author">Author: imfine</p>
-<p class="date">Created: 2017-09-07 Thu 14:57</p>
+<p class="date">Created: 2017-09-08 Fri 16:10</p>
 <p class="creator"><a href="http://www.gnu.org/software/emacs/">Emacs</a> 25.2.1 (<a href="http://orgmode.org">Org</a> mode 8.2.10)</p>
 <p class="validation">Go ahead, never stop.</p>
 </div>

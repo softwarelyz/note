@@ -1503,8 +1503,8 @@ https://docs.oracle.com/cd/E11882_01/server.112/e41084/functions004.htm#SQLRF061
 
 PS: 如果存在分析函数(row_number etc)，那么，分析函数的执行会在 order by 之前。
 
-** DDL
-表的约束
+** DDL/DML/TCL/DCL
+*表的约束:*
 - 是加在表上的一种对象，能保证每次插入或修改数据的时候，对数据的合法性进行检查，从而避免插入不合理数据。
 - 优点：通过检查，能保证数据的完整性和一致性。
 - 缺点：消耗一定的存储，数据量大的时候，每次检查会有一定的资源损耗
@@ -1553,7 +1553,7 @@ PS: 如果存在分析函数(row_number etc)，那么，分析函数的执行会
   insert into ddl_test2 values (1, 'xx', sysdate, 1);
   insert into ddl_test2 values (3, 'xx', sysdate, 1);
   insert into ddl_test2 values (4, 'xx', sysdate, 1);
-  -- 增加索引
+  -- 增加约束
   alter table ddl_test2 add constraint fk_0023 foreign key (sex) references ddl_sex;
   alter table ddl_test2 add constraint pk_test2 primary key (id);
 
@@ -1589,7 +1589,7 @@ PS: 如果存在分析函数(row_number etc)，那么，分析函数的执行会
   select * from ddl_test6;
 #+END_SRC
 
-表的命名
+*表的命名:*
 - 简
 - 明
 
@@ -1633,13 +1633,136 @@ PS: 如果存在分析函数(row_number etc)，那么，分析函数的执行会
 
      -- 修改
      alter sequence seq_boy2 cache 10;
-     alter sequence seq_boy2 maxvalue 2000 increment 5;
+     alter sequence seq_boy2 maxvalue 2000 increment by 5;
 
      -- 删除
      drop sequence seq_boy2;
    #+END_SRC
 
-* Objects
+*修改, ALTER:*
+#+BEGIN_SRC sql
+  -- 创建示例表
+  create table ddl_test1
+  (
+     id int primary key,
+     name varchar(2) not null,
+     birth date default sysdate
+  );
+
+  -- 各种修改
+  alter table ddl_test1 rename column id to testid;
+  alter table ddl_test1 modify (name varchar2(40), birth timestamp);
+  alter table ddl_test1 add gender varchar2(10) not null;
+  alter table ddl_test1 drop column gender;
+
+  -- 作用在序列上的 DDL
+  create sequence seq_aaa;
+  alter sequence seq_aaa start with 222;
+  drop sequence seq_bbb;
+#+END_SRC
+
+* 同义词/视图
+这两种都用来：
+1. 精简语句
+2. 隐藏细节
+
+** 同义词(Synonym)
+为表创建别名：
+- 可以简化 sql 语句
+- 可以隐藏细节
+- 提供公共访问（公有同义词）
+
+#+BEGIN_SRC sql
+  -- 查看跟同义词有关的权限
+  -- 分两种：
+  --- synonym, 创建来自己使用
+  --- public synonym, 创建来所有人都可以使用
+  select * from system_privilege_map where name like upper('%syn%');
+
+  -- 将创建同义词的权限授权给用户
+  grant create synonym to vip;
+  grant create public synonym to vip;
+
+  -- 创建
+  create synonym e for scott.emp;
+  create or replace public synonym d for scott.dept;
+
+  -- 可以为表之外的对象创建同义词
+  create sequence seq_aaaaaaforme;
+  create synonym seq_aaa for seq_aaaaaaforme;
+
+  -- 使用，在一切可以使用原先对象的地方
+  select * from e join d using (deptno);
+  desc d;
+  select seq_aaa.nextval from dual;
+
+  -- 删除
+  drop synonym d;
+  drop public synonym d;
+#+END_SRC
+
+** 视图(View)
+视图, 默认指的是关系视图, 又叫虚表。
+- 不占用数据空间
+- 可以简化语句
+- 可以隐藏细节
+- 可以提升安全
+
+除了关系视图，广义的视图包括：
+1. 关系视图(狭义的视图，虚表)
+2. 内嵌视图(子查询中的临时结果)
+3. 对象视图(面向对象)
+4. 物化视图(以空间换时间)
+
+#+BEGIN_SRC sql
+  -- 查询跟视图相关的权限
+  select * from system_privilege_map where name like '%VIEW%';
+  -- 确保用户有足够权限
+  grant create view to vip;
+  grant all on scott.emp to vip;
+  grant all on scott.dept to vip;
+
+  -- 创建视图
+  create view vemp as select * from scott.emp;  -- 最简形式，为单个表创建视图
+  create view v_emp_vip as select * from scott.emp where sal >= 2000;  -- 可以为表的部分数据创建视图
+  create view vvevip as select * from vevip;  -- 可以为视图查询创建视图
+  create or replace view vevip as     -- 可以为多表联合查询的结果集创建视图。
+    select e.*, d.dname, d.loc
+      from emp e, dept d
+     where e.deptno = d.deptno(+)
+       and e.sal >= 2000;
+
+  -- 使用
+  select * from e;
+  select * from vemp;
+  select * from v_emp_vip;
+  select * from vevip;
+  select * from vvevip;
+
+  -- 删除
+  drop view vemp;
+
+
+  -- force 强迫！！！不管 select 语句是否有错，都要创建。
+  -- or replace, 如果视图已存在，覆盖
+  -- with read only, 创建只读视图
+  create or replace force view vaaa as select * from wohaoshuai with read only;
+
+  -- with check option, 防止更新后的数据, 超出视图的范围
+  insert into emp (empno, ename, sal) values (9988, '张思', 3333);
+  create or replace view vbbb as select * from emp where sal > 3332;
+  select * from vbbb; -- 两条数据，King 和 张思
+  update vbbb set sal = 2000 where empno = 9988;
+  select * from vbbb; -- 只剩一条数据。
+  -- 按照道理，update 只是更新数据，不应该导致结果集变少。所以，需要通过 with check option 来限制不合理的修改
+  create or replace view vcc as select * from emp where sal > 1500  with check option;
+  update vbbb set sal = 1000 where empno = 9988;  -- 会报错
+#+END_SRC
+
+* 性能优化
+** 表分区
+** 物化视图
+** 索引
 * PL/SQL编程
 * 锁/事务
 * hint/explain

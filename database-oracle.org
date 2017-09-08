@@ -1661,6 +1661,48 @@ PS: 如果存在分析函数(row_number etc)，那么，分析函数的执行会
   drop sequence seq_bbb;
 #+END_SRC
 
+*查询, select:*
+#+BEGIN_SRC sql
+  -- SELECT 语句中的基本计算，是基于行的
+  -- 不同行中的数据，不能直接计算
+  -- 所以，解决的方案是：将不同行的数据整合到同一行中，再做比较
+  -- 而整合到同一行，有很多方法：
+  -- 可以是表跟表进行关联；可以是分组；等等。
+  -- 关键是：思路，思路，思路。
+
+  -- 下面是一个例子
+  -- 查询男、女之差
+
+  -- 首先，初始化数据
+  -- 男 / 46人
+  -- 女 / 10人
+  create table aaa (gender char(2), num number);
+  insert into aaa values ('男', 46);
+  insert into aaa values ('女', 10);
+
+  -- 1. 这是一种方法，
+  with
+      a as (select * from  aaa where gender = '男'),
+      b as (select * from  aaa where gender = '女')
+  select a.num - b.num from a, b;
+
+  -- 2. 下面是上面方式的等价写法
+  select a.num - b.num
+    from (select * from aaa where gender = '男') a,
+         (select * from aaa where gender = '女') b;
+
+  -- 3. 下面是另一种写法
+  select (select num from aaa where gender = '男') - num from aaa where gender = '女';
+
+  -- 4. 最基本的，对表进行关联查询，之后再过滤，再计算
+  select a.num - b.num from aaa a, aaa b where a.gender='男' and b.gender='女';
+
+  -- 5. 或者基于分组
+  select max(num) - min(num) from aaa;
+
+  -- 6.7.8. 其他方法...
+#+END_SRC
+
 * 同义词/视图
 这两种都用来：
 1. 精简语句

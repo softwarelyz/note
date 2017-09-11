@@ -37,7 +37,7 @@
    : alter user scott identified by [newpassword];
 
 * 甜点
-** 题库
+** 题库1
 - 在芝加哥工作的人中，谁的工资最高
 - 查询每个部门下有多少员工
 - 查询除去 salesman 所有平均工资超过 1500 的部门
@@ -53,7 +53,115 @@
 - 列出雇员中（除去mgr为空的人)工资第二高的人。
 - 列出1981年来公司所有员工的总收入（包括sal和comm）
 
-** 查询各种工作中工资最低的人
+** 题库2
+- 查询工资为 2500 到 4000 的人的数量（用不同方式查询）
+  #+BEGIN_SRC sql
+    select count(*) from emp where sal >= 2500 and sal <= 4000;
+    -- vs.
+    select count(*) from emp where sal between 2500 and 4000;
+  #+END_SRC
+- 查询部门编号为 10 和 30 的所有人（用不同方式查询）
+- 查询部门编号为 10 和 30 中名字中不含有 'C' 的所有人
+- 查询部门编号为 10 和 30 中名字首字母之外不含有 'C' 的所有人
+- 查询部门编号为 10 和 30 中所有的经理以及名字首字母之外不含有 'C' 的所有人
+- 查询纽约和芝加哥地区所有的经理以及名字首字母之外不含有 'C' 的所有人
+- 查询纽约和芝加哥地区所有的经理以及顶头上司名字的首字母之外不含有 'C' 的所有人
+- 查询每个人的工资等级
+  #+BEGIN_SRC sql
+    -- 初始化数据
+    create table salgrade as select * from scott.salgrade;
+
+    -- 分别查看数据
+    select * from emp;
+    select * from salgrade;
+
+    -- 杂交
+    select * from emp, salgrade;
+
+    -- 过滤掉不合适的
+    select ename, grade from emp e, salgrade s where e.sal between s.losal and s.hisal;
+  #+END_SRC
+- 查询每个部门的平均工资的等级
+  #+BEGIN_SRC sql
+    -- 分析题目
+    -- 1. 需要先查询出每个部门的平均工资
+    -- 2. 根据 salgrade 表中的数据，获取每个部门平均工资的等级
+
+    -- 这是所有的人
+    select * from emp;
+    -- 按照部门分组
+    select deptno, avg(sal) from emp group by deptno;
+    -- 结果：
+    -- | DEPTNO |   AVG(SAL)    |
+    -- |     30  | 1566.66667  |
+    -- |     20 |  2258.33333  |
+    -- |     10 |  2916.66667  |
+
+    -- 跟 salgrade 表，杂交，总共 15 条结果
+    select * from
+      (select deptno, avg(sal) sal from emp group by deptno) t,
+      salgrade s;
+
+    -- 过滤掉工资范围不合适的数据
+    select * from
+      (select deptno, avg(sal) sal from emp group by deptno) t,
+      salgrade s
+    where
+      t.sal between s.losal and s.hisal;
+    -- 结果就是这样，就对了
+    -- | DEPTNO |  SAL        |  GRADE |  LOSAL |  HISAL  |
+    -- |     10 |  2916.66667 |      4 |   2001 |   3000  |
+    -- |     20 |  2258.33333 |      4 |   2001 |   3000  |
+    -- |     30 |  1566.66667 |      3 |   1401 |   2000  |
+
+
+    -- 需要将部门名称显示出来，再杂交->过滤一次就可以了
+    select * from
+      (select deptno, avg(sal) sal from emp group by deptno) t,
+      salgrade s,
+      dept d
+    where
+      t.deptno = d.deptno and
+      t.sal between s.losal and s.hisal;
+
+
+    -- 最后的最后，设置显示字段
+    select dname, grade from
+      (select deptno, avg(sal) sal from emp group by deptno) t,
+      salgrade s,
+      dept d
+    where
+      t.deptno = d.deptno and
+      t.sal between s.losal and s.hisal;
+    -- 最终结果，完美
+    --| DNAME      |  GRADE  |
+    --| ACCOUNTING |      4  |
+    --| RESEARCH   |      4  |
+    --| SALES      |      3  |
+  #+END_SRC
+
+
+
+** 题库3
+- 查询每个组最高工资的那些人
+- 有下面一个表，写一条 sql 语句计算男女之差
+  | gender | number |
+  |--------+--------|
+  | 男     | 46     |
+  | 女     | 10     | 
+- 给 emp 中的人加工资，请写出相关语句:
+  | 条件       | 加多少 |
+  |------------+--------|
+  | 1000元以下 |    50% |
+  | 2000元以下 |    30% |
+  | 3000元以下 |    20% |
+  | 其他       |     5% |
+- 给 emp 中的人加工资，如上。但 =1981/5/1= 之后来的所有人，只加 =2%=, 请写出语句。
+- 计算你们从入学到现在过了多少个周末
+- 计算你们从现在到毕业还有多少天，还有多少个周末
+- 计算你们在学校的时间内，每天花费多少钱
+  
+** 查询各种工作中的最低工资
 看到最低、最大、平均之类的题目，首先想到的是分组函数的使用。
 
 也就是 group by, having。
@@ -190,6 +298,51 @@
              and e.deptno in (select deptno from emp group by deptno having min(sal) > 1000);
    #+END_SRC
 
+** 查询当月总共有多少个周五
+*首先，第一步，得到本月所有日期的结果集，两种方式:*
+1. 使用已有表的 rownum 构建
+2. 使用 oracle 的 connect by level 语句（结构化查询）
+
+得到有 n 条记录的虚表：
+#+BEGIN_SRC sql
+  select rownum from dba_objects where rownum < 32;
+  select level from dual connect by level < 32;
+#+END_SRC
+
+将虚表转化为我们需要的日期表：
+#+BEGIN_SRC sql
+  select trunc(sysdate, 'MON') + rownum - 1 from dba_objects where rownum < 32;
+  select trunc(sysdate, 'MON') + level - 1 from dual connect by level < 32;
+#+END_SRC
+
+*其次，在上面结果集的基础上进行筛选：*
+#+BEGIN_SRC sql
+  -- 1.
+  select *
+    from (select trunc(sysdate, 'MON') + rownum - 1 d
+            from dba_objects
+           where rownum < 32)
+   where to_char(d, 'day') = '星期五'
+     and d <= last_day(sysdate);
+
+  -- 2.
+  select *
+    from (select trunc(sysdate, 'MON') + level - 1 d
+            from dual
+          connect by level < 32)
+   where to_char(d, 'day') = '星期五'
+     and d <= last_day(sysdate);
+#+END_SRC
+
+当然，你也可以将 last_day 这一段放到里面：
+#+BEGIN_SRC sql
+  select *
+    from (select trunc(sysdate, 'MON') + level - 1 d
+            from dual
+          connect by level <= extract(day from last_day(sysdate)))
+   where to_char(d, 'd') = 6;
+#+END_SRC
+
 * 冷饮
 ** 学生管理系统
 根据我们学校的实际情况，请帮助设计一个学生管理系统。
@@ -211,93 +364,9 @@
 4. 最后，将图跟语句一起上交。这个过程着重思考下项目从设计到编码是怎么一个过程。
    : 需求分析 -> *概要设计* -> 详细实现。 
 
-** 简单查询
-- 查询工资为 2500 到 4000 的人的数量（用不同方式查询）
-  #+BEGIN_SRC sql
-    select count(*) from emp where sal >= 2500 and sal <= 4000;
-    -- vs.
-    select count(*) from emp where sal between 2500 and 4000;
-  #+END_SRC
-- 查询部门编号为 10 和 30 的所有人（用不同方式查询）
-- 查询部门编号为 10 和 30 中名字中不含有 'C' 的所有人
-- 查询部门编号为 10 和 30 中名字首字母之外不含有 'C' 的所有人
-- 查询部门编号为 10 和 30 中所有的经理以及名字首字母之外不含有 'C' 的所有人
-- 查询纽约和芝加哥地区所有的经理以及名字首字母之外不含有 'C' 的所有人
-- 查询纽约和芝加哥地区所有的经理以及顶头上司名字的首字母之外不含有 'C' 的所有人
-- 查询每个人的工资等级
-  #+BEGIN_SRC sql
-    -- 初始化数据
-    create table salgrade as select * from scott.salgrade;
-
-    -- 分别查看数据
-    select * from emp;
-    select * from salgrade;
-
-    -- 杂交
-    select * from emp, salgrade;
-
-    -- 过滤掉不合适的
-    select ename, grade from emp e, salgrade s where e.sal between s.losal and s.hisal;
-  #+END_SRC
-- 查询每个部门的平均工资的等级
-  #+BEGIN_SRC sql
-    -- 分析题目
-    -- 1. 需要先查询出每个部门的平均工资
-    -- 2. 根据 salgrade 表中的数据，获取每个部门平均工资的等级
-
-    -- 这是所有的人
-    select * from emp;
-    -- 按照部门分组
-    select deptno, avg(sal) from emp group by deptno;
-    -- 结果：
-    -- | DEPTNO |   AVG(SAL)    |
-    -- |     30  | 1566.66667  |
-    -- |     20 |  2258.33333  |
-    -- |     10 |  2916.66667  |
-
-    -- 跟 salgrade 表，杂交，总共 15 条结果
-    select * from
-      (select deptno, avg(sal) sal from emp group by deptno) t,
-      salgrade s;
-
-    -- 过滤掉工资范围不合适的数据
-    select * from
-      (select deptno, avg(sal) sal from emp group by deptno) t,
-      salgrade s
-    where
-      t.sal between s.losal and s.hisal;
-    -- 结果就是这样，就对了
-    -- | DEPTNO |  SAL        |  GRADE |  LOSAL |  HISAL  |
-    -- |     10 |  2916.66667 |      4 |   2001 |   3000  |
-    -- |     20 |  2258.33333 |      4 |   2001 |   3000  |
-    -- |     30 |  1566.66667 |      3 |   1401 |   2000  |
-
-
-    -- 需要将部门名称显示出来，再杂交->过滤一次就可以了
-    select * from
-      (select deptno, avg(sal) sal from emp group by deptno) t,
-      salgrade s,
-      dept d
-    where
-      t.deptno = d.deptno and
-      t.sal between s.losal and s.hisal;
-
-
-    -- 最后的最后，设置显示字段
-    select dname, grade from
-      (select deptno, avg(sal) sal from emp group by deptno) t,
-      salgrade s,
-      dept d
-    where
-      t.deptno = d.deptno and
-      t.sal between s.losal and s.hisal;
-    -- 最终结果，完美
-    --| DNAME      |  GRADE  |
-    --| ACCOUNTING |      4  |
-    --| RESEARCH   |      4  |
-    --| SALES      |      3  |
-  #+END_SRC
-
+** 购物车逻辑的表设计(从设计E-R图开始)
+** 微博/博客系统(从设计E-R图开始)
+** 论坛(从设计E-R图开始)
 * 体系结构
 Oracle 采取的是 Client/Server 架构。
 
@@ -1298,6 +1367,7 @@ Union / UnionAll / Intersect / Minus
 - initcap/upper/lower   字母大小写   
 - substr/translate/replace/instr   子串/替换    
 - ltrim/rtrim/lpad/rpad   修剪/填充    
+
 *** Datetime
 #+BEGIN_SRC sql
   select sysdate, systimestamp, current_date from dual;
@@ -1321,9 +1391,9 @@ Union / UnionAll / Intersect / Minus
   select trunc(to_date('20170916'),'MONTH') from dual;
 #+END_SRC
 
-
 *** Nullable
 - nvl/nvl2/nullif
+
 *** Miscellaneous
 *decode/case when*:
 #+BEGIN_SRC sql
@@ -1480,8 +1550,8 @@ https://docs.oracle.com/cd/E11882_01/server.112/e41084/functions004.htm#SQLRF061
       -- 要查询的语句
     ) a where ROWNUM < '#最大序号#')
    WHERE rn > '#最小序号#';
-
 #+END_SRC
+
 ** 查询语句执行顺序
 完整的查询语句类似是这样的：
 #+BEGIN_SRC sql
@@ -1801,59 +1871,81 @@ PS: 如果存在分析函数(row_number etc)，那么，分析函数的执行会
   update vbbb set sal = 1000 where empno = 9988;  -- 会报错
 #+END_SRC
 
-* 性能优化
+* 效率速度
 ** 表分区
+目的：
+1. 安全（鸡蛋不要放在一个篮子里）
+2. 效率****（快速找到南方it学院所有姓张的人）
+3. 便于维护
+
+场景：
+1. 数据量极大（大于 2G）
+2. 历史数据比重比较大
+
+分类：
+1. 范围分区
+2. 列表分区
+3. 哈希分区(hash)
+
+在以上分区的基础上，可以两两结合，形成 *复合分区*。
+
+*范围分区:*
+#+BEGIN_SRC sql
+  -- 创建一个普通表的语句
+  create table person1 (id int primary key, name varchar2(20), birth date);
+  -- 数据将会在同一个表空间同一个段内
+  insert into person1 values (1, 'sss', sysdate);
+
+  -- 创建一个分区表
+  -- 这里是按照生日进行范围分区
+  -- 语句的基本格式就是在普通建表的语句上，增加 partition by 语句块
+  create table person2 (name varchar2(20), birth date)
+  partition by range (birth)
+  (
+    partition p1 values less than (to_date('19950101','yyyymmdd')),  -- 'values less than'
+    partition p2 values less than (to_date('20000101','yyyymmdd')),
+    partition p3 values less than (maxvalue)                         -- 默认分区
+  );
+  -- 插入，数据会根据分区的情况进入不同的分区内
+  insert into person2 values ('张三', to_date('19940707'));
+  insert into person2 values ('李四', to_date('19980707'));
+  insert into person2 values ('王五', to_date('20040707'));
+  -- 查询表中所有数据
+  select * from person2;
+  -- 查询特定分区上数据
+  select * from person2 partition (p3);
+
+
+  -- 可以为不同的分区指定不同的表空间
+  -- 没有指定表空间的分区，使用用户的默认表空间
+  -- 所以，一个表内的数据可以存在于不同表空间里，也就是可以存放在不同数据文件中，不同磁盘上
+  -- 因此，分区表能增强数据的安全性
+  create table person3 (name varchar2(20), birth date)
+  partition by range (birth)
+  (
+    partition p1 values less than (to_date('19950101','yyyymmdd')) tablespace system,
+    partition p2 values less than (to_date('20000101','yyyymmdd')) tablespace sysaux,
+    partition p3 values less than (maxvalue) tablespace users
+  );
+
+
+  -- 可以在其他类型上进行范围分区
+  -- 也可以在多个字段上进行范围分区
+  create table person4 (name varchar2(20), birth date, score number)
+  partition by range (birth, score)
+  (
+    partition p1 values less than (to_date('19900101','yyyymmdd'), 60),
+    partition p2 values less than (to_date('19900101','yyyymmdd'), 90),
+    partition p3 values less than (to_date('19990101','yyyymmdd'), 60),
+    partition p4 values less than (to_date('19990101','yyyymmdd'), 90),
+    partition p5 values less than (maxvalue, maxvalue)
+  );
+#+END_SRC
+
 ** 物化视图
 ** 索引
 * PL/SQL编程
 * 锁/事务
 * hint/explain
 * Miscellaneous
-** 操作系统历史 (Operate System History)
-#+BEGIN_SRC dot :file assets/dot/os_history.jpg :exports results
-  digraph os_history {
-      graph [rankdir=LR,ranksep=.25];
-      node [shape=Mrecord,color=lightblue,fontname=SimSun,fontsize=10,style=filled,fillcolor=aliceblue];
-      edge [fontname=SimSun,fontsize=9,color=grey,arrowhead=vee,arrowsize=.5];
-
-      OS -> { Windows[label="Windows\nMicrosoft"]; UNIX };
-      
-      UNIX -> TM [label="拓展/商用",constraint=false];
-      UNIX -> BSD [label="开源版本\n(加州大学伯克利分校)"];
-      UNIX -> Linux[label="山寨版本\n(by Linus Torvalds)"];
-
-      BSD -> { TM, FreeBSD, OpenBSD, NetBSD };
-      TM -> { "AIX(IBM)", "Solaris(Oracle)", "MacOS(Apple)", "HP-UX(HP)" };
-
-      {
-          node [shape=plaintext,style=none];
-          FreeBSD_Desc [label="稳定，高效，精于网络处理"];
-          OpenBSD_Desc [label="号称最安全的操作系统"];
-          NetBSD_Desc  [label="可移植性强，适合嵌入式"];
-      }
-
-      FreeBSD -> FreeBSD_Desc;
-      OpenBSD -> OpenBSD_Desc;
-      NetBSD -> NetBSD_Desc;
-
-      linuxDist [label=" GNU/Linux 发行版 "];
-      
-      Linux -> linuxDist [label="预装大量软件\n增强易用性"];
-      linuxDist -> { Android; Archlinux; }
-      linuxDist -> { node[color=darkgreen]; Debian; Ubuntu; Kali; }
-      linuxDist -> { node[color=steelblue]; Redhat; Fedora; CentOS; };
-      Linux -> GNU [label="推动者"];
-      GNU -> linuxDist [style=dotted];
-      GNU -> { "GNU's Not Unix 的缩写",
-               "由 Richard Stallman\n在麻省理工学院\n人工智能实验室发起,\n目标是成立一个\n完全免费的操作系统",
-               "自由软件组织\n口号是：开源，自由" };
-
-  }
-      
-#+END_SRC
-
-#+RESULTS:
-[[file:assets/dot/os_history.jpg]]
-
-
 

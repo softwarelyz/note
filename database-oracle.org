@@ -1887,7 +1887,9 @@ PS: 如果存在分析函数(row_number etc)，那么，分析函数的执行会
 2. 列表分区
 3. 哈希分区(hash)
 
-在以上分区的基础上，可以两两结合，形成 *复合分区*。
+在以上分区的基础上，可以两两结合，形成 *复合分区*，但常用的就是两种：
+1. 范围-列表分区
+2. 范围-哈希分区
 
 *范围分区:*
 #+BEGIN_SRC sql
@@ -1940,6 +1942,164 @@ PS: 如果存在分析函数(row_number etc)，那么，分析函数的执行会
     partition p4 values less than (to_date('19990101','yyyymmdd'), 90),
     partition p5 values less than (maxvalue, maxvalue)
   );
+#+END_SRC
+
+*列表分区:*
+#+BEGIN_SRC sql
+  -- 如果是生日的这样的字段，数据是连续的，应该使用分为分区
+  create table person (name varchar2(20), birth date)
+  partition by range(birth)
+  (
+    partition p1 values less than (to_date('19900101', 'yyyymmdd')) tablespace users,
+    partition p2 values less than (maxvalue)
+  );
+  insert into person values ('aaa', to_date('19871212', 'yyyymmdd'));
+  select * from person partition (p1);
+    
+
+  /* 
+  where birth between 1987 and 1990 
+  where sex in ('男', '女')
+  ,*/
+
+  -- 但是像性别、民族等字段，更适合使用的是列表分区
+  -- 下面一个例子，使用性别作为分区字段，男的一个区，女的一个区
+  create table person2 (name varchar2(20), sex varchar(10))
+  partition by list (sex)
+  (
+      partition p1 values ('男'),
+      partition p2 values ('女')
+  );
+  insert into person2 values ('aaa', '男');
+  insert into person2 values ('bbb', '女');
+  insert into person2 values ('ccc', '未知');  -- 报错
+  select * from person2 partition (p2);
+
+  -- 默认分区的写法
+  create table person3 (name varchar2(20), sex varchar(10))
+  partition by list (sex)
+  (
+      partition p1 values ('男'),
+      partition p2 values ('女'),
+      partition p3 values (default)
+  );
+  insert into person3 values ('ccc', '未知');
+  select * from person3 partition (p3);
+
+
+  -- 可以为每个分区指定表空间
+  create table person3 (name varchar2(20), sex varchar(10))
+  partition by list (sex)
+  (
+      partition p1 values ('男') tablespace users,
+      partition p2 values ('女') tablespace system,
+      partition p3 values (default)
+  );
+#+END_SRC
+
+*哈希分区:*
+#+BEGIN_SRC sql
+  -- 哈希分区
+  -- 主要用在一些比较离散，不好分类的数据上，比如产品名字
+  -- 让 oracle 使用哈希算法自动计算数据的分区
+
+  -- 创建语句，非常简单
+  create table person4 (name varchar2(20), sex varchar2(10))
+  partition by hash (name)
+  (
+    partition p1,
+    partition p2 tablespace users
+  );
+  insert into person4 values ('aaa', '男');
+  insert into person4 values ('收款', '男');
+  select * from person4 partition (p1);
+
+  -- 上面的语句可以进一步简化为：
+  create table person5 (name varchar2(20), sex varchar2(10))
+  partition by hash (name)
+  partitions 5;
+
+  -- 为每个分区指定表空间
+  create table person6 (name varchar2(20), sex varchar2(10))
+  partition by hash (name)
+  partitions 3 store in (users, system, sysaux);
+#+END_SRC
+
+*范围-列表分区:*
+#+BEGIN_SRC sql
+  -- 首先，按照生日进行列表分区，分了三个区
+  -- 其次，在每个分区内，又按照性别分了三个区
+  -- 所以，总共是 3 个分区 9 个子分区
+  create table person8 (name varchar2(20), sex varchar2(10), birth date)
+  partition by range(birth)
+  subpartition by list(sex)
+  subpartition template
+  (
+     subpartition sp01 values ('男'),
+     subpartition sp02 values ('女'),
+     subpartition sp03 values (default)
+  )
+  (
+     partition p1 values less than (to_date('19900101', 'yyyymmdd')),
+     partition p2 values less than (to_date('20000101', 'yyyymmdd')),
+     partition p3 values less than (maxvalue)
+  );
+
+  insert into person8 values ('aaa', '男', to_date('19900202'));
+  -- 查询这条数据，有以下三种方式：
+  select * from person8;
+  select * from person8 partition (p1);
+  select * from person8 subpartition (p1_sp01);
+
+
+#+END_SRC
+
+*范围-哈希分区:*
+#+BEGIN_SRC sql
+  -- 先按照生日，将数据分为三个区
+  -- 然后在每个分区内，又按照哈希算法分成了三个区
+  -- 这样就保证了每个分区内的数据尽量的少，而且分区进行平衡
+  create table person7 (name varchar2(20), birth date)
+  partition by range (birth)
+  subpartition by hash (name) subpartitions 3
+  (
+    partition p1 values less than (to_date('19900101', 'yyyymmdd')),
+    partition p2 values less than (to_date('20000101', 'yyyymmdd')),
+    partition p3 values less than (maxvalue)
+  );
+#+END_SRC
+
+*相关字典表:*
+#+BEGIN_SRC sql
+  select * from user_objects where object_name ='PERSON8';
+  select * from user_tables where table_name = 'PERSON8';
+  select * from user_tab_partitions where table_name = 'PERSON8';
+  select * from user_tab_subpartitions where table_name = 'PERSON8';
+#+END_SRC
+
+*操作表分区:*
+#+BEGIN_SRC sql
+  -- 添加分区
+  alter table person add partition p9 values less than (MAXVALUE);
+  alter table person add partition p9 values (1, 2);   -- 针对 list 分区
+  alter table person add partition;                    -- 针对 hash 分区
+
+  -- 删除分区
+  alter table person drop partition p3;
+
+  -- 删除分区内数据
+  alter table person truncate partition p3;
+
+  -- 合并相邻分区
+  alter table person merge partitions p2, p3 into partition p8;
+
+  -- 拆分分区
+  alter table person split partition p2 at (3000) into (partition p3, partition p14);     -- 范围分区的拆分
+  alter table person split partition p2 values (1,2) into (partition p3, partition p4);   -- 列表分区的拆分
+  alter table person split partition p2 into (partition p3 values (1, 2), partition p4 values (3), partition p5);   -- 列表分区的拆分
+
+  -- 重命名分区
+  alter table person rename partition p2 to p12;
 #+END_SRC
 
 ** 物化视图

@@ -2,7 +2,7 @@
 <html>
 <head>
 <title>Oracle 数据库</title>
-<!-- 2017-09-11 Mon 16:27 -->
+<!-- 2017-09-12 Tue 15:55 -->
 <meta  charset="utf-8">
 <meta  name="generator" content="Org-mode">
 <meta  name="author" content="imfine">
@@ -2971,8 +2971,14 @@ create table "lowcase_name" (...);
 </ol>
 
 <p>
-在以上分区的基础上，可以两两结合，形成 <b>复合分区</b>。
+在以上分区的基础上，可以两两结合，形成 <b>复合分区</b>，但常用的就是两种：
 </p>
+<ol class="org-ol">
+<li>范围-列表分区
+</li>
+<li>范围-哈希分区
+</li>
+</ol>
 
 <p>
 <b>范围分区:</b>
@@ -3030,6 +3036,186 @@ partition <span class="org-keyword">by</span> range <span class="org-rainbow-del
 <span class="org-rainbow-delimiters-depth-1">)</span>;
 </pre>
 </div>
+
+<p>
+<b>列表分区:</b>
+</p>
+<div class="org-src-container">
+
+<pre class="src src-sql"><span class="org-comment">-- &#22914;&#26524;&#26159;&#29983;&#26085;&#30340;&#36825;&#26679;&#30340;&#23383;&#27573;&#65292;&#25968;&#25454;&#26159;&#36830;&#32493;&#30340;&#65292;&#24212;&#35813;&#20351;&#29992;&#20998;&#20026;&#20998;&#21306;</span>
+<span class="org-keyword">create</span> <span class="org-keyword">table</span> <span class="org-function-name">person</span> <span class="org-rainbow-delimiters-depth-1">(</span><span class="org-keyword">name</span> varchar2<span class="org-rainbow-delimiters-depth-2">(</span>20<span class="org-rainbow-delimiters-depth-2">)</span>, birth <span class="org-type">date</span><span class="org-rainbow-delimiters-depth-1">)</span>
+partition <span class="org-keyword">by</span> range<span class="org-rainbow-delimiters-depth-1">(</span>birth<span class="org-rainbow-delimiters-depth-1">)</span>
+<span class="org-rainbow-delimiters-depth-1">(</span>
+  partition p1 <span class="org-keyword">values</span> <span class="org-keyword">less</span> <span class="org-keyword">than</span> <span class="org-rainbow-delimiters-depth-2">(</span>to_date<span class="org-rainbow-delimiters-depth-3">(</span><span class="org-string">'19900101'</span>, <span class="org-string">'yyyymmdd'</span><span class="org-rainbow-delimiters-depth-3">)</span><span class="org-rainbow-delimiters-depth-2">)</span> tablespace users,
+  partition p2 <span class="org-keyword">values</span> <span class="org-keyword">less</span> <span class="org-keyword">than</span> <span class="org-rainbow-delimiters-depth-2">(</span>maxvalue<span class="org-rainbow-delimiters-depth-2">)</span>
+<span class="org-rainbow-delimiters-depth-1">)</span>;
+<span class="org-keyword">insert</span> <span class="org-keyword">into</span> person <span class="org-keyword">values</span> <span class="org-rainbow-delimiters-depth-1">(</span><span class="org-string">'aaa'</span>, to_date<span class="org-rainbow-delimiters-depth-2">(</span><span class="org-string">'19871212'</span>, <span class="org-string">'yyyymmdd'</span><span class="org-rainbow-delimiters-depth-2">)</span><span class="org-rainbow-delimiters-depth-1">)</span>;
+<span class="org-keyword">select</span> * <span class="org-keyword">from</span> person partition <span class="org-rainbow-delimiters-depth-1">(</span>p1<span class="org-rainbow-delimiters-depth-1">)</span>;
+
+
+<span class="org-comment">/* </span>
+<span class="org-comment">where birth between 1987 and 1990 </span>
+<span class="org-comment">where sex in ('&#30007;', '&#22899;')</span>
+<span class="org-comment">*/</span>
+
+<span class="org-comment">-- &#20294;&#26159;&#20687;&#24615;&#21035;&#12289;&#27665;&#26063;&#31561;&#23383;&#27573;&#65292;&#26356;&#36866;&#21512;&#20351;&#29992;&#30340;&#26159;&#21015;&#34920;&#20998;&#21306;</span>
+<span class="org-comment">-- &#19979;&#38754;&#19968;&#20010;&#20363;&#23376;&#65292;&#20351;&#29992;&#24615;&#21035;&#20316;&#20026;&#20998;&#21306;&#23383;&#27573;&#65292;&#30007;&#30340;&#19968;&#20010;&#21306;&#65292;&#22899;&#30340;&#19968;&#20010;&#21306;</span>
+<span class="org-keyword">create</span> <span class="org-keyword">table</span> <span class="org-function-name">person2</span> <span class="org-rainbow-delimiters-depth-1">(</span><span class="org-keyword">name</span> varchar2<span class="org-rainbow-delimiters-depth-2">(</span>20<span class="org-rainbow-delimiters-depth-2">)</span>, sex <span class="org-type">varchar</span><span class="org-rainbow-delimiters-depth-2">(</span>10<span class="org-rainbow-delimiters-depth-2">)</span><span class="org-rainbow-delimiters-depth-1">)</span>
+partition <span class="org-keyword">by</span> list <span class="org-rainbow-delimiters-depth-1">(</span>sex<span class="org-rainbow-delimiters-depth-1">)</span>
+<span class="org-rainbow-delimiters-depth-1">(</span>
+    partition p1 <span class="org-keyword">values</span> <span class="org-rainbow-delimiters-depth-2">(</span><span class="org-string">'&#30007;'</span><span class="org-rainbow-delimiters-depth-2">)</span>,
+    partition p2 <span class="org-keyword">values</span> <span class="org-rainbow-delimiters-depth-2">(</span><span class="org-string">'&#22899;'</span><span class="org-rainbow-delimiters-depth-2">)</span>
+<span class="org-rainbow-delimiters-depth-1">)</span>;
+<span class="org-keyword">insert</span> <span class="org-keyword">into</span> person2 <span class="org-keyword">values</span> <span class="org-rainbow-delimiters-depth-1">(</span><span class="org-string">'aaa'</span>, <span class="org-string">'&#30007;'</span><span class="org-rainbow-delimiters-depth-1">)</span>;
+<span class="org-keyword">insert</span> <span class="org-keyword">into</span> person2 <span class="org-keyword">values</span> <span class="org-rainbow-delimiters-depth-1">(</span><span class="org-string">'bbb'</span>, <span class="org-string">'&#22899;'</span><span class="org-rainbow-delimiters-depth-1">)</span>;
+<span class="org-keyword">insert</span> <span class="org-keyword">into</span> person2 <span class="org-keyword">values</span> <span class="org-rainbow-delimiters-depth-1">(</span><span class="org-string">'ccc'</span>, <span class="org-string">'&#26410;&#30693;'</span><span class="org-rainbow-delimiters-depth-1">)</span>;  <span class="org-comment">-- &#25253;&#38169;</span>
+<span class="org-keyword">select</span> * <span class="org-keyword">from</span> person2 partition <span class="org-rainbow-delimiters-depth-1">(</span>p2<span class="org-rainbow-delimiters-depth-1">)</span>;
+
+<span class="org-comment">-- &#40664;&#35748;&#20998;&#21306;&#30340;&#20889;&#27861;</span>
+<span class="org-keyword">create</span> <span class="org-keyword">table</span> <span class="org-function-name">person3</span> <span class="org-rainbow-delimiters-depth-1">(</span><span class="org-keyword">name</span> varchar2<span class="org-rainbow-delimiters-depth-2">(</span>20<span class="org-rainbow-delimiters-depth-2">)</span>, sex <span class="org-type">varchar</span><span class="org-rainbow-delimiters-depth-2">(</span>10<span class="org-rainbow-delimiters-depth-2">)</span><span class="org-rainbow-delimiters-depth-1">)</span>
+partition <span class="org-keyword">by</span> list <span class="org-rainbow-delimiters-depth-1">(</span>sex<span class="org-rainbow-delimiters-depth-1">)</span>
+<span class="org-rainbow-delimiters-depth-1">(</span>
+    partition p1 <span class="org-keyword">values</span> <span class="org-rainbow-delimiters-depth-2">(</span><span class="org-string">'&#30007;'</span><span class="org-rainbow-delimiters-depth-2">)</span>,
+    partition p2 <span class="org-keyword">values</span> <span class="org-rainbow-delimiters-depth-2">(</span><span class="org-string">'&#22899;'</span><span class="org-rainbow-delimiters-depth-2">)</span>,
+    partition p3 <span class="org-keyword">values</span> <span class="org-rainbow-delimiters-depth-2">(</span><span class="org-keyword">default</span><span class="org-rainbow-delimiters-depth-2">)</span>
+<span class="org-rainbow-delimiters-depth-1">)</span>;
+<span class="org-keyword">insert</span> <span class="org-keyword">into</span> person3 <span class="org-keyword">values</span> <span class="org-rainbow-delimiters-depth-1">(</span><span class="org-string">'ccc'</span>, <span class="org-string">'&#26410;&#30693;'</span><span class="org-rainbow-delimiters-depth-1">)</span>;
+<span class="org-keyword">select</span> * <span class="org-keyword">from</span> person3 partition <span class="org-rainbow-delimiters-depth-1">(</span>p3<span class="org-rainbow-delimiters-depth-1">)</span>;
+
+
+<span class="org-comment">-- &#21487;&#20197;&#20026;&#27599;&#20010;&#20998;&#21306;&#25351;&#23450;&#34920;&#31354;&#38388;</span>
+<span class="org-keyword">create</span> <span class="org-keyword">table</span> <span class="org-function-name">person3</span> <span class="org-rainbow-delimiters-depth-1">(</span><span class="org-keyword">name</span> varchar2<span class="org-rainbow-delimiters-depth-2">(</span>20<span class="org-rainbow-delimiters-depth-2">)</span>, sex <span class="org-type">varchar</span><span class="org-rainbow-delimiters-depth-2">(</span>10<span class="org-rainbow-delimiters-depth-2">)</span><span class="org-rainbow-delimiters-depth-1">)</span>
+partition <span class="org-keyword">by</span> list <span class="org-rainbow-delimiters-depth-1">(</span>sex<span class="org-rainbow-delimiters-depth-1">)</span>
+<span class="org-rainbow-delimiters-depth-1">(</span>
+    partition p1 <span class="org-keyword">values</span> <span class="org-rainbow-delimiters-depth-2">(</span><span class="org-string">'&#30007;'</span><span class="org-rainbow-delimiters-depth-2">)</span> tablespace users,
+    partition p2 <span class="org-keyword">values</span> <span class="org-rainbow-delimiters-depth-2">(</span><span class="org-string">'&#22899;'</span><span class="org-rainbow-delimiters-depth-2">)</span> tablespace <span class="org-keyword">system</span>,
+    partition p3 <span class="org-keyword">values</span> <span class="org-rainbow-delimiters-depth-2">(</span><span class="org-keyword">default</span><span class="org-rainbow-delimiters-depth-2">)</span>
+<span class="org-rainbow-delimiters-depth-1">)</span>;
+</pre>
+</div>
+
+<p>
+<b>哈希分区:</b>
+</p>
+<div class="org-src-container">
+
+<pre class="src src-sql"><span class="org-comment">-- &#21704;&#24076;&#20998;&#21306;</span>
+<span class="org-comment">-- &#20027;&#35201;&#29992;&#22312;&#19968;&#20123;&#27604;&#36739;&#31163;&#25955;&#65292;&#19981;&#22909;&#20998;&#31867;&#30340;&#25968;&#25454;&#19978;&#65292;&#27604;&#22914;&#20135;&#21697;&#21517;&#23383;</span>
+<span class="org-comment">-- &#35753; oracle &#20351;&#29992;&#21704;&#24076;&#31639;&#27861;&#33258;&#21160;&#35745;&#31639;&#25968;&#25454;&#30340;&#20998;&#21306;</span>
+
+<span class="org-comment">-- &#21019;&#24314;&#35821;&#21477;&#65292;&#38750;&#24120;&#31616;&#21333;</span>
+<span class="org-keyword">create</span> <span class="org-keyword">table</span> <span class="org-function-name">person4</span> <span class="org-rainbow-delimiters-depth-1">(</span><span class="org-keyword">name</span> varchar2<span class="org-rainbow-delimiters-depth-2">(</span>20<span class="org-rainbow-delimiters-depth-2">)</span>, sex varchar2<span class="org-rainbow-delimiters-depth-2">(</span>10<span class="org-rainbow-delimiters-depth-2">)</span><span class="org-rainbow-delimiters-depth-1">)</span>
+partition <span class="org-keyword">by</span> hash <span class="org-rainbow-delimiters-depth-1">(</span><span class="org-keyword">name</span><span class="org-rainbow-delimiters-depth-1">)</span>
+<span class="org-rainbow-delimiters-depth-1">(</span>
+  partition p1,
+  partition p2 tablespace users
+<span class="org-rainbow-delimiters-depth-1">)</span>;
+<span class="org-keyword">insert</span> <span class="org-keyword">into</span> person4 <span class="org-keyword">values</span> <span class="org-rainbow-delimiters-depth-1">(</span><span class="org-string">'aaa'</span>, <span class="org-string">'&#30007;'</span><span class="org-rainbow-delimiters-depth-1">)</span>;
+<span class="org-keyword">insert</span> <span class="org-keyword">into</span> person4 <span class="org-keyword">values</span> <span class="org-rainbow-delimiters-depth-1">(</span><span class="org-string">'&#25910;&#27454;'</span>, <span class="org-string">'&#30007;'</span><span class="org-rainbow-delimiters-depth-1">)</span>;
+<span class="org-keyword">select</span> * <span class="org-keyword">from</span> person4 partition <span class="org-rainbow-delimiters-depth-1">(</span>p1<span class="org-rainbow-delimiters-depth-1">)</span>;
+
+<span class="org-comment">-- &#19978;&#38754;&#30340;&#35821;&#21477;&#21487;&#20197;&#36827;&#19968;&#27493;&#31616;&#21270;&#20026;&#65306;</span>
+<span class="org-keyword">create</span> <span class="org-keyword">table</span> <span class="org-function-name">person5</span> <span class="org-rainbow-delimiters-depth-1">(</span><span class="org-keyword">name</span> varchar2<span class="org-rainbow-delimiters-depth-2">(</span>20<span class="org-rainbow-delimiters-depth-2">)</span>, sex varchar2<span class="org-rainbow-delimiters-depth-2">(</span>10<span class="org-rainbow-delimiters-depth-2">)</span><span class="org-rainbow-delimiters-depth-1">)</span>
+partition <span class="org-keyword">by</span> hash <span class="org-rainbow-delimiters-depth-1">(</span><span class="org-keyword">name</span><span class="org-rainbow-delimiters-depth-1">)</span>
+partitions 5;
+
+<span class="org-comment">-- &#20026;&#27599;&#20010;&#20998;&#21306;&#25351;&#23450;&#34920;&#31354;&#38388;</span>
+<span class="org-keyword">create</span> <span class="org-keyword">table</span> <span class="org-function-name">person6</span> <span class="org-rainbow-delimiters-depth-1">(</span><span class="org-keyword">name</span> varchar2<span class="org-rainbow-delimiters-depth-2">(</span>20<span class="org-rainbow-delimiters-depth-2">)</span>, sex varchar2<span class="org-rainbow-delimiters-depth-2">(</span>10<span class="org-rainbow-delimiters-depth-2">)</span><span class="org-rainbow-delimiters-depth-1">)</span>
+partition <span class="org-keyword">by</span> hash <span class="org-rainbow-delimiters-depth-1">(</span><span class="org-keyword">name</span><span class="org-rainbow-delimiters-depth-1">)</span>
+partitions 3 store <span class="org-keyword">in</span> <span class="org-rainbow-delimiters-depth-1">(</span>users, <span class="org-keyword">system</span>, sysaux<span class="org-rainbow-delimiters-depth-1">)</span>;
+</pre>
+</div>
+
+<p>
+<b>范围-列表分区:</b>
+</p>
+<div class="org-src-container">
+
+<pre class="src src-sql"><span class="org-comment">-- &#39318;&#20808;&#65292;&#25353;&#29031;&#29983;&#26085;&#36827;&#34892;&#21015;&#34920;&#20998;&#21306;&#65292;&#20998;&#20102;&#19977;&#20010;&#21306;</span>
+<span class="org-comment">-- &#20854;&#27425;&#65292;&#22312;&#27599;&#20010;&#20998;&#21306;&#20869;&#65292;&#21448;&#25353;&#29031;&#24615;&#21035;&#20998;&#20102;&#19977;&#20010;&#21306;</span>
+<span class="org-comment">-- &#25152;&#20197;&#65292;&#24635;&#20849;&#26159; 3 &#20010;&#20998;&#21306; 9 &#20010;&#23376;&#20998;&#21306;</span>
+<span class="org-keyword">create</span> <span class="org-keyword">table</span> <span class="org-function-name">person8</span> <span class="org-rainbow-delimiters-depth-1">(</span><span class="org-keyword">name</span> varchar2<span class="org-rainbow-delimiters-depth-2">(</span>20<span class="org-rainbow-delimiters-depth-2">)</span>, sex varchar2<span class="org-rainbow-delimiters-depth-2">(</span>10<span class="org-rainbow-delimiters-depth-2">)</span>, birth <span class="org-type">date</span><span class="org-rainbow-delimiters-depth-1">)</span>
+partition <span class="org-keyword">by</span> range<span class="org-rainbow-delimiters-depth-1">(</span>birth<span class="org-rainbow-delimiters-depth-1">)</span>
+subpartition <span class="org-keyword">by</span> list<span class="org-rainbow-delimiters-depth-1">(</span>sex<span class="org-rainbow-delimiters-depth-1">)</span>
+subpartition template
+<span class="org-rainbow-delimiters-depth-1">(</span>
+   subpartition sp01 <span class="org-keyword">values</span> <span class="org-rainbow-delimiters-depth-2">(</span><span class="org-string">'&#30007;'</span><span class="org-rainbow-delimiters-depth-2">)</span>,
+   subpartition sp02 <span class="org-keyword">values</span> <span class="org-rainbow-delimiters-depth-2">(</span><span class="org-string">'&#22899;'</span><span class="org-rainbow-delimiters-depth-2">)</span>,
+   subpartition sp03 <span class="org-keyword">values</span> <span class="org-rainbow-delimiters-depth-2">(</span><span class="org-keyword">default</span><span class="org-rainbow-delimiters-depth-2">)</span>
+<span class="org-rainbow-delimiters-depth-1">)</span>
+<span class="org-rainbow-delimiters-depth-1">(</span>
+   partition p1 <span class="org-keyword">values</span> <span class="org-keyword">less</span> <span class="org-keyword">than</span> <span class="org-rainbow-delimiters-depth-2">(</span>to_date<span class="org-rainbow-delimiters-depth-3">(</span><span class="org-string">'19900101'</span>, <span class="org-string">'yyyymmdd'</span><span class="org-rainbow-delimiters-depth-3">)</span><span class="org-rainbow-delimiters-depth-2">)</span>,
+   partition p2 <span class="org-keyword">values</span> <span class="org-keyword">less</span> <span class="org-keyword">than</span> <span class="org-rainbow-delimiters-depth-2">(</span>to_date<span class="org-rainbow-delimiters-depth-3">(</span><span class="org-string">'20000101'</span>, <span class="org-string">'yyyymmdd'</span><span class="org-rainbow-delimiters-depth-3">)</span><span class="org-rainbow-delimiters-depth-2">)</span>,
+   partition p3 <span class="org-keyword">values</span> <span class="org-keyword">less</span> <span class="org-keyword">than</span> <span class="org-rainbow-delimiters-depth-2">(</span>maxvalue<span class="org-rainbow-delimiters-depth-2">)</span>
+<span class="org-rainbow-delimiters-depth-1">)</span>;
+
+<span class="org-keyword">insert</span> <span class="org-keyword">into</span> person8 <span class="org-keyword">values</span> <span class="org-rainbow-delimiters-depth-1">(</span><span class="org-string">'aaa'</span>, <span class="org-string">'&#30007;'</span>, to_date<span class="org-rainbow-delimiters-depth-2">(</span><span class="org-string">'19900202'</span><span class="org-rainbow-delimiters-depth-2">)</span><span class="org-rainbow-delimiters-depth-1">)</span>;
+<span class="org-comment">-- &#26597;&#35810;&#36825;&#26465;&#25968;&#25454;&#65292;&#26377;&#20197;&#19979;&#19977;&#31181;&#26041;&#24335;&#65306;</span>
+<span class="org-keyword">select</span> * <span class="org-keyword">from</span> person8;
+<span class="org-keyword">select</span> * <span class="org-keyword">from</span> person8 partition <span class="org-rainbow-delimiters-depth-1">(</span>p1<span class="org-rainbow-delimiters-depth-1">)</span>;
+<span class="org-keyword">select</span> * <span class="org-keyword">from</span> person8 subpartition <span class="org-rainbow-delimiters-depth-1">(</span>p1_sp01<span class="org-rainbow-delimiters-depth-1">)</span>;
+</pre>
+</div>
+
+<p>
+<b>范围-哈希分区:</b>
+</p>
+<div class="org-src-container">
+
+<pre class="src src-sql"><span class="org-comment">-- &#20808;&#25353;&#29031;&#29983;&#26085;&#65292;&#23558;&#25968;&#25454;&#20998;&#20026;&#19977;&#20010;&#21306;</span>
+<span class="org-comment">-- &#28982;&#21518;&#22312;&#27599;&#20010;&#20998;&#21306;&#20869;&#65292;&#21448;&#25353;&#29031;&#21704;&#24076;&#31639;&#27861;&#20998;&#25104;&#20102;&#19977;&#20010;&#21306;</span>
+<span class="org-comment">-- &#36825;&#26679;&#23601;&#20445;&#35777;&#20102;&#27599;&#20010;&#20998;&#21306;&#20869;&#30340;&#25968;&#25454;&#23613;&#37327;&#30340;&#23569;&#65292;&#32780;&#19988;&#20998;&#21306;&#36827;&#34892;&#24179;&#34913;</span>
+<span class="org-keyword">create</span> <span class="org-keyword">table</span> <span class="org-function-name">person7</span> <span class="org-rainbow-delimiters-depth-1">(</span><span class="org-keyword">name</span> varchar2<span class="org-rainbow-delimiters-depth-2">(</span>20<span class="org-rainbow-delimiters-depth-2">)</span>, birth <span class="org-type">date</span><span class="org-rainbow-delimiters-depth-1">)</span>
+partition <span class="org-keyword">by</span> range <span class="org-rainbow-delimiters-depth-1">(</span>birth<span class="org-rainbow-delimiters-depth-1">)</span>
+subpartition <span class="org-keyword">by</span> hash <span class="org-rainbow-delimiters-depth-1">(</span><span class="org-keyword">name</span><span class="org-rainbow-delimiters-depth-1">)</span> subpartitions 3
+<span class="org-rainbow-delimiters-depth-1">(</span>
+  partition p1 <span class="org-keyword">values</span> <span class="org-keyword">less</span> <span class="org-keyword">than</span> <span class="org-rainbow-delimiters-depth-2">(</span>to_date<span class="org-rainbow-delimiters-depth-3">(</span><span class="org-string">'19900101'</span>, <span class="org-string">'yyyymmdd'</span><span class="org-rainbow-delimiters-depth-3">)</span><span class="org-rainbow-delimiters-depth-2">)</span>,
+  partition p2 <span class="org-keyword">values</span> <span class="org-keyword">less</span> <span class="org-keyword">than</span> <span class="org-rainbow-delimiters-depth-2">(</span>to_date<span class="org-rainbow-delimiters-depth-3">(</span><span class="org-string">'20000101'</span>, <span class="org-string">'yyyymmdd'</span><span class="org-rainbow-delimiters-depth-3">)</span><span class="org-rainbow-delimiters-depth-2">)</span>,
+  partition p3 <span class="org-keyword">values</span> <span class="org-keyword">less</span> <span class="org-keyword">than</span> <span class="org-rainbow-delimiters-depth-2">(</span>maxvalue<span class="org-rainbow-delimiters-depth-2">)</span>
+<span class="org-rainbow-delimiters-depth-1">)</span>;
+</pre>
+</div>
+
+<p>
+<b>相关字典表:</b>
+</p>
+<div class="org-src-container">
+
+<pre class="src src-sql"><span class="org-keyword">select</span> * <span class="org-keyword">from</span> user_objects <span class="org-keyword">where</span> object_name =<span class="org-string">'PERSON8'</span>;
+<span class="org-keyword">select</span> * <span class="org-keyword">from</span> user_tables <span class="org-keyword">where</span> <span class="org-keyword">table_name</span> = <span class="org-string">'PERSON8'</span>;
+<span class="org-keyword">select</span> * <span class="org-keyword">from</span> user_tab_partitions <span class="org-keyword">where</span> <span class="org-keyword">table_name</span> = <span class="org-string">'PERSON8'</span>;
+<span class="org-keyword">select</span> * <span class="org-keyword">from</span> user_tab_subpartitions <span class="org-keyword">where</span> <span class="org-keyword">table_name</span> = <span class="org-string">'PERSON8'</span>;
+</pre>
+</div>
+
+<p>
+<b>操作表分区:</b>
+</p>
+<div class="org-src-container">
+
+<pre class="src src-sql"><span class="org-comment">-- &#28155;&#21152;&#20998;&#21306;</span>
+<span class="org-keyword">alter</span> <span class="org-keyword">table</span> <span class="org-function-name">person</span> <span class="org-keyword">add</span> partition p9 <span class="org-keyword">values</span> <span class="org-keyword">less</span> <span class="org-keyword">than</span> <span class="org-rainbow-delimiters-depth-1">(</span>MAXVALUE<span class="org-rainbow-delimiters-depth-1">)</span>;
+<span class="org-keyword">alter</span> <span class="org-keyword">table</span> <span class="org-function-name">person</span> <span class="org-keyword">add</span> partition p9 <span class="org-keyword">values</span> <span class="org-rainbow-delimiters-depth-1">(</span>1, 2<span class="org-rainbow-delimiters-depth-1">)</span>;   <span class="org-comment">-- &#38024;&#23545; list &#20998;&#21306;</span>
+<span class="org-keyword">alter</span> <span class="org-keyword">table</span> <span class="org-function-name">person</span> <span class="org-keyword">add</span> partition;                    <span class="org-comment">-- &#38024;&#23545; hash &#20998;&#21306;</span>
+
+<span class="org-comment">-- &#21024;&#38500;&#20998;&#21306;</span>
+<span class="org-keyword">alter</span> <span class="org-keyword">table</span> <span class="org-function-name">person</span> <span class="org-keyword">drop</span> partition p3;
+
+<span class="org-comment">-- &#21024;&#38500;&#20998;&#21306;&#20869;&#25968;&#25454;</span>
+<span class="org-keyword">alter</span> <span class="org-keyword">table</span> <span class="org-function-name">person</span> truncate partition p3;
+
+<span class="org-comment">-- &#21512;&#24182;&#30456;&#37051;&#20998;&#21306;</span>
+<span class="org-keyword">alter</span> <span class="org-keyword">table</span> <span class="org-function-name">person</span> merge partitions p2, p3 <span class="org-keyword">into</span> partition p8;
+
+<span class="org-comment">-- &#25286;&#20998;&#20998;&#21306;</span>
+<span class="org-keyword">alter</span> <span class="org-keyword">table</span> <span class="org-function-name">person</span> split partition p2 <span class="org-keyword">at</span> <span class="org-rainbow-delimiters-depth-1">(</span>3000<span class="org-rainbow-delimiters-depth-1">)</span> <span class="org-keyword">into</span> <span class="org-rainbow-delimiters-depth-1">(</span>partition p3, partition p14<span class="org-rainbow-delimiters-depth-1">)</span>;     <span class="org-comment">-- &#33539;&#22260;&#20998;&#21306;&#30340;&#25286;&#20998;</span>
+<span class="org-keyword">alter</span> <span class="org-keyword">table</span> <span class="org-function-name">person</span> split partition p2 <span class="org-keyword">values</span> <span class="org-rainbow-delimiters-depth-1">(</span>1,2<span class="org-rainbow-delimiters-depth-1">)</span> <span class="org-keyword">into</span> <span class="org-rainbow-delimiters-depth-1">(</span>partition p3, partition p4<span class="org-rainbow-delimiters-depth-1">)</span>;   <span class="org-comment">-- &#21015;&#34920;&#20998;&#21306;&#30340;&#25286;&#20998;</span>
+<span class="org-keyword">alter</span> <span class="org-keyword">table</span> <span class="org-function-name">person</span> split partition p2 <span class="org-keyword">into</span> <span class="org-rainbow-delimiters-depth-1">(</span>partition p3 <span class="org-keyword">values</span> <span class="org-rainbow-delimiters-depth-2">(</span>1, 2<span class="org-rainbow-delimiters-depth-2">)</span>, partition p4 <span class="org-keyword">values</span> <span class="org-rainbow-delimiters-depth-2">(</span>3<span class="org-rainbow-delimiters-depth-2">)</span>, partition p5<span class="org-rainbow-delimiters-depth-1">)</span>;   <span class="org-comment">-- &#21015;&#34920;&#20998;&#21306;&#30340;&#25286;&#20998;</span>
+
+<span class="org-comment">-- &#37325;&#21629;&#21517;&#20998;&#21306;</span>
+<span class="org-keyword">alter</span> <span class="org-keyword">table</span> <span class="org-function-name">person</span> rename partition p2 <span class="org-keyword">to</span> p12;
+</pre>
+</div>
 </div>
 </div>
 
@@ -3055,7 +3241,7 @@ partition <span class="org-keyword">by</span> range <span class="org-rainbow-del
 </div>
 <div id="postamble" class="status">
 <p class="author">Author: imfine</p>
-<p class="date">Created: 2017-09-11 Mon 16:27</p>
+<p class="date">Created: 2017-09-12 Tue 15:55</p>
 <p class="creator"><a href="http://www.gnu.org/software/emacs/">Emacs</a> 25.2.1 (<a href="http://orgmode.org">Org</a> mode 8.2.10)</p>
 <p class="validation">Go ahead, never stop.</p>
 </div>

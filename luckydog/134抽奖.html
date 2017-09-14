@@ -1,4 +1,3 @@
-
 <html>
 <head>
     <meta charset="UTF-8">
@@ -93,17 +92,14 @@
 		 var newname="";
 		 var strs;
 		 var color=1;
-		 var z=0;
-		 var names = ["王海涛","邹尚雄","陈锐豪","张栢川","潘桂树","黎楚","伍世顺","胡剑飞","叶兴强","文浩斌","陈宪仲","邱志文","王新炜","李远志","张能","韦宝玉","廖星云","张冬兰","钟玉群","陈佩东","欧阳文强","梁炜彬","黄文亮","江树祥","王强","王永发","刘佩景","谢贺锋","吴俊飞","郑凯铭","凌岚森","刘熠松","苏国好","李守综","邓高盛","伍瑞麟","吴炳均","吴英平","范锐","邝勇团","汤俊杰","张鹏翼","杜志海","吴东海","秦树月","钟威","吕锦鸿","蒙宏钊","张洪恩","郭宇仔","洪俊鹏"];
+		 var names = ["王海涛","邹尚雄","陈锐豪","张柏川","潘桂树","黎楚","伍世顺","胡剑飞","叶兴强","文浩斌","陈宪仲","邱志文","王新炜","李远志","张能","韦宝玉","廖星云","张冬兰","钟玉群","陈佩东","欧阳文强","梁炜彬","黄文亮","江树祥","王强","王永发","刘佩景","谢贺锋","吴俊飞","郑凯铭","凌岚森","刘熠松","苏国好","李守综","邓高盛","伍瑞麟","吴炳均","吴英平","范锐","邝勇团","汤俊杰","张鹏翼","杜志海","吴东海","秦树月","钟威","吕锦鸿","蒙宏钊","张洪恩","郭宇仔","洪俊鹏"];
 	     
 		 
 		 duo.onclick=function(){
-			 if(z==1||names.length==2){
+			 if(names.length==2){
 				 location.href="134抽奖.html";
-			 }else{
-				 z=2;
 			 }
-			 if(duo.innerText=="多选"){
+			 if(duo.innerText=="抽奖"){
 				 old=100;
 				 duo.innerText="停止";
 				 time=setInterval(function(){
@@ -122,7 +118,7 @@
 				 },10);
 			 }else{
 				 strs= new Array();
-				 duo.innerText="多选";
+				 duo.innerText="抽奖";
 				 clearInterval(time);
 				 time="";
 				 for(var i=0;i<names.length;i++){
@@ -169,14 +165,14 @@
 	    </div>
     </div>
 
+    <table id="tab1"></table>
     <div style="display: flex; flex-flow: row nowrap; justify-content: space-between; width: 70%; float:right; height: 10%;">
         <h3 class="front">讲台</h3>
         <div>
-            <button id="btn-two">多选</button>
+            <button id="btn-two">抽奖</button>
             <button id="btn1">记事本</button>
         </div>
     </div>
-    <table id="tab1"></table>
     <div style=" position:absolute;width: 100%; bottom:20px; z-index:2; font-size:2px; text-align:center;color:#C9C9C9">暴走猪头统一商标&nbsp;版本号：1.3</div>
 
     <script>
@@ -191,7 +187,7 @@
          "欧阳文强/4", "叶兴强/4", "刘佩景/3/", "谢贺锋/2","廖星云/9", "陈宪仲/9","黎楚/8", "潘桂树/8",
          "张柏川/4/", "洪俊鹏/4", "钟威/9", "吴炳均/3","黄文亮/9", "王海涛/9/","梁炜彬/8", "郭宇仔/8/",
          "吕锦鸿/10", "", "李守综/5", "","", "","蒙宏钊/7", "张洪恩/8",
-     ];
+     ].reverse();
      //终极字符串
      let result = new Array();
 

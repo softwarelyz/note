@@ -364,6 +364,17 @@
 4. 最后，将图跟语句一起上交。这个过程着重思考下项目从设计到编码是怎么一个过程。
    : 需求分析 -> *概要设计* -> 详细实现。 
 
+** 博客管理系统
+首先，设计一个博客表(=blog=), 至少有下面字段
+- id
+- author
+- title
+- content(要求是 clob 类型)
+- image(要求是 blob 类型)
+- create_time
+
+用 Java 完成基本的 =CRUD=，并掌握使用 PL/SQL 操作 blob/clob 的技巧。
+
 ** 购物车逻辑的表设计(从设计E-R图开始)
 ** 微博/博客系统(从设计E-R图开始)
 ** 论坛(从设计E-R图开始)
@@ -1948,7 +1959,7 @@ PS: 如果存在分析函数(row_number etc)，那么，分析函数的执行会
 
 *列表分区:*
 #+BEGIN_SRC sql
-  -- 如果是生日的这样的字段，数据是连续的，应该使用分为分区
+  -- 如果是生日的这样的字段，数据是连续的，应该使用范围分区
   create table person (name varchar2(20), birth date)
   partition by range(birth)
   (
@@ -2113,7 +2124,7 @@ PS: 如果存在分析函数(row_number etc)，那么，分析函数的执行会
 
 如果要创建这样的临时表，需要考虑几个方面：
 1. 什么时候初始化数据
-   : build immediate   -- 建表的时候顺带初始化数据
+   : build immediate   -- 建表的时候顺带初始化数据，默认
    : build deferred    -- 数据延迟创建
 2. 如果基表中的数据发生变化的时候，以什么样的策略保持同步
    : refresh complete  -- 全量刷新，即将旧的完全删掉，再重建
@@ -2124,7 +2135,8 @@ PS: 如果存在分析函数(row_number etc)，那么，分析函数的执行会
    : on commit         -- 基本的事务提交立刻同步到物化视图
    : on demand start with 开始时间 next 下一个时间  -- 定时同步
 4. 如果查询基表中的数据，而这些数据同时包含在物化视图中，那么，是不是让 Oracle 将查询语句更改为查询物化视图
-   : enable/disable query rewrite
+   : enable query rewrite
+   : disable query rewrite  -- 默认
 
 *创建物化视图的示例：*
 #+BEGIN_SRC sql
@@ -2156,7 +2168,7 @@ PS: 如果存在分析函数(row_number etc)，那么，分析函数的执行会
   create materialized view mv_emp2
      build immediate 
      refresh fast                       -- 采取增量同步的方式
-     on demand sysdate next sysdate + 1 -- 每天更新一次
+     on demand sysdate next sysdate + 1 -- 每天更新一次，on demand 后面还有其他很多不同形式的命令
      enable query rewrite
   as
   select * from emp where sal > 3000;
@@ -2167,14 +2179,248 @@ PS: 如果存在分析函数(row_number etc)，那么，分析函数的执行会
   drop materialized view mv_emp2;
 #+END_SRC
 
-
-
-
-
-
 ** 索引
+位图索引示例：
+| 字段  | 字段  |   |  索引 |  索引 |    索引 |  索引 |  索引 |   | 查询(xb=女 and hy=否) |
+| XB    | HY    |   | xb=男 | xb=女 | xb=未知 | hy=是 | hy=否 |   |    将两个索引做与运算 |
+|-------+-------+---+-------+-------+---------+-------+-------+---+-----------------------|
+| 男    | 是    |   |     1 |     0 |       0 |     1 |     0 |   |                     0 |
+| 女    | 是    |   |     0 |     1 |       0 |     1 |     0 |   |                     0 |
+| 女    | 否    |   |     0 |     1 |       0 |     0 |     1 |   |           1(符合条件) |
+| 男    | 是    |   |     1 |     0 |       0 |     1 |     0 |   |                     0 |
+| 100亿 | 100亿 |   |     - |     - |       - |     - |     - |   |                     - |
+| 未知  | 否    |   |     0 |     0 |       1 |     0 |     1 |   |                     0 |
+| 女    | 是    |   |     0 |     1 |       0 |     1 |     0 |   |                     0 |
+
 * PL/SQL编程
+** PL/SQL块
+#+BEGIN_SRC sql
+  -- 完整语句
+  [DECLARE]
+    -- 变量声明区
+  BEGIN
+    -- 代码区
+  [EXCEPTION]
+    -- 异常处理区
+  END;
+
+
+  -- 最基本
+  begin
+    dbms_output.put_line('hello, world');
+  end;
+
+  -- 顺序执行
+  begin
+    dbms_output.put('hello, ');
+    dbms_output.put_line('world');
+  end;
+
+  -- 用 declare 声明变量
+  -- 变量必须要跟着类型
+  declare
+    name varchar2(20);
+    age number;
+  begin
+    -- 变量赋值
+    name := 'Tom';
+    age := 12;
+    
+    dbms_output.put_line('您好，' || name);
+    dbms_output.put_line('您是 ' || name || ', 你现在 ' || age || ' 岁。');
+  end;
+
+
+  -- 可以带异常处理
+  declare
+    name varchar2(20);
+    age number;
+    result number;
+  begin
+    name := 'Tom';
+    age := 12;
+    
+    result := 10/0;
+    
+    dbms_output.put_line('您好，' || name);
+    dbms_output.put_line('您是 ' || name || ', 你现在 ' || age || ' 岁。');
+  exception
+    when others then
+      dbms_output.put_line(name || ', 你算错了，除数不能为 0');
+  end;
+
+
+  -- 将异常信息保存到表中
+  create table mylog (msg varchar2(100), createdate date default sysdate);
+  select * from mylog;
+  declare
+    name varchar2(20);
+    age number;
+    result number;
+    errmsg varchar2(40);
+  begin
+    name := 'Tom';
+    age := 12;
+    
+    result := 10/0;
+    
+    dbms_output.put_line('您好，' || name);
+    dbms_output.put_line('您是 ' || name || ', 你现在 ' || age || ' 岁。');
+  exception
+    when zero_divide then
+      errmsg := sqlerrm;
+      dbms_output.put_line(name || ', 你算错了，除数不能为 0');
+      insert into mylog (msg) values ('TOM:' || errmsg);
+      commit;
+  end;
+
+
+  -- 可以给变量赋予默认值，:= 或 default
+  -- 可以通过 constant 设定常量，即不可更改的量
+  -- 异常处理区，可以处理多个异常
+  declare
+    name CONSTANT varchar2(20) := 'CAT';
+    age number default 15;
+  begin
+    dbms_output.put_line('您好，' || name);
+    dbms_output.put_line('您是 ' || name || ', 你现在 ' || age || ' 岁。');
+  exception
+    when zero_divide then
+      dbms_output.put_line('aaaaa');
+    when others then
+      dbms_output.put_line('bbbbbbb');
+  end;
+
+
+
+  -- 单独为某一段代码处理异常
+  DECLARE
+    vemp emp%rowtype;
+  BEGIN
+    BEGIN
+      select * into vemp from emp where ename = 'KINGs';
+    EXCEPTION
+      WHEN no_data_found THEN
+        dbms_output.put_line('ccc');
+    END;
+    
+    dbms_output.put_line('bbb');
+  EXCEPTION
+    WHEN no_data_found THEN
+      dbms_output.put_line('aaa');
+  END;
+#+END_SRC
+
+** 类型与赋值
+#+BEGIN_SRC sql
+  DECLARE
+    -- Scalar 类型
+    a number;
+    b varchar2(20); -- 4000
+    c date;
+    d clob;
+
+    -- 属性类型
+    vempno emp.empno%type;
+    vsal emp.sal%type default 111;
+
+  BEGIN
+    dbms_output.put_line('1: ' || vsal);
+    -- 第一种赋值方式
+    vsal := 222;
+    dbms_output.put_line('2: ' || vsal);
+    -- 第二种赋值方式
+    select sal into vsal from emp where ename = 'KING';
+    dbms_output.put_line('3: ' || vsal);
+    -- 第三种赋值方式
+    update emp set sal = 444 where ename = 'KING' returning sal + nvl(comm, 0), empno into vsal, vempno;
+    dbms_output.put_line('4: ' || vsal);
+    dbms_output.put_line('5: ' || vempno);
+    rollback;
+    -- 第四种赋值方式(fetch into, 游标)
+  END;
+
+
+
+  -- rowtype
+  -- 可以进一步简化赋值
+  DECLARE
+    vemp emp%rowtype;
+  BEGIN
+    select * into vemp from emp where ename = 'KING';
+    dbms_output.put_line(vemp.empno || ':' || vemp.ename || ':' || vemp.sal || '/' || vemp.deptno);
+  END;
+#+END_SRC
+
+** 控制流程
+: if ... then ... else ... end if;
+: case ... when ... then ... when ... then ... else ... end case;
+: loop ... end loop;
+: for ... in x..y loop ... end loop;
+: while ... loop ... end loop;
+
+#+BEGIN_SRC sql
+  -- 向数据库中插入批量数据示例
+  -- 用到了 for in 循环 和 if else 判断
+  create table haha (id int primary key, name varchar2(20));
+  create sequence seq_haha;
+  -- pl/sql
+  DECLARE
+    begin_time timestamp;
+  BEGIN 
+    begin_time := systimestamp;
+    
+    FOR i IN 1..100003 LOOP
+      insert into haha values (seq_haha.nextval, 'X_' || dbms_random.string('U', 10));
+      if mod(i, 1000) = 0 then
+        commit;
+      elsif i = 100003 then
+        dbms_output.put_line('总共花费了' || (systimestamp - begin_time) || '时间');
+        commit;
+      end if;
+    END LOOP;
+  END;
+
+
+
+  -- 以下三种方式是等效的
+  -- 1. for in
+  begin
+    for i in 1..100000 loop
+      insert into haha values (seq_haha.nextval, 'X_' || dbms_random.string('U', 10));
+    end loop;
+    commit;
+  end;
+  -- 2. while
+  declare
+    n int := 100001;
+  begin
+    while n > 1 loop
+      insert into haha values (seq_haha.nextval, 'X_' || dbms_random.string('U', 10));
+      n := n - 1;
+    end loop;
+    commit;
+  end;
+  -- 3. loop exit
+  declare
+    n int := 1;
+  begin
+    loop
+      insert into haha values (seq_haha.nextval, 'X_' || dbms_random.string('U', 10));
+      n := n + 1;
+      exit when n > 100000;
+    end loop;
+    commit;
+  end;
+#+END_SRC
+
+** 游标
+** 异常处理
+** Function
+** Procedure
+
 * 锁/事务
 * hint/explain
+* Data Guard/RAC
 * Miscellaneous
 

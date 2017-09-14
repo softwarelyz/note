@@ -2,7 +2,7 @@
 <html>
 <head>
 <title>Oracle 数据库</title>
-<!-- 2017-09-13 Wed 11:01 -->
+<!-- 2017-09-14 Thu 15:32 -->
 <meta  charset="utf-8">
 <meta  name="generator" content="Org-mode">
 <meta  name="author" content="imfine">
@@ -41,9 +41,10 @@
 <li><a href="#sec-3">3. 冷饮</a>
 <ul>
 <li><a href="#sec-3-1">3.1. 学生管理系统</a></li>
-<li><a href="#sec-3-2">3.2. 购物车逻辑的表设计(从设计E-R图开始)</a></li>
-<li><a href="#sec-3-3">3.3. 微博/博客系统(从设计E-R图开始)</a></li>
-<li><a href="#sec-3-4">3.4. 论坛(从设计E-R图开始)</a></li>
+<li><a href="#sec-3-2">3.2. 博客管理系统</a></li>
+<li><a href="#sec-3-3">3.3. 购物车逻辑的表设计(从设计E-R图开始)</a></li>
+<li><a href="#sec-3-4">3.4. 微博/博客系统(从设计E-R图开始)</a></li>
+<li><a href="#sec-3-5">3.5. 论坛(从设计E-R图开始)</a></li>
 </ul>
 </li>
 <li><a href="#sec-4">4. 体系结构</a>
@@ -121,10 +122,21 @@
 <li><a href="#sec-8-3">8.3. 索引</a></li>
 </ul>
 </li>
-<li><a href="#sec-9">9. PL/SQL编程</a></li>
+<li><a href="#sec-9">9. PL/SQL编程</a>
+<ul>
+<li><a href="#sec-9-1">9.1. PL/SQL块</a></li>
+<li><a href="#sec-9-2">9.2. 类型与赋值</a></li>
+<li><a href="#sec-9-3">9.3. 控制流程</a></li>
+<li><a href="#sec-9-4">9.4. 游标</a></li>
+<li><a href="#sec-9-5">9.5. 异常处理</a></li>
+<li><a href="#sec-9-6">9.6. Function</a></li>
+<li><a href="#sec-9-7">9.7. Procedure</a></li>
+</ul>
+</li>
 <li><a href="#sec-10">10. 锁/事务</a></li>
 <li><a href="#sec-11">11. hint/explain</a></li>
-<li><a href="#sec-12">12. Miscellaneous</a></li>
+<li><a href="#sec-12">12. Data Guard/RAC</a></li>
+<li><a href="#sec-13">13. Miscellaneous</a></li>
 </ul>
 </div>
 </nav>
@@ -767,13 +779,40 @@ select distinct deptno from emp
 </div>
 
 <div id="outline-container-sec-3-2" class="outline-3">
-<h3 id="sec-3-2"><span class="section-number-3">3.2</span> 购物车逻辑的表设计(从设计E-R图开始)</h3>
+<h3 id="sec-3-2"><span class="section-number-3">3.2</span> 博客管理系统</h3>
+<div class="outline-text-3" id="text-3-2">
+<p>
+首先，设计一个博客表(<code>blog</code>), 至少有下面字段
+</p>
+<ul class="org-ul">
+<li>id
+</li>
+<li>author
+</li>
+<li>title
+</li>
+<li>content(要求是 clob 类型)
+</li>
+<li>image(要求是 blob 类型)
+</li>
+<li>create_time
+</li>
+</ul>
+
+<p>
+用 Java 完成基本的 <code>CRUD</code>，并掌握使用 PL/SQL 操作 blob/clob 的技巧。
+</p>
 </div>
+</div>
+
 <div id="outline-container-sec-3-3" class="outline-3">
-<h3 id="sec-3-3"><span class="section-number-3">3.3</span> 微博/博客系统(从设计E-R图开始)</h3>
+<h3 id="sec-3-3"><span class="section-number-3">3.3</span> 购物车逻辑的表设计(从设计E-R图开始)</h3>
 </div>
 <div id="outline-container-sec-3-4" class="outline-3">
-<h3 id="sec-3-4"><span class="section-number-3">3.4</span> 论坛(从设计E-R图开始)</h3>
+<h3 id="sec-3-4"><span class="section-number-3">3.4</span> 微博/博客系统(从设计E-R图开始)</h3>
+</div>
+<div id="outline-container-sec-3-5" class="outline-3">
+<h3 id="sec-3-5"><span class="section-number-3">3.5</span> 论坛(从设计E-R图开始)</h3>
 </div>
 </section>
 <section id="outline-container-sec-4" class="outline-2">
@@ -3046,7 +3085,7 @@ partition <span class="org-keyword">by</span> range <span class="org-rainbow-del
 </p>
 <div class="org-src-container">
 
-<pre class="src src-sql"><span class="org-comment">-- &#22914;&#26524;&#26159;&#29983;&#26085;&#30340;&#36825;&#26679;&#30340;&#23383;&#27573;&#65292;&#25968;&#25454;&#26159;&#36830;&#32493;&#30340;&#65292;&#24212;&#35813;&#20351;&#29992;&#20998;&#20026;&#20998;&#21306;</span>
+<pre class="src src-sql"><span class="org-comment">-- &#22914;&#26524;&#26159;&#29983;&#26085;&#30340;&#36825;&#26679;&#30340;&#23383;&#27573;&#65292;&#25968;&#25454;&#26159;&#36830;&#32493;&#30340;&#65292;&#24212;&#35813;&#20351;&#29992;&#33539;&#22260;&#20998;&#21306;</span>
 <span class="org-keyword">create</span> <span class="org-keyword">table</span> <span class="org-function-name">person</span> <span class="org-rainbow-delimiters-depth-1">(</span><span class="org-keyword">name</span> varchar2<span class="org-rainbow-delimiters-depth-2">(</span>20<span class="org-rainbow-delimiters-depth-2">)</span>, birth <span class="org-type">date</span><span class="org-rainbow-delimiters-depth-1">)</span>
 partition <span class="org-keyword">by</span> range<span class="org-rainbow-delimiters-depth-1">(</span>birth<span class="org-rainbow-delimiters-depth-1">)</span>
 <span class="org-rainbow-delimiters-depth-1">(</span>
@@ -3244,7 +3283,7 @@ subpartition <span class="org-keyword">by</span> hash <span class="org-rainbow-d
 <ol class="org-ol">
 <li>什么时候初始化数据
 <pre class="example">
-build immediate   -- 建表的时候顺带初始化数据
+build immediate   -- 建表的时候顺带初始化数据，默认
 build deferred    -- 数据延迟创建
 </pre>
 </li>
@@ -3264,7 +3303,8 @@ on demand start with 开始时间 next 下一个时间  -- 定时同步
 </li>
 <li>如果查询基表中的数据，而这些数据同时包含在物化视图中，那么，是不是让 Oracle 将查询语句更改为查询物化视图
 <pre class="example">
-enable/disable query rewrite
+enable query rewrite
+disable query rewrite  -- 默认
 </pre>
 </li>
 </ol>
@@ -3302,7 +3342,7 @@ enable/disable query rewrite
 <span class="org-keyword">create</span> materialized <span class="org-keyword">view</span> <span class="org-function-name">mv_emp2</span>
    build <span class="org-keyword">immediate</span> 
    refresh fast                       <span class="org-comment">-- &#37319;&#21462;&#22686;&#37327;&#21516;&#27493;&#30340;&#26041;&#24335;</span>
-   <span class="org-keyword">on</span> demand sysdate <span class="org-keyword">next</span> sysdate + 1 <span class="org-comment">-- &#27599;&#22825;&#26356;&#26032;&#19968;&#27425;</span>
+   <span class="org-keyword">on</span> demand sysdate <span class="org-keyword">next</span> sysdate + 1 <span class="org-comment">-- &#27599;&#22825;&#26356;&#26032;&#19968;&#27425;&#65292;on demand &#21518;&#38754;&#36824;&#26377;&#20854;&#20182;&#24456;&#22810;&#19981;&#21516;&#24418;&#24335;&#30340;&#21629;&#20196;</span>
    enable query rewrite
 <span class="org-keyword">as</span>
 <span class="org-keyword">select</span> * <span class="org-keyword">from</span> emp <span class="org-keyword">where</span> sal &gt; 3000;
@@ -3316,18 +3356,418 @@ enable/disable query rewrite
 </div>
 </div>
 
-
-
-
-
-
 <div id="outline-container-sec-8-3" class="outline-3">
 <h3 id="sec-8-3"><span class="section-number-3">8.3</span> 索引</h3>
+<div class="outline-text-3" id="text-8-3">
+<p>
+位图索引示例：
+</p>
+<table>
+
+
+<colgroup>
+<col  class="left">
+
+<col  class="left">
+
+<col  class="left">
+
+<col  class="right">
+
+<col  class="right">
+
+<col  class="right">
+
+<col  class="right">
+
+<col  class="right">
+
+<col  class="left">
+
+<col  class="right">
+</colgroup>
+<thead>
+<tr>
+<th scope="col" class="left">字段</th>
+<th scope="col" class="left">字段</th>
+<th scope="col" class="left">&#xa0;</th>
+<th scope="col" class="right">索引</th>
+<th scope="col" class="right">索引</th>
+<th scope="col" class="right">索引</th>
+<th scope="col" class="right">索引</th>
+<th scope="col" class="right">索引</th>
+<th scope="col" class="left">&#xa0;</th>
+<th scope="col" class="right">查询(xb=女 and hy=否)</th>
+</tr>
+
+<tr>
+<th scope="col" class="left">XB</th>
+<th scope="col" class="left">HY</th>
+<th scope="col" class="left">&#xa0;</th>
+<th scope="col" class="right">xb=男</th>
+<th scope="col" class="right">xb=女</th>
+<th scope="col" class="right">xb=未知</th>
+<th scope="col" class="right">hy=是</th>
+<th scope="col" class="right">hy=否</th>
+<th scope="col" class="left">&#xa0;</th>
+<th scope="col" class="right">将两个索引做与运算</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td class="left">男</td>
+<td class="left">是</td>
+<td class="left">&#xa0;</td>
+<td class="right">1</td>
+<td class="right">0</td>
+<td class="right">0</td>
+<td class="right">1</td>
+<td class="right">0</td>
+<td class="left">&#xa0;</td>
+<td class="right">0</td>
+</tr>
+
+<tr>
+<td class="left">女</td>
+<td class="left">是</td>
+<td class="left">&#xa0;</td>
+<td class="right">0</td>
+<td class="right">1</td>
+<td class="right">0</td>
+<td class="right">1</td>
+<td class="right">0</td>
+<td class="left">&#xa0;</td>
+<td class="right">0</td>
+</tr>
+
+<tr>
+<td class="left">女</td>
+<td class="left">否</td>
+<td class="left">&#xa0;</td>
+<td class="right">0</td>
+<td class="right">1</td>
+<td class="right">0</td>
+<td class="right">0</td>
+<td class="right">1</td>
+<td class="left">&#xa0;</td>
+<td class="right">1(符合条件)</td>
+</tr>
+
+<tr>
+<td class="left">男</td>
+<td class="left">是</td>
+<td class="left">&#xa0;</td>
+<td class="right">1</td>
+<td class="right">0</td>
+<td class="right">0</td>
+<td class="right">1</td>
+<td class="right">0</td>
+<td class="left">&#xa0;</td>
+<td class="right">0</td>
+</tr>
+
+<tr>
+<td class="left">100亿</td>
+<td class="left">100亿</td>
+<td class="left">&#xa0;</td>
+<td class="right">-</td>
+<td class="right">-</td>
+<td class="right">-</td>
+<td class="right">-</td>
+<td class="right">-</td>
+<td class="left">&#xa0;</td>
+<td class="right">-</td>
+</tr>
+
+<tr>
+<td class="left">未知</td>
+<td class="left">否</td>
+<td class="left">&#xa0;</td>
+<td class="right">0</td>
+<td class="right">0</td>
+<td class="right">1</td>
+<td class="right">0</td>
+<td class="right">1</td>
+<td class="left">&#xa0;</td>
+<td class="right">0</td>
+</tr>
+
+<tr>
+<td class="left">女</td>
+<td class="left">是</td>
+<td class="left">&#xa0;</td>
+<td class="right">0</td>
+<td class="right">1</td>
+<td class="right">0</td>
+<td class="right">1</td>
+<td class="right">0</td>
+<td class="left">&#xa0;</td>
+<td class="right">0</td>
+</tr>
+</tbody>
+</table>
+</div>
 </div>
 </section>
+
 <section id="outline-container-sec-9" class="outline-2">
 <h2 id="sec-9"><span class="section-number-2">9</span> PL/SQL编程</h2>
+<div class="outline-text-2" id="text-9">
+</div><div id="outline-container-sec-9-1" class="outline-3">
+<h3 id="sec-9-1"><span class="section-number-3">9.1</span> PL/SQL块</h3>
+<div class="outline-text-3" id="text-9-1">
+<div class="org-src-container">
+
+<pre class="src src-sql"><span class="org-comment">-- &#23436;&#25972;&#35821;&#21477;</span>
+<span class="org-rainbow-delimiters-depth-1">[</span><span class="org-keyword">DECLARE</span><span class="org-rainbow-delimiters-depth-1">]</span>
+  <span class="org-comment">-- &#21464;&#37327;&#22768;&#26126;&#21306;</span>
+<span class="org-keyword">BEGIN</span>
+  <span class="org-comment">-- &#20195;&#30721;&#21306;</span>
+<span class="org-rainbow-delimiters-depth-1">[</span><span class="org-keyword">EXCEPTION</span><span class="org-rainbow-delimiters-depth-1">]</span>
+  <span class="org-comment">-- &#24322;&#24120;&#22788;&#29702;&#21306;</span>
+<span class="org-keyword">END</span>;
+
+
+<span class="org-comment">-- &#26368;&#22522;&#26412;</span>
+<span class="org-keyword">begin</span>
+  dbms_output.put_line<span class="org-rainbow-delimiters-depth-1">(</span><span class="org-string">'hello, world'</span><span class="org-rainbow-delimiters-depth-1">)</span>;
+<span class="org-keyword">end</span>;
+
+<span class="org-comment">-- &#39034;&#24207;&#25191;&#34892;</span>
+<span class="org-keyword">begin</span>
+  dbms_output.put<span class="org-rainbow-delimiters-depth-1">(</span><span class="org-string">'hello, '</span><span class="org-rainbow-delimiters-depth-1">)</span>;
+  dbms_output.put_line<span class="org-rainbow-delimiters-depth-1">(</span><span class="org-string">'world'</span><span class="org-rainbow-delimiters-depth-1">)</span>;
+<span class="org-keyword">end</span>;
+
+<span class="org-comment">-- &#29992; declare &#22768;&#26126;&#21464;&#37327;</span>
+<span class="org-comment">-- &#21464;&#37327;&#24517;&#39035;&#35201;&#36319;&#30528;&#31867;&#22411;</span>
+<span class="org-keyword">declare</span>
+  <span class="org-keyword">name</span> varchar2<span class="org-rainbow-delimiters-depth-1">(</span>20<span class="org-rainbow-delimiters-depth-1">)</span>;
+  age <span class="org-keyword">number</span>;
+<span class="org-keyword">begin</span>
+  <span class="org-comment">-- &#21464;&#37327;&#36171;&#20540;</span>
+  <span class="org-keyword">name</span> := <span class="org-string">'Tom'</span>;
+  age := 12;
+
+  dbms_output.put_line<span class="org-rainbow-delimiters-depth-1">(</span><span class="org-string">'&#24744;&#22909;&#65292;'</span> || <span class="org-keyword">name</span><span class="org-rainbow-delimiters-depth-1">)</span>;
+  dbms_output.put_line<span class="org-rainbow-delimiters-depth-1">(</span><span class="org-string">'&#24744;&#26159; '</span> || <span class="org-keyword">name</span> || <span class="org-string">', &#20320;&#29616;&#22312; '</span> || age || <span class="org-string">' &#23681;&#12290;'</span><span class="org-rainbow-delimiters-depth-1">)</span>;
+<span class="org-keyword">end</span>;
+
+
+<span class="org-comment">-- &#21487;&#20197;&#24102;&#24322;&#24120;&#22788;&#29702;</span>
+<span class="org-keyword">declare</span>
+  <span class="org-keyword">name</span> varchar2<span class="org-rainbow-delimiters-depth-1">(</span>20<span class="org-rainbow-delimiters-depth-1">)</span>;
+  age <span class="org-keyword">number</span>;
+  <span class="org-keyword">result</span> <span class="org-keyword">number</span>;
+<span class="org-keyword">begin</span>
+  <span class="org-keyword">name</span> := <span class="org-string">'Tom'</span>;
+  age := 12;
+
+  <span class="org-keyword">result</span> := 10/0;
+
+  dbms_output.put_line<span class="org-rainbow-delimiters-depth-1">(</span><span class="org-string">'&#24744;&#22909;&#65292;'</span> || <span class="org-keyword">name</span><span class="org-rainbow-delimiters-depth-1">)</span>;
+  dbms_output.put_line<span class="org-rainbow-delimiters-depth-1">(</span><span class="org-string">'&#24744;&#26159; '</span> || <span class="org-keyword">name</span> || <span class="org-string">', &#20320;&#29616;&#22312; '</span> || age || <span class="org-string">' &#23681;&#12290;'</span><span class="org-rainbow-delimiters-depth-1">)</span>;
+<span class="org-keyword">exception</span>
+  <span class="org-keyword">when</span> others <span class="org-keyword">then</span>
+    dbms_output.put_line<span class="org-rainbow-delimiters-depth-1">(</span><span class="org-keyword">name</span> || <span class="org-string">', &#20320;&#31639;&#38169;&#20102;&#65292;&#38500;&#25968;&#19981;&#33021;&#20026; 0'</span><span class="org-rainbow-delimiters-depth-1">)</span>;
+<span class="org-keyword">end</span>;
+
+
+<span class="org-comment">-- &#23558;&#24322;&#24120;&#20449;&#24687;&#20445;&#23384;&#21040;&#34920;&#20013;</span>
+<span class="org-keyword">create</span> <span class="org-keyword">table</span> <span class="org-function-name">mylog</span> <span class="org-rainbow-delimiters-depth-1">(</span>msg varchar2<span class="org-rainbow-delimiters-depth-2">(</span>100<span class="org-rainbow-delimiters-depth-2">)</span>, createdate <span class="org-type">date</span> <span class="org-keyword">default</span> sysdate<span class="org-rainbow-delimiters-depth-1">)</span>;
+<span class="org-keyword">select</span> * <span class="org-keyword">from</span> mylog;
+<span class="org-keyword">declare</span>
+  <span class="org-keyword">name</span> varchar2<span class="org-rainbow-delimiters-depth-1">(</span>20<span class="org-rainbow-delimiters-depth-1">)</span>;
+  age <span class="org-keyword">number</span>;
+  <span class="org-keyword">result</span> <span class="org-keyword">number</span>;
+  errmsg varchar2<span class="org-rainbow-delimiters-depth-1">(</span>40<span class="org-rainbow-delimiters-depth-1">)</span>;
+<span class="org-keyword">begin</span>
+  <span class="org-keyword">name</span> := <span class="org-string">'Tom'</span>;
+  age := 12;
+
+  <span class="org-keyword">result</span> := 10/0;
+
+  dbms_output.put_line<span class="org-rainbow-delimiters-depth-1">(</span><span class="org-string">'&#24744;&#22909;&#65292;'</span> || <span class="org-keyword">name</span><span class="org-rainbow-delimiters-depth-1">)</span>;
+  dbms_output.put_line<span class="org-rainbow-delimiters-depth-1">(</span><span class="org-string">'&#24744;&#26159; '</span> || <span class="org-keyword">name</span> || <span class="org-string">', &#20320;&#29616;&#22312; '</span> || age || <span class="org-string">' &#23681;&#12290;'</span><span class="org-rainbow-delimiters-depth-1">)</span>;
+<span class="org-keyword">exception</span>
+  <span class="org-keyword">when</span> zero_divide <span class="org-keyword">then</span>
+    errmsg := sqlerrm;
+    dbms_output.put_line<span class="org-rainbow-delimiters-depth-1">(</span><span class="org-keyword">name</span> || <span class="org-string">', &#20320;&#31639;&#38169;&#20102;&#65292;&#38500;&#25968;&#19981;&#33021;&#20026; 0'</span><span class="org-rainbow-delimiters-depth-1">)</span>;
+    <span class="org-keyword">insert</span> <span class="org-keyword">into</span> mylog <span class="org-rainbow-delimiters-depth-1">(</span>msg<span class="org-rainbow-delimiters-depth-1">)</span> <span class="org-keyword">values</span> <span class="org-rainbow-delimiters-depth-1">(</span><span class="org-string">'TOM:'</span> || errmsg<span class="org-rainbow-delimiters-depth-1">)</span>;
+    <span class="org-keyword">commit</span>;
+<span class="org-keyword">end</span>;
+
+
+<span class="org-comment">-- &#21487;&#20197;&#32473;&#21464;&#37327;&#36171;&#20104;&#40664;&#35748;&#20540;&#65292;:= &#25110; default</span>
+<span class="org-comment">-- &#21487;&#20197;&#36890;&#36807; constant &#35774;&#23450;&#24120;&#37327;&#65292;&#21363;&#19981;&#21487;&#26356;&#25913;&#30340;&#37327;</span>
+<span class="org-comment">-- &#24322;&#24120;&#22788;&#29702;&#21306;&#65292;&#21487;&#20197;&#22788;&#29702;&#22810;&#20010;&#24322;&#24120;</span>
+<span class="org-keyword">declare</span>
+  <span class="org-keyword">name</span> CONSTANT varchar2<span class="org-rainbow-delimiters-depth-1">(</span>20<span class="org-rainbow-delimiters-depth-1">)</span> := <span class="org-string">'CAT'</span>;
+  age <span class="org-keyword">number</span> <span class="org-keyword">default</span> 15;
+<span class="org-keyword">begin</span>
+  dbms_output.put_line<span class="org-rainbow-delimiters-depth-1">(</span><span class="org-string">'&#24744;&#22909;&#65292;'</span> || <span class="org-keyword">name</span><span class="org-rainbow-delimiters-depth-1">)</span>;
+  dbms_output.put_line<span class="org-rainbow-delimiters-depth-1">(</span><span class="org-string">'&#24744;&#26159; '</span> || <span class="org-keyword">name</span> || <span class="org-string">', &#20320;&#29616;&#22312; '</span> || age || <span class="org-string">' &#23681;&#12290;'</span><span class="org-rainbow-delimiters-depth-1">)</span>;
+<span class="org-keyword">exception</span>
+  <span class="org-keyword">when</span> zero_divide <span class="org-keyword">then</span>
+    dbms_output.put_line<span class="org-rainbow-delimiters-depth-1">(</span><span class="org-string">'aaaaa'</span><span class="org-rainbow-delimiters-depth-1">)</span>;
+  <span class="org-keyword">when</span> others <span class="org-keyword">then</span>
+    dbms_output.put_line<span class="org-rainbow-delimiters-depth-1">(</span><span class="org-string">'bbbbbbb'</span><span class="org-rainbow-delimiters-depth-1">)</span>;
+<span class="org-keyword">end</span>;
+
+
+
+<span class="org-comment">-- &#21333;&#29420;&#20026;&#26576;&#19968;&#27573;&#20195;&#30721;&#22788;&#29702;&#24322;&#24120;</span>
+<span class="org-keyword">DECLARE</span>
+  vemp emp%rowtype;
+<span class="org-keyword">BEGIN</span>
+  <span class="org-keyword">BEGIN</span>
+    <span class="org-keyword">select</span> * <span class="org-keyword">into</span> vemp <span class="org-keyword">from</span> emp <span class="org-keyword">where</span> ename = <span class="org-string">'KINGs'</span>;
+  <span class="org-keyword">EXCEPTION</span>
+    <span class="org-keyword">WHEN</span> no_data_found <span class="org-keyword">THEN</span>
+      dbms_output.put_line<span class="org-rainbow-delimiters-depth-1">(</span><span class="org-string">'ccc'</span><span class="org-rainbow-delimiters-depth-1">)</span>;
+  <span class="org-keyword">END</span>;
+
+  dbms_output.put_line<span class="org-rainbow-delimiters-depth-1">(</span><span class="org-string">'bbb'</span><span class="org-rainbow-delimiters-depth-1">)</span>;
+<span class="org-keyword">EXCEPTION</span>
+  <span class="org-keyword">WHEN</span> no_data_found <span class="org-keyword">THEN</span>
+    dbms_output.put_line<span class="org-rainbow-delimiters-depth-1">(</span><span class="org-string">'aaa'</span><span class="org-rainbow-delimiters-depth-1">)</span>;
+<span class="org-keyword">END</span>;
+</pre>
+</div>
+</div>
+</div>
+
+<div id="outline-container-sec-9-2" class="outline-3">
+<h3 id="sec-9-2"><span class="section-number-3">9.2</span> 类型与赋值</h3>
+<div class="outline-text-3" id="text-9-2">
+<div class="org-src-container">
+
+<pre class="src src-sql"><span class="org-keyword">DECLARE</span>
+  <span class="org-comment">-- Scalar &#31867;&#22411;</span>
+  a <span class="org-keyword">number</span>;
+  b varchar2<span class="org-rainbow-delimiters-depth-1">(</span>20<span class="org-rainbow-delimiters-depth-1">)</span>; <span class="org-comment">-- 4000</span>
+  c <span class="org-type">date</span>;
+  d <span class="org-type">clob</span>;
+
+  <span class="org-comment">-- &#23646;&#24615;&#31867;&#22411;</span>
+  vempno emp.empno%<span class="org-keyword">type</span>;
+  vsal emp.sal%<span class="org-keyword">type</span> <span class="org-keyword">default</span> 111;
+
+<span class="org-keyword">BEGIN</span>
+  dbms_output.put_line<span class="org-rainbow-delimiters-depth-1">(</span><span class="org-string">'1: '</span> || vsal<span class="org-rainbow-delimiters-depth-1">)</span>;
+  <span class="org-comment">-- &#31532;&#19968;&#31181;&#36171;&#20540;&#26041;&#24335;</span>
+  vsal := 222;
+  dbms_output.put_line<span class="org-rainbow-delimiters-depth-1">(</span><span class="org-string">'2: '</span> || vsal<span class="org-rainbow-delimiters-depth-1">)</span>;
+  <span class="org-comment">-- &#31532;&#20108;&#31181;&#36171;&#20540;&#26041;&#24335;</span>
+  <span class="org-keyword">select</span> sal <span class="org-keyword">into</span> vsal <span class="org-keyword">from</span> emp <span class="org-keyword">where</span> ename = <span class="org-string">'KING'</span>;
+  dbms_output.put_line<span class="org-rainbow-delimiters-depth-1">(</span><span class="org-string">'3: '</span> || vsal<span class="org-rainbow-delimiters-depth-1">)</span>;
+  <span class="org-comment">-- &#31532;&#19977;&#31181;&#36171;&#20540;&#26041;&#24335;</span>
+  <span class="org-keyword">update</span> emp <span class="org-keyword">set</span> sal = 444 <span class="org-keyword">where</span> ename = <span class="org-string">'KING'</span> returning sal + nvl<span class="org-rainbow-delimiters-depth-1">(</span>comm, 0<span class="org-rainbow-delimiters-depth-1">)</span>, empno <span class="org-keyword">into</span> vsal, vempno;
+  dbms_output.put_line<span class="org-rainbow-delimiters-depth-1">(</span><span class="org-string">'4: '</span> || vsal<span class="org-rainbow-delimiters-depth-1">)</span>;
+  dbms_output.put_line<span class="org-rainbow-delimiters-depth-1">(</span><span class="org-string">'5: '</span> || vempno<span class="org-rainbow-delimiters-depth-1">)</span>;
+  <span class="org-keyword">rollback</span>;
+  <span class="org-comment">-- &#31532;&#22235;&#31181;&#36171;&#20540;&#26041;&#24335;(fetch into, &#28216;&#26631;)</span>
+<span class="org-keyword">END</span>;
+
+
+
+<span class="org-comment">-- rowtype</span>
+<span class="org-comment">-- &#21487;&#20197;&#36827;&#19968;&#27493;&#31616;&#21270;&#36171;&#20540;</span>
+<span class="org-keyword">DECLARE</span>
+  vemp emp%rowtype;
+<span class="org-keyword">BEGIN</span>
+  <span class="org-keyword">select</span> * <span class="org-keyword">into</span> vemp <span class="org-keyword">from</span> emp <span class="org-keyword">where</span> ename = <span class="org-string">'KING'</span>;
+  dbms_output.put_line<span class="org-rainbow-delimiters-depth-1">(</span>vemp.empno || <span class="org-string">':'</span> || vemp.ename || <span class="org-string">':'</span> || vemp.sal || <span class="org-string">'/'</span> || vemp.deptno<span class="org-rainbow-delimiters-depth-1">)</span>;
+<span class="org-keyword">END</span>;
+</pre>
+</div>
+</div>
+</div>
+
+<div id="outline-container-sec-9-3" class="outline-3">
+<h3 id="sec-9-3"><span class="section-number-3">9.3</span> 控制流程</h3>
+<div class="outline-text-3" id="text-9-3">
+<pre class="example">
+if ... then ... else ... end if;
+case ... when ... then ... when ... then ... else ... end case;
+loop ... end loop;
+for ... in x..y loop ... end loop;
+while ... loop ... end loop;
+</pre>
+
+<div class="org-src-container">
+
+<pre class="src src-sql"><span class="org-comment">-- &#21521;&#25968;&#25454;&#24211;&#20013;&#25554;&#20837;&#25209;&#37327;&#25968;&#25454;&#31034;&#20363;</span>
+<span class="org-comment">-- &#29992;&#21040;&#20102; for in &#24490;&#29615; &#21644; if else &#21028;&#26029;</span>
+<span class="org-keyword">create</span> <span class="org-keyword">table</span> <span class="org-function-name">haha</span> <span class="org-rainbow-delimiters-depth-1">(</span>id <span class="org-type">int</span> <span class="org-keyword">primary</span> <span class="org-keyword">key</span>, <span class="org-keyword">name</span> varchar2<span class="org-rainbow-delimiters-depth-2">(</span>20<span class="org-rainbow-delimiters-depth-2">)</span><span class="org-rainbow-delimiters-depth-1">)</span>;
+<span class="org-keyword">create</span> <span class="org-keyword">sequence</span> <span class="org-function-name">seq_haha</span>;
+<span class="org-comment">-- pl/sql</span>
+<span class="org-keyword">DECLARE</span>
+  begin_time <span class="org-type">timestamp</span>;
+<span class="org-keyword">BEGIN</span> 
+  begin_time := systimestamp;
+
+  <span class="org-keyword">FOR</span> i <span class="org-keyword">IN</span> 1..100003 LOOP
+    <span class="org-keyword">insert</span> <span class="org-keyword">into</span> haha <span class="org-keyword">values</span> <span class="org-rainbow-delimiters-depth-1">(</span>seq_haha.nextval, <span class="org-string">'X_'</span> || dbms_random.string<span class="org-rainbow-delimiters-depth-2">(</span><span class="org-string">'U'</span>, 10<span class="org-rainbow-delimiters-depth-2">)</span><span class="org-rainbow-delimiters-depth-1">)</span>;
+    if <span class="org-builtin">mod</span><span class="org-rainbow-delimiters-depth-1">(</span>i, 1000<span class="org-rainbow-delimiters-depth-1">)</span> = 0 <span class="org-keyword">then</span>
+      <span class="org-keyword">commit</span>;
+    elsif i = 100003 <span class="org-keyword">then</span>
+      dbms_output.put_line<span class="org-rainbow-delimiters-depth-1">(</span><span class="org-string">'&#24635;&#20849;&#33457;&#36153;&#20102;'</span> || <span class="org-rainbow-delimiters-depth-2">(</span>systimestamp - begin_time<span class="org-rainbow-delimiters-depth-2">)</span> || <span class="org-string">'&#26102;&#38388;'</span><span class="org-rainbow-delimiters-depth-1">)</span>;
+      <span class="org-keyword">commit</span>;
+    <span class="org-keyword">end</span> if;
+  <span class="org-keyword">END</span> LOOP;
+<span class="org-keyword">END</span>;
+
+
+
+<span class="org-comment">-- &#20197;&#19979;&#19977;&#31181;&#26041;&#24335;&#26159;&#31561;&#25928;&#30340;</span>
+<span class="org-comment">-- 1. for in</span>
+<span class="org-keyword">begin</span>
+  <span class="org-keyword">for</span> i <span class="org-keyword">in</span> 1..100000 loop
+    <span class="org-keyword">insert</span> <span class="org-keyword">into</span> haha <span class="org-keyword">values</span> <span class="org-rainbow-delimiters-depth-1">(</span>seq_haha.nextval, <span class="org-string">'X_'</span> || dbms_random.string<span class="org-rainbow-delimiters-depth-2">(</span><span class="org-string">'U'</span>, 10<span class="org-rainbow-delimiters-depth-2">)</span><span class="org-rainbow-delimiters-depth-1">)</span>;
+  <span class="org-keyword">end</span> loop;
+  <span class="org-keyword">commit</span>;
+<span class="org-keyword">end</span>;
+<span class="org-comment">-- 2. while</span>
+<span class="org-keyword">declare</span>
+  n <span class="org-type">int</span> := 100001;
+<span class="org-keyword">begin</span>
+  while n &gt; 1 loop
+    <span class="org-keyword">insert</span> <span class="org-keyword">into</span> haha <span class="org-keyword">values</span> <span class="org-rainbow-delimiters-depth-1">(</span>seq_haha.nextval, <span class="org-string">'X_'</span> || dbms_random.string<span class="org-rainbow-delimiters-depth-2">(</span><span class="org-string">'U'</span>, 10<span class="org-rainbow-delimiters-depth-2">)</span><span class="org-rainbow-delimiters-depth-1">)</span>;
+    n := n - 1;
+  <span class="org-keyword">end</span> loop;
+  <span class="org-keyword">commit</span>;
+<span class="org-keyword">end</span>;
+<span class="org-comment">-- 3. loop exit</span>
+<span class="org-keyword">declare</span>
+  n <span class="org-type">int</span> := 1;
+<span class="org-keyword">begin</span>
+  loop
+    <span class="org-keyword">insert</span> <span class="org-keyword">into</span> haha <span class="org-keyword">values</span> <span class="org-rainbow-delimiters-depth-1">(</span>seq_haha.nextval, <span class="org-string">'X_'</span> || dbms_random.string<span class="org-rainbow-delimiters-depth-2">(</span><span class="org-string">'U'</span>, 10<span class="org-rainbow-delimiters-depth-2">)</span><span class="org-rainbow-delimiters-depth-1">)</span>;
+    n := n + 1;
+    exit <span class="org-keyword">when</span> n &gt; 100000;
+  <span class="org-keyword">end</span> loop;
+  <span class="org-keyword">commit</span>;
+<span class="org-keyword">end</span>;
+</pre>
+</div>
+</div>
+</div>
+
+<div id="outline-container-sec-9-4" class="outline-3">
+<h3 id="sec-9-4"><span class="section-number-3">9.4</span> 游标</h3>
+</div>
+<div id="outline-container-sec-9-5" class="outline-3">
+<h3 id="sec-9-5"><span class="section-number-3">9.5</span> 异常处理</h3>
+</div>
+<div id="outline-container-sec-9-6" class="outline-3">
+<h3 id="sec-9-6"><span class="section-number-3">9.6</span> Function</h3>
+</div>
+<div id="outline-container-sec-9-7" class="outline-3">
+<h3 id="sec-9-7"><span class="section-number-3">9.7</span> Procedure</h3>
+</div>
 </section>
+
 <section id="outline-container-sec-10" class="outline-2">
 <h2 id="sec-10"><span class="section-number-2">10</span> 锁/事务</h2>
 </section>
@@ -3335,12 +3775,15 @@ enable/disable query rewrite
 <h2 id="sec-11"><span class="section-number-2">11</span> hint/explain</h2>
 </section>
 <section id="outline-container-sec-12" class="outline-2">
-<h2 id="sec-12"><span class="section-number-2">12</span> Miscellaneous</h2>
+<h2 id="sec-12"><span class="section-number-2">12</span> Data Guard/RAC</h2>
+</section>
+<section id="outline-container-sec-13" class="outline-2">
+<h2 id="sec-13"><span class="section-number-2">13</span> Miscellaneous</h2>
 </section>
 </div>
 <div id="postamble" class="status">
 <p class="author">Author: imfine</p>
-<p class="date">Created: 2017-09-13 Wed 11:01</p>
+<p class="date">Created: 2017-09-14 Thu 15:32</p>
 <p class="creator"><a href="http://www.gnu.org/software/emacs/">Emacs</a> 25.2.1 (<a href="http://orgmode.org">Org</a> mode 8.2.10)</p>
 <p class="validation">Go ahead, never stop.</p>
 </div>

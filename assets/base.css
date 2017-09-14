@@ -230,7 +230,7 @@ table td + td, table th + th {
 table tr {
     border-top: 1px solid lightgray;
 }
-table tr:nth-child(even) {
+tbody tr:nth-child(even) {
     background: #eee;
 }
 td, th {

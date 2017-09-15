@@ -2,7 +2,7 @@
 <html>
 <head>
 <title>Oracle 数据库</title>
-<!-- 2017-09-14 Thu 15:32 -->
+<!-- 2017-09-15 Fri 15:03 -->
 <meta  charset="utf-8">
 <meta  name="generator" content="Org-mode">
 <meta  name="author" content="imfine">
@@ -128,15 +128,16 @@
 <li><a href="#sec-9-2">9.2. 类型与赋值</a></li>
 <li><a href="#sec-9-3">9.3. 控制流程</a></li>
 <li><a href="#sec-9-4">9.4. 游标</a></li>
-<li><a href="#sec-9-5">9.5. 异常处理</a></li>
-<li><a href="#sec-9-6">9.6. Function</a></li>
+<li><a href="#sec-9-5">9.5. 动态语句</a></li>
+<li><a href="#sec-9-6">9.6. 异常处理</a></li>
 <li><a href="#sec-9-7">9.7. Procedure</a></li>
+<li><a href="#sec-9-8">9.8. Function</a></li>
 </ul>
 </li>
-<li><a href="#sec-10">10. 锁/事务</a></li>
-<li><a href="#sec-11">11. hint/explain</a></li>
-<li><a href="#sec-12">12. Data Guard/RAC</a></li>
-<li><a href="#sec-13">13. Miscellaneous</a></li>
+<li><a href="#sec-10">10. 导入/导出</a></li>
+<li><a href="#sec-11">11. 锁/事务</a></li>
+<li><a href="#sec-12">12. hint/explain</a></li>
+<li><a href="#sec-13">13. Data Guard/RAC</a></li>
 </ul>
 </div>
 </nav>
@@ -3756,34 +3757,327 @@ while ... loop ... end loop;
 
 <div id="outline-container-sec-9-4" class="outline-3">
 <h3 id="sec-9-4"><span class="section-number-3">9.4</span> 游标</h3>
+<div class="outline-text-3" id="text-9-4">
+<div class="org-src-container">
+
+<pre class="src src-sql"><span class="org-comment">-- &#38544;&#24335;&#28216;&#26631;</span>
+<span class="org-keyword">begin</span>
+  <span class="org-keyword">delete</span> <span class="org-keyword">from</span> emp <span class="org-keyword">where</span> sal &gt; 9500;
+  <span class="org-comment">-- sql%isopen</span>
+  <span class="org-comment">-- sql%found</span>
+  <span class="org-comment">-- sql%notfound</span>
+  <span class="org-comment">-- sql%rowcount</span>
+  if <span class="org-keyword">sql</span>%<span class="org-keyword">found</span> <span class="org-keyword">then</span>
+    dbms_output.put_line<span class="org-rainbow-delimiters-depth-1">(</span><span class="org-string">'you'</span><span class="org-rainbow-delimiters-depth-1">)</span>;
+  <span class="org-keyword">else</span>
+    dbms_output.put_line<span class="org-rainbow-delimiters-depth-1">(</span><span class="org-string">'wu'</span><span class="org-rainbow-delimiters-depth-1">)</span>;
+  <span class="org-keyword">end</span> if;
+  <span class="org-keyword">rollback</span>;
+<span class="org-keyword">end</span>;
+
+
+<span class="org-comment">-- &#22914;&#26524;&#32467;&#26524;&#38598;&#26377;&#22810;&#26465;&#25968;&#25454;&#65292;&#38544;&#24335;&#28216;&#26631;&#20250;&#25253;&#38169;</span>
+<span class="org-comment">-- &#38656;&#35201;&#20351;&#29992;&#26174;&#24335;&#28216;&#26631;</span>
+<span class="org-keyword">declare</span>
+  vemp emp%rowtype;
+<span class="org-keyword">begin</span>
+  <span class="org-keyword">select</span> * <span class="org-keyword">into</span> vemp <span class="org-keyword">from</span> emp <span class="org-keyword">where</span> sal &gt; 3000;
+  dbms_output.put_line<span class="org-rainbow-delimiters-depth-1">(</span>vemp.ename<span class="org-rainbow-delimiters-depth-1">)</span>;
+<span class="org-keyword">end</span>;
+
+<span class="org-comment">-- &#28216;&#26631;&#30340;&#20351;&#29992;&#65292;&#20998;&#19979;&#38754;&#20960;&#27493;</span>
+<span class="org-comment">-- 1. &#23450;&#20041;</span>
+<span class="org-comment">-- 2. &#25171;&#24320;</span>
+<span class="org-comment">-- 3. &#33719;&#21462;&#25968;&#25454;&#65288;&#24490;&#29615;&#65289;</span>
+<span class="org-comment">-- 4. &#20851;&#38381;</span>
+<span class="org-keyword">declare</span>
+  vemp emp%rowtype;
+  <span class="org-comment">-- &#23450;&#20041;&#28216;&#26631;</span>
+  <span class="org-keyword">cursor</span> c_emp
+    <span class="org-keyword">is</span> <span class="org-keyword">select</span> * <span class="org-keyword">from</span> emp <span class="org-keyword">where</span> sal &gt; 2000;
+<span class="org-keyword">begin</span>
+  <span class="org-comment">-- &#25171;&#24320;&#28216;&#26631;</span>
+  <span class="org-keyword">open</span> c_emp;
+  <span class="org-comment">-- &#25552;&#21462;&#28216;&#26631;&#24403;&#21069;&#25968;&#25454;</span>
+
+  <span class="org-keyword">fetch</span> c_emp <span class="org-keyword">into</span> vemp;
+  loop
+    dbms_output.put_line<span class="org-rainbow-delimiters-depth-1">(</span>vemp.ename || <span class="org-string">'&#30340;&#24037;&#36164;&#26159;'</span> || vemp.sal<span class="org-rainbow-delimiters-depth-1">)</span>;
+    <span class="org-keyword">fetch</span> c_emp <span class="org-keyword">into</span> vemp;
+    exit <span class="org-keyword">when</span> c_emp%notfound;
+  <span class="org-keyword">end</span> loop;
+
+  <span class="org-comment">-- &#20851;&#38381;&#28216;&#26631;</span>
+  <span class="org-keyword">close</span> c_emp;
+<span class="org-keyword">end</span>;
+
+
+<span class="org-comment">-- for in &#24490;&#29615;&#20250;&#33258;&#21160;&#32500;&#25252;&#28216;&#26631;&#30340;&#25171;&#24320;&#19982;&#20851;&#38381;</span>
+<span class="org-keyword">declare</span>
+  <span class="org-keyword">cursor</span> c_emp
+    <span class="org-keyword">is</span> <span class="org-keyword">select</span> * <span class="org-keyword">from</span> emp <span class="org-keyword">where</span> sal &gt; 3000;
+<span class="org-keyword">begin</span>
+  <span class="org-keyword">for</span> vemp <span class="org-keyword">in</span> c_emp loop
+    dbms_output.put_line<span class="org-rainbow-delimiters-depth-1">(</span>vemp.ename || <span class="org-string">'&#30340;&#24037;&#36164;&#26159;'</span> || vemp.sal<span class="org-rainbow-delimiters-depth-1">)</span>;
+  <span class="org-keyword">end</span> loop;
+<span class="org-keyword">end</span>;
+
+<span class="org-comment">-- &#29978;&#33267;&#21487;&#20197;&#26356;&#31616;</span>
+<span class="org-keyword">begin</span>
+  <span class="org-keyword">for</span> vemp <span class="org-keyword">in</span> <span class="org-rainbow-delimiters-depth-1">(</span><span class="org-keyword">select</span> * <span class="org-keyword">from</span> emp <span class="org-keyword">where</span> mgr = 7698<span class="org-rainbow-delimiters-depth-1">)</span> loop
+    dbms_output.put_line<span class="org-rainbow-delimiters-depth-1">(</span>vemp.ename || <span class="org-string">'&#30340;&#24037;&#36164;&#26159;'</span> || vemp.sal<span class="org-rainbow-delimiters-depth-1">)</span>;
+  <span class="org-keyword">end</span> loop;
+<span class="org-keyword">end</span>;
+
+
+<span class="org-comment">-- &#28216;&#26631;&#21487;&#20197;&#24102;&#21442;&#25968;</span>
+<span class="org-keyword">declare</span>
+  <span class="org-keyword">cursor</span> c_emp<span class="org-rainbow-delimiters-depth-1">(</span>s <span class="org-keyword">number</span><span class="org-rainbow-delimiters-depth-1">)</span>
+    <span class="org-keyword">is</span> <span class="org-keyword">select</span> * <span class="org-keyword">from</span> emp <span class="org-keyword">where</span> sal &gt; s;
+<span class="org-keyword">begin</span>
+  <span class="org-keyword">for</span> vemp <span class="org-keyword">in</span> c_emp<span class="org-rainbow-delimiters-depth-1">(</span>&amp;sal<span class="org-rainbow-delimiters-depth-1">)</span> loop
+    dbms_output.put_line<span class="org-rainbow-delimiters-depth-1">(</span>vemp.ename || <span class="org-string">'&#30340;&#24037;&#36164;&#26159;'</span> || vemp.sal<span class="org-rainbow-delimiters-depth-1">)</span>;
+  <span class="org-keyword">end</span> loop;
+<span class="org-keyword">end</span>;
+
+
+<span class="org-comment">-- &#21160;&#24577;&#28216;&#26631;</span>
+<span class="org-comment">-- &#30053;</span>
+</pre>
 </div>
+</div>
+</div>
+
 <div id="outline-container-sec-9-5" class="outline-3">
-<h3 id="sec-9-5"><span class="section-number-3">9.5</span> 异常处理</h3>
+<h3 id="sec-9-5"><span class="section-number-3">9.5</span> 动态语句</h3>
+<div class="outline-text-3" id="text-9-5">
+<p>
+两种方式：
+</p>
+<ol class="org-ol">
+<li>execute immediate
+</li>
+<li>dbms_sql package
+</li>
+</ol>
+
+<div class="org-src-container">
+
+<pre class="src src-sql"><span class="org-keyword">DECLARE</span>
+  <span class="org-keyword">name</span> varchar2<span class="org-rainbow-delimiters-depth-1">(</span>50<span class="org-rainbow-delimiters-depth-1">)</span>;
+  sal <span class="org-keyword">number</span>;
+<span class="org-keyword">BEGIN</span>
+  <span class="org-comment">-- &#23383;&#31526;&#20018;</span>
+  <span class="org-keyword">name</span> := <span class="org-builtin">upper</span><span class="org-rainbow-delimiters-depth-1">(</span><span class="org-string">'&amp;ename'</span><span class="org-rainbow-delimiters-depth-1">)</span>;
+  <span class="org-comment">-- &#21160;&#24577;&#25191;&#34892;</span>
+  <span class="org-keyword">execute</span> <span class="org-keyword">immediate</span> <span class="org-string">'select sal+nvl(comm,0) from emp where ename ='''</span> || <span class="org-keyword">name</span> || <span class="org-string">''''</span> <span class="org-keyword">into</span> sal;
+  dbms_output.put_line<span class="org-rainbow-delimiters-depth-1">(</span><span class="org-keyword">name</span> || <span class="org-string">'&#30340;&#24037;&#36164;&#26159;'</span> || sal<span class="org-rainbow-delimiters-depth-1">)</span>;
+<span class="org-keyword">END</span>;
+</pre>
 </div>
+</div>
+</div>
+
 <div id="outline-container-sec-9-6" class="outline-3">
-<h3 id="sec-9-6"><span class="section-number-3">9.6</span> Function</h3>
+<h3 id="sec-9-6"><span class="section-number-3">9.6</span> 异常处理</h3>
+<div class="outline-text-3" id="text-9-6">
+<p>
+异常分两部分：
+</p>
+<ol class="org-ol">
+<li>异常编号(sqlcode)
+</li>
+<li>异常描述(sqlerrm)，可选，有的异常只有编号但没有描述
+</li>
+</ol>
+
+<p>
+分两种：
+</p>
+<ol class="org-ol">
+<li>系统异常，比如 data_not_found, zero_devide 等异常。
+</li>
+<li>用户自定义异常
+<div class="org-src-container">
+
+<pre class="src src-sql"><span class="org-keyword">DECLARE</span>
+  myinput <span class="org-keyword">number</span>;
+  <span class="org-comment">-- &#22768;&#26126;&#24322;&#24120;</span>
+  myexception <span class="org-keyword">exception</span>;
+<span class="org-keyword">BEGIN</span>
+  myinput := &amp;mynum;
+  if myinput &gt; 10 <span class="org-keyword">then</span>
+    dbms_output.put_line<span class="org-rainbow-delimiters-depth-1">(</span><span class="org-string">'OK'</span><span class="org-rainbow-delimiters-depth-1">)</span>;
+  elsif myinput &gt;= 0 <span class="org-keyword">then</span>
+    <span class="org-comment">-- &#20027;&#21160;&#25243;&#20986;&#24322;&#24120;</span>
+    raise myexception;
+  <span class="org-keyword">else</span>
+    <span class="org-comment">-- &#20027;&#21160;&#25243;&#20986;&#24322;&#24120;, &#26159; raise &#35821;&#21477;&#30340;&#23553;&#35013;</span>
+    raise_application_error<span class="org-rainbow-delimiters-depth-1">(</span>-20002, <span class="org-string">'&#25968;&#23383;&#24517;&#39035;&#35201;&#22823;&#20110;0'</span><span class="org-rainbow-delimiters-depth-1">)</span>;
+  <span class="org-keyword">end</span> if;
+<span class="org-keyword">EXCEPTION</span>
+  <span class="org-comment">-- &#25429;&#33719;&#24322;&#24120;</span>
+  <span class="org-keyword">when</span> myexception <span class="org-keyword">then</span>
+    dbms_output.put_line<span class="org-rainbow-delimiters-depth-1">(</span><span class="org-string">'&#25968;&#23383;&#22826;&#23567;'</span><span class="org-rainbow-delimiters-depth-1">)</span>;
+<span class="org-keyword">END</span>;
+</pre>
 </div>
+</li>
+</ol>
+</div>
+</div>
+
 <div id="outline-container-sec-9-7" class="outline-3">
 <h3 id="sec-9-7"><span class="section-number-3">9.7</span> Procedure</h3>
+<div class="outline-text-3" id="text-9-7">
+<p>
+有了名字的 pl/sql 块，可以反复使用。
+</p>
+<div class="org-src-container">
+
+<pre class="src src-sql"><span class="org-keyword">CREATE</span> <span class="org-keyword">OR</span> REPLACE <span class="org-keyword">PROCEDURE</span> <span class="org-function-name">ptest1</span> <span class="org-rainbow-delimiters-depth-1">(</span>myinput <span class="org-keyword">number</span><span class="org-rainbow-delimiters-depth-1">)</span>
+<span class="org-keyword">AS</span>
+  <span class="org-comment">-- &#22768;&#26126;&#24322;&#24120;</span>
+  myexception <span class="org-keyword">exception</span>;
+<span class="org-keyword">BEGIN</span>
+  if myinput &gt; 10 <span class="org-keyword">then</span>
+    dbms_output.put_line<span class="org-rainbow-delimiters-depth-1">(</span><span class="org-string">'OK'</span><span class="org-rainbow-delimiters-depth-1">)</span>;
+  elsif myinput &gt;= 0 <span class="org-keyword">then</span>
+    <span class="org-comment">-- &#20027;&#21160;&#25243;&#20986;&#24322;&#24120;</span>
+    raise myexception;
+  <span class="org-keyword">else</span>
+    <span class="org-comment">-- &#20027;&#21160;&#25243;&#20986;&#24322;&#24120;, &#26159; raise &#35821;&#21477;&#30340;&#23553;&#35013;</span>
+    raise_application_error<span class="org-rainbow-delimiters-depth-1">(</span>-20002, <span class="org-string">'&#25968;&#23383;&#24517;&#39035;&#35201;&#22823;&#20110;0'</span><span class="org-rainbow-delimiters-depth-1">)</span>;
+  <span class="org-keyword">end</span> if;
+<span class="org-keyword">EXCEPTION</span>
+  <span class="org-comment">-- &#25429;&#33719;&#24322;&#24120;</span>
+  <span class="org-keyword">when</span> myexception <span class="org-keyword">then</span>
+    dbms_output.put_line<span class="org-rainbow-delimiters-depth-1">(</span><span class="org-string">'&#25968;&#23383;&#22826;&#23567;'</span><span class="org-rainbow-delimiters-depth-1">)</span>;
+<span class="org-keyword">END</span>;
+
+
+<span class="org-comment">-- &#23384;&#20648;&#36807;&#31243;&#30340;&#21442;&#25968;&#31867;&#22411;</span>
+<span class="org-keyword">create</span> <span class="org-keyword">or</span> replace <span class="org-keyword">procedure</span> <span class="org-function-name">pxxx</span>  <span class="org-rainbow-delimiters-depth-1">(</span><span class="org-keyword">name</span> <span class="org-keyword">in</span> varchar2,  <span class="org-comment">-- &#19981;&#33021;&#25351;&#23450;&#38271;&#24230;</span>
+                                   s <span class="org-keyword">out</span> <span class="org-keyword">number</span>, c <span class="org-keyword">out</span> <span class="org-keyword">number</span><span class="org-rainbow-delimiters-depth-1">)</span>
+<span class="org-keyword">is</span>
+<span class="org-keyword">begin</span>
+  <span class="org-keyword">select</span> sal, nvl<span class="org-rainbow-delimiters-depth-1">(</span>comm, 0<span class="org-rainbow-delimiters-depth-1">)</span> <span class="org-keyword">into</span> s, c <span class="org-keyword">from</span> emp <span class="org-keyword">where</span> ename = <span class="org-keyword">name</span>;
+<span class="org-keyword">end</span>;
+
+<span class="org-comment">-- &#35843;&#29992;&#36807;&#31243;</span>
+<span class="org-keyword">declare</span>
+  s <span class="org-keyword">number</span>;
+  c <span class="org-keyword">number</span>;
+<span class="org-keyword">begin</span> 
+  pxxx<span class="org-rainbow-delimiters-depth-1">(</span><span class="org-string">'KING'</span>, s, c<span class="org-rainbow-delimiters-depth-1">)</span>;
+  dbms_output.put_line<span class="org-rainbow-delimiters-depth-1">(</span>s || <span class="org-string">'----'</span> || c<span class="org-rainbow-delimiters-depth-1">)</span>;
+<span class="org-keyword">end</span>;
+</pre>
+</div>
+</div>
+</div>
+
+<div id="outline-container-sec-9-8" class="outline-3">
+<h3 id="sec-9-8"><span class="section-number-3">9.8</span> Function</h3>
+<div class="outline-text-3" id="text-9-8">
+<p>
+函数跟过程的区别在于，它有一个明显的返回值，可以在 sql 语句中直接调用。
+</p>
+
+<div class="org-src-container">
+
+<pre class="src src-sql"><span class="org-comment">-----------------------------------------</span>
+<span class="org-comment">-- &#23450;&#20041;&#19968;&#20010;&#20989;&#25968;&#65292;&#20174; emp &#20013;&#26597;&#35810;&#26576;&#20154;&#30340;&#24037;&#36164; --</span>
+<span class="org-comment">-----------------------------------------</span>
+<span class="org-keyword">create</span> <span class="org-keyword">or</span> replace <span class="org-keyword">function</span> <span class="org-function-name">pyyy</span><span class="org-rainbow-delimiters-depth-1">(</span><span class="org-keyword">name</span> <span class="org-keyword">in</span> varchar2<span class="org-rainbow-delimiters-depth-1">)</span> <span class="org-keyword">return</span> <span class="org-keyword">number</span> <span class="org-keyword">is</span>
+  r <span class="org-keyword">number</span>;
+<span class="org-keyword">begin</span>
+  <span class="org-keyword">select</span> sal + nvl<span class="org-rainbow-delimiters-depth-1">(</span>comm, 0<span class="org-rainbow-delimiters-depth-1">)</span> <span class="org-keyword">into</span> r <span class="org-keyword">from</span> emp <span class="org-keyword">where</span> ename = <span class="org-keyword">name</span>;
+  <span class="org-keyword">return</span> r;
+<span class="org-keyword">end</span>;
+
+<span class="org-comment">-- &#20989;&#25968;&#30340;&#35843;&#29992;</span>
+<span class="org-keyword">select</span> pyyy<span class="org-rainbow-delimiters-depth-1">(</span><span class="org-string">'CLARK'</span><span class="org-rainbow-delimiters-depth-1">)</span> <span class="org-keyword">from</span> dual;
+<span class="org-keyword">select</span> * <span class="org-keyword">from</span> emp <span class="org-keyword">where</span> sal + nvl<span class="org-rainbow-delimiters-depth-1">(</span>comm, 0<span class="org-rainbow-delimiters-depth-1">)</span> &gt;= pyyy<span class="org-rainbow-delimiters-depth-1">(</span><span class="org-string">'KING'</span><span class="org-rainbow-delimiters-depth-1">)</span>;
+
+
+
+<span class="org-comment">-------------------------</span>
+<span class="org-comment">-- &#23450;&#20041;&#19968;&#20010;&#20989;&#25968;&#65292;&#27714;&#24179;&#26041; --</span>
+<span class="org-comment">-------------------------</span>
+<span class="org-keyword">create</span> <span class="org-keyword">or</span> replace <span class="org-keyword">function</span> <span class="org-function-name">mypower</span><span class="org-rainbow-delimiters-depth-1">(</span><span class="org-keyword">input</span> <span class="org-keyword">number</span><span class="org-rainbow-delimiters-depth-1">)</span> <span class="org-keyword">return</span> <span class="org-keyword">number</span> <span class="org-keyword">is</span>
+<span class="org-keyword">begin</span>
+  <span class="org-keyword">return</span> <span class="org-keyword">input</span> * <span class="org-keyword">input</span>;
+<span class="org-keyword">end</span>;
+
+<span class="org-comment">-- &#20989;&#25968;&#30340;&#35843;&#29992;</span>
+<span class="org-keyword">select</span> mypower<span class="org-rainbow-delimiters-depth-1">(</span>444<span class="org-rainbow-delimiters-depth-1">)</span> <span class="org-keyword">from</span> dual;
+<span class="org-keyword">select</span> power<span class="org-rainbow-delimiters-depth-1">(</span>444, 2<span class="org-rainbow-delimiters-depth-1">)</span> <span class="org-keyword">from</span> dual;
+
+
+
+<span class="org-comment">-------------------------</span>
+<span class="org-comment">-- &#23450;&#20041;&#19968;&#20010;&#20989;&#25968;&#65292;&#27714;&#26126;&#22825; --</span>
+<span class="org-comment">-------------------------</span>
+<span class="org-keyword">create</span> <span class="org-keyword">or</span> replace <span class="org-keyword">function</span> <span class="org-function-name">my_next_day</span> <span class="org-keyword">return</span> <span class="org-type">date</span> <span class="org-keyword">is</span>
+<span class="org-keyword">begin</span>
+  <span class="org-keyword">return</span> sysdate + 1;
+<span class="org-keyword">end</span>;
+
+<span class="org-comment">-- &#20989;&#25968;&#30340;&#20351;&#29992;</span>
+<span class="org-keyword">select</span> my_next_day <span class="org-keyword">from</span> dual;
+</pre>
+</div>
+</div>
 </div>
 </section>
 
+
 <section id="outline-container-sec-10" class="outline-2">
-<h2 id="sec-10"><span class="section-number-2">10</span> 锁/事务</h2>
+<h2 id="sec-10"><span class="section-number-2">10</span> 导入/导出</h2>
+<div class="outline-text-2" id="text-10">
+<p>
+imp/exp 命令
+</p>
+
+
+<p>
+查看帮助
+</p>
+<pre class="example">
+exp help=y
+</pre>
+
+<p>
+将 scott 用户下所有的表都导出来，放到 aaa.sql 文件中:
+</p>
+<pre class="example">
+exp system/pwd file=D:\aaa.dmp owner=(scott);
+</pre>
+
+<p>
+将数据导入到 vip 用户中：
+</p>
+<pre class="example">
+imp system/pwd file=D:\aaa.dmp fromuser=(scott) touser=(vip);
+</pre>
+</div>
 </section>
+
 <section id="outline-container-sec-11" class="outline-2">
-<h2 id="sec-11"><span class="section-number-2">11</span> hint/explain</h2>
+<h2 id="sec-11"><span class="section-number-2">11</span> 锁/事务</h2>
 </section>
+
 <section id="outline-container-sec-12" class="outline-2">
-<h2 id="sec-12"><span class="section-number-2">12</span> Data Guard/RAC</h2>
+<h2 id="sec-12"><span class="section-number-2">12</span> hint/explain</h2>
 </section>
 <section id="outline-container-sec-13" class="outline-2">
-<h2 id="sec-13"><span class="section-number-2">13</span> Miscellaneous</h2>
+<h2 id="sec-13"><span class="section-number-2">13</span> Data Guard/RAC</h2>
 </section>
 </div>
 <div id="postamble" class="status">
 <p class="author">Author: imfine</p>
-<p class="date">Created: 2017-09-14 Thu 15:32</p>
+<p class="date">Created: 2017-09-15 Fri 15:03</p>
 <p class="creator"><a href="http://www.gnu.org/software/emacs/">Emacs</a> 25.2.1 (<a href="http://orgmode.org">Org</a> mode 8.2.10)</p>
 <p class="validation">Go ahead, never stop.</p>
 </div>

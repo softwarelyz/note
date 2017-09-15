@@ -2415,12 +2415,246 @@ PS: 如果存在分析函数(row_number etc)，那么，分析函数的执行会
 #+END_SRC
 
 ** 游标
+#+BEGIN_SRC sql
+  -- 隐式游标
+  begin
+    delete from emp where sal > 9500;
+    -- sql%isopen
+    -- sql%found
+    -- sql%notfound
+    -- sql%rowcount
+    if sql%found then
+      dbms_output.put_line('you');
+    else
+      dbms_output.put_line('wu');
+    end if;
+    rollback;
+  end;
+
+
+  -- 如果结果集有多条数据，隐式游标会报错
+  -- 需要使用显式游标
+  declare
+    vemp emp%rowtype;
+  begin
+    select * into vemp from emp where sal > 3000;
+    dbms_output.put_line(vemp.ename);
+  end;
+
+  -- 游标的使用，分下面几步
+  -- 1. 定义
+  -- 2. 打开
+  -- 3. 获取数据（循环）
+  -- 4. 关闭
+  declare
+    vemp emp%rowtype;
+    -- 定义游标
+    cursor c_emp
+      is select * from emp where sal > 2000;
+  begin
+    -- 打开游标
+    open c_emp;
+    -- 提取游标当前数据
+    
+    fetch c_emp into vemp;
+    loop
+      dbms_output.put_line(vemp.ename || '的工资是' || vemp.sal);
+      fetch c_emp into vemp;
+      exit when c_emp%notfound;
+    end loop;
+   
+    -- 关闭游标
+    close c_emp;
+  end;
+
+
+  -- for in 循环会自动维护游标的打开与关闭
+  declare
+    cursor c_emp
+      is select * from emp where sal > 3000;
+  begin
+    for vemp in c_emp loop
+      dbms_output.put_line(vemp.ename || '的工资是' || vemp.sal);
+    end loop;
+  end;
+
+  -- 甚至可以更简
+  begin
+    for vemp in (select * from emp where mgr = 7698) loop
+      dbms_output.put_line(vemp.ename || '的工资是' || vemp.sal);
+    end loop;
+  end;
+
+
+  -- 游标可以带参数
+  declare
+    cursor c_emp(s number)
+      is select * from emp where sal > s;
+  begin
+    for vemp in c_emp(&sal) loop
+      dbms_output.put_line(vemp.ename || '的工资是' || vemp.sal);
+    end loop;
+  end;
+
+
+  -- 动态游标
+  -- 略
+#+END_SRC
+
+** 动态语句
+两种方式：
+1. execute immediate
+2. dbms_sql package
+
+#+BEGIN_SRC sql
+  DECLARE
+    name varchar2(50);
+    sal number;
+  BEGIN
+    -- 字符串
+    name := upper('&ename');
+    -- 动态执行
+    execute immediate 'select sal+nvl(comm,0) from emp where ename =''' || name || '''' into sal;
+    dbms_output.put_line(name || '的工资是' || sal);
+  END;
+#+END_SRC
+
 ** 异常处理
-** Function
+异常分两部分：
+1. 异常编号(sqlcode)
+2. 异常描述(sqlerrm)，可选，有的异常只有编号但没有描述
+
+分两种：
+1. 系统异常，比如 data_not_found, zero_devide 等异常。
+2. 用户自定义异常
+   #+BEGIN_SRC sql
+     DECLARE
+       myinput number;
+       -- 声明异常
+       myexception exception;
+     BEGIN
+       myinput := &mynum;
+       if myinput > 10 then
+         dbms_output.put_line('OK');
+       elsif myinput >= 0 then
+         -- 主动抛出异常
+         raise myexception;
+       else
+         -- 主动抛出异常, 是 raise 语句的封装
+         raise_application_error(-20002, '数字必须要大于0');
+       end if;
+     EXCEPTION
+       -- 捕获异常
+       when myexception then
+         dbms_output.put_line('数字太小');
+     END;
+   #+END_SRC
+
 ** Procedure
+有了名字的 pl/sql 块，可以反复使用。
+#+BEGIN_SRC sql
+  CREATE OR REPLACE PROCEDURE ptest1 (myinput number)
+  AS
+    -- 声明异常
+    myexception exception;
+  BEGIN
+    if myinput > 10 then
+      dbms_output.put_line('OK');
+    elsif myinput >= 0 then
+      -- 主动抛出异常
+      raise myexception;
+    else
+      -- 主动抛出异常, 是 raise 语句的封装
+      raise_application_error(-20002, '数字必须要大于0');
+    end if;
+  EXCEPTION
+    -- 捕获异常
+    when myexception then
+      dbms_output.put_line('数字太小');
+  END;
+
+
+  -- 存储过程的参数类型
+  create or replace procedure pxxx  (name in varchar2,  -- 不能指定长度
+                                     s out number, c out number)
+  is
+  begin
+    select sal, nvl(comm, 0) into s, c from emp where ename = name;
+  end;
+
+  -- 调用过程
+  declare
+    s number;
+    c number;
+  begin 
+    pxxx('KING', s, c);
+    dbms_output.put_line(s || '----' || c);
+  end;
+#+END_SRC
+
+** Function
+函数跟过程的区别在于，它有一个明显的返回值，可以在 sql 语句中直接调用。
+
+#+BEGIN_SRC sql
+  -----------------------------------------
+  -- 定义一个函数，从 emp 中查询某人的工资 --
+  -----------------------------------------
+  create or replace function pyyy(name in varchar2) return number is
+    r number;
+  begin
+    select sal + nvl(comm, 0) into r from emp where ename = name;
+    return r;
+  end;
+
+  -- 函数的调用
+  select pyyy('CLARK') from dual;
+  select * from emp where sal + nvl(comm, 0) >= pyyy('KING');
+
+
+
+  -------------------------
+  -- 定义一个函数，求平方 --
+  -------------------------
+  create or replace function mypower(input number) return number is
+  begin
+    return input * input;
+  end;
+
+  -- 函数的调用
+  select mypower(444) from dual;
+  select power(444, 2) from dual;
+
+
+
+  -------------------------
+  -- 定义一个函数，求明天 --
+  -------------------------
+  create or replace function my_next_day return date is
+  begin
+    return sysdate + 1;
+  end;
+
+  -- 函数的使用
+  select my_next_day from dual;
+
+#+END_SRC
+
+
+* 导入/导出
+imp/exp 命令
+
+
+查看帮助
+: exp help=y
+
+将 scott 用户下所有的表都导出来，放到 aaa.sql 文件中:
+: exp system/pwd file=D:\aaa.dmp owner=(scott);
+
+将数据导入到 vip 用户中：
+: imp system/pwd file=D:\aaa.dmp fromuser=(scott) touser=(vip);
 
 * 锁/事务
+
 * hint/explain
 * Data Guard/RAC
-* Miscellaneous
 

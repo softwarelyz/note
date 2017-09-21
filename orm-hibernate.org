@@ -1,0 +1,12 @@
+#+TITLE: Hibernate
+
+* 序
+创建 hibernate 工程示例：
+1. 创建工程，引入 jar 包
+2. 创建配置文件 hibernate.cfg.xml, 配置数据库连接
+3. 编写实体类(=entity=), 标明注解, 然后配置在 hibernate.cfg.xml 中
+4. 创建 =SessionFactory=, 获取 =Session=, 通过操作实体类操作数据库。
+* 对象的状态
+
+#+DOWNLOADED: file:E%3A/downloads/hibernate_ostatus.svg @ 2017-09-21 10:08:32
+[[file:assets/image/orm-hibernate/hibernate_ostatus_2017-09-21_10-08-32.svg]]

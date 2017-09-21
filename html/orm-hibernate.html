@@ -2,7 +2,7 @@
 <html>
 <head>
 <title>Hibernate</title>
-<!-- 2017-09-21 Thu 10:11 -->
+<!-- 2017-09-21 Thu 15:32 -->
 <meta  charset="utf-8">
 <meta  name="generator" content="Org-mode">
 <meta  name="author" content="imfine">
@@ -22,7 +22,11 @@
 <div id="text-table-of-contents">
 <ul>
 <li><a href="#sec-1">1. 序</a></li>
-<li><a href="#sec-2">2. 对象的状态</a></li>
+<li><a href="#sec-2">2. Session</a>
+<ul>
+<li><a href="#sec-2-1">2.1. get/load/query</a></li>
+</ul>
+</li>
 </ul>
 </div>
 </nav>
@@ -46,19 +50,53 @@
 </div>
 </section>
 <section id="outline-container-sec-2" class="outline-2">
-<h2 id="sec-2"><span class="section-number-2">2</span> 对象的状态</h2>
+<h2 id="sec-2"><span class="section-number-2">2</span> Session</h2>
 <div class="outline-text-2" id="text-2">
+<p>
+对象的三种状态：
+</p>
+<ol class="org-ol">
+<li><code>Transient</code>，瞬时状态，指的是对象已经被初始化，但没有跟 hibernate 的 session 建立过联系，即数据库里没有数据对应。
+</li>
+<li><code>Persistent</code>，持久化状态，指的是对象在数据中有对应数据，对象有 id 值。它可能是通过 save 或 load 等方式得到的，并且在 session 缓存中有定义。
+</li>
+<li><code>Detached</code>，脱管状态，曾经被持久，在数据库中有数据对应。但是，在 session 缓存里没有记录。也许是 session 关闭了，也许是清空了。
+</li>
+</ol>
+
+<p>
+状态之间可以进行转换，下面是大致的转换流程：
+</p>
 
 <figure>
 <p><img src="assets/image/orm-hibernate/hibernate_ostatus_2017-09-21_10-08-32.svg" alt="hibernate_ostatus_2017-09-21_10-08-32.svg">
 </p>
 </figure>
 </div>
+
+
+<div id="outline-container-sec-2-1" class="outline-3">
+<h3 id="sec-2-1"><span class="section-number-3">2.1</span> get/load/query</h3>
+<div class="outline-text-3" id="text-2-1">
+<ul class="org-ul">
+<li>get/load 会优先在 session 缓存里寻找对象，如果找不到，再去查询数据库
+</li>
+<li>query 会直接查询数据库
+</li>
+<li>get 不懒，会立刻查询，如果没有找到，那么返回 null
+</li>
+<li>load 延迟加载，如果没有找到，那么抛出异常
+</li>
+<li><code>LazyInitializationException</code> !!!
+</li>
+</ul>
+</div>
+</div>
 </section>
 </div>
 <div id="postamble" class="status">
 <p class="author">Author: imfine</p>
-<p class="date">Created: 2017-09-21 Thu 10:11</p>
+<p class="date">Created: 2017-09-21 Thu 15:32</p>
 <p class="creator"><a href="http://www.gnu.org/software/emacs/">Emacs</a> 25.2.1 (<a href="http://orgmode.org">Org</a> mode 8.2.10)</p>
 <p class="validation">Go ahead, never stop.</p>
 </div>

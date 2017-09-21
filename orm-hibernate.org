@@ -6,7 +6,20 @@
 2. 创建配置文件 hibernate.cfg.xml, 配置数据库连接
 3. 编写实体类(=entity=), 标明注解, 然后配置在 hibernate.cfg.xml 中
 4. 创建 =SessionFactory=, 获取 =Session=, 通过操作实体类操作数据库。
-* 对象的状态
+* Session
+对象的三种状态：
+1. =Transient=，瞬时状态，指的是对象已经被初始化，但没有跟 hibernate 的 session 建立过联系，即数据库里没有数据对应。
+2. =Persistent=，持久化状态，指的是对象在数据中有对应数据，对象有 id 值。它可能是通过 save 或 load 等方式得到的，并且在 session 缓存中有定义。
+3. =Detached=，脱管状态，曾经被持久，在数据库中有数据对应。但是，在 session 缓存里没有记录。也许是 session 关闭了，也许是清空了。
 
+状态之间可以进行转换，下面是大致的转换流程：
 #+DOWNLOADED: file:E%3A/downloads/hibernate_ostatus.svg @ 2017-09-21 10:08:32
 [[file:assets/image/orm-hibernate/hibernate_ostatus_2017-09-21_10-08-32.svg]]
+
+
+** get/load/query
+- get/load 会优先在 session 缓存里寻找对象，如果找不到，再去查询数据库
+- query 会直接查询数据库
+- get 不懒，会立刻查询，如果没有找到，那么返回 null
+- load 延迟加载，如果没有找到，那么抛出异常
+- =LazyInitializationException= !!!

@@ -8,18 +8,57 @@
 4. 创建 =SessionFactory=, 获取 =Session=, 通过操作实体类操作数据库。
 * Session
 对象的三种状态：
-1. =Transient=，瞬时状态，指的是对象已经被初始化，但没有跟 hibernate 的 session 建立过联系，即数据库里没有数据对应。
-2. =Persistent=，持久化状态，指的是对象在数据中有对应数据，对象有 id 值。它可能是通过 save 或 load 等方式得到的，并且在 session 缓存中有定义。
-3. =Detached=，脱管状态，曾经被持久，在数据库中有数据对应。但是，在 session 缓存里没有记录。也许是 session 关闭了，也许是清空了。
+1. =Transient=, 瞬时状态，指的是对象已经被初始化，但没有跟 hibernate 的 session 建立过联系，即数据库里没有数据对应。
+2. =Persistent=, 持久化状态，指的是对象在数据中有对应数据，对象有 id 值。它可能是通过 save 或 load 等方式得到的，并且在 session 缓存中有定义。
+3. =Detached=, 脱管状态，曾经被持久，在数据库中有数据对应。但是，在 session 缓存里没有记录。也许是 session 关闭了，也许是清空了。
 
 状态之间可以进行转换，下面是大致的转换流程：
 #+DOWNLOADED: file:E%3A/downloads/hibernate_ostatus.svg @ 2017-09-21 10:08:32
 [[file:assets/image/orm-hibernate/hibernate_ostatus_2017-09-21_10-08-32.svg]]
 
 
-** get/load/query
+** get/load/query()
 - get/load 会优先在 session 缓存里寻找对象，如果找不到，再去查询数据库
 - query 会直接查询数据库
-- get 不懒，会立刻查询，如果没有找到，那么返回 null
-- load 延迟加载，如果没有找到，那么抛出异常
+- get 不懒，会立刻查询。如果没有找到，那么返回 null
+- load 延迟加载，立刻返回一个代理对象。如果没有找到，那么抛出异常
 - =LazyInitializationException= !!!
+
+** flush/refresh()
+flush 将 session 缓存里的数据同步到数据库，触发相应的 sql 语句。
+
+以下情况，会触发 flush 操作：
+1. 调用 commit 的时候，会触发 session.flush() 操作。
+2. 执行 session.createQuery() 查询的时候，也会触发 flush 操作。
+3. 手动执行 flush 操作。
+
+refresh 是将数据库里的信息，同步到 session 缓存。
+
+** clear/evict()
+从 session 缓存中清理数据
+
+** save/persist()
+都是用来将瞬时对象变为持久化对象，即将数据插入数据库，对应 insert 语句。
+
+save 是 hibernate 原生的语法，persist 是 jpa 的语法。
+
+在执行的时候，不会立刻插入数据，只有执行了 flush 操作，才真正触发数据库操作。
+
+save/persist 方法会立刻为实体类对象生成主键。
+
+他们的区别是, 如果在保存之前，重新手动赋予了主键：
+1. save 会忽视你的赋值
+2. persist 会抛异常
+
+** update/merge()
+- 他们主要用来完成实体类对象的修改，对应的是 update 语句。
+- 若更新一个持久化对象，可以不显式调用 update, 因为 flush 操作会触发 update
+- 可以将一个脱管对象转换为持久化对象
+- merge 是 jpa 中的语法
+
+** doWork
+可以将 jdbc 的 connection 对象暴露出来，用于插入一些 jdbc 操作语法。
+
+
+
+

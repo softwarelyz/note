@@ -62,3 +62,91 @@ save/persist 方法会立刻为实体类对象生成主键。
 
 
 
+* Identifier
+#+BEGIN_SRC sql
+  -- JPA 默认
+  @GeneratedValue(strategy = GenerationType.AUTO/IDENTITY/SEQUENCE/TABLE)
+
+  -- JPA 定制序列/Table
+  @GeneratedValue(generator = "xxx")
+  @SequenceGenerator(name = "xxx", sequenceName = "seq_xxx", associateSize = 1)
+  @TableGenerator(name = "xxx", table = "tb_xxx")
+
+  -- Hibernate 格式的 generator:
+  @GeneratedValue(generator = "yyy")
+  @GenericGenerator(name = "yyy", strategy = "native")
+  @GenericGenerator(name = "yyy", strategy = "uuid2")
+  @GenericGenerator(name = "yyy", strategy = "table")
+
+#+END_SRC
+
+* Association
+** 1-N
+** M-N
+- 多对多的关系，需要使用中间表维护双方关系。对应的注解为 =@ManyToMany=
+- 必须为双方制定从属关系，也就是将维护关系的责任交给其中一个实体类(=mappedBy=)，从而避免重复或冲突。
+- 可以使用 =@JoinTable= 对中间表进行定制
+
+例子：
+#+BEGIN_SRC java
+  @Entity
+  public class Emp {
+      @ManyToMany   // 负责关系的维护
+      @JoinTable(...)
+      private Set<Project> projects = new HashSet<>();
+  }
+
+  @Entity
+  public class Project {
+      @ManyToMany(mappedBy = "projects")  // 甩手掌柜
+      private Set<Emp> emps = new HashSet<>();
+  }
+#+END_SRC
+
+** 1-1
+两种方式：
+1. 在其中一个表上创建一个列，保存另一个表的主键。即外键关联。
+2. 两个表，有关联的数据，使用相同的主键。即主键关联。
+
+*外键关联:*
+#+BEGIN_SRC java
+  @Entity
+  public class Person {
+      @Id @GeneratedValue  // 主键自动生成
+      private long id;
+      
+      @OneToOne @JoinColumn   // 负责维护外键
+      private IdCard idcard;
+  }
+
+  @Entity
+  public class IdCard {
+      @Id @GeneratedValue // 主键自动生成
+      private long id;
+      
+      @OneToOne(mappedBy="idcard")  // 甩手掌柜
+      private Person person;
+  }
+#+END_SRC
+
+*主键关联:*
+#+BEGIN_SRC java
+  @Entity
+  public class Person {
+      @Id       // 主键*不要*自动生成!!
+      private long id;
+      
+      @OneToOne // 负责维护外键，将外键映射到主键。即将另一张表的外键映射到本表的主键。
+      @MapsId @JoinColumn(name = "id") 
+      private IdCard idcard;
+  }
+
+  @Entity
+  public class IdCard {
+      @Id @GeneratedValue // 主键自动生成
+      private long id;
+      
+      @OneToOne(mappedBy="idcard")  // 甩手掌柜
+      private Person person;
+  }
+#+END_SRC

@@ -130,6 +130,7 @@
          if(i % cols == cols-1 && i != all.length) result.push("</tr>");
      }
      main.innerHTML = result.join("\n");
+     
      console.log(main.innerHTML);
 
 
@@ -137,7 +138,7 @@
      /* 随机抽取 */
      const beginLabel = "抽奖", stopLabel = "停止", interval = 30;
      let timer, current, nodes = Array.from(document.querySelectorAll("td:not(.gundefined)"));
-
+     
      luckygo.innerText = beginLabel;
      
      luckygo.addEventListener("click", function (e) {
@@ -158,8 +159,6 @@
          }
      });
 
-
-     
      /* 笔记本 */
      notebtn.onclick = function() {
          note.style.display = "block";

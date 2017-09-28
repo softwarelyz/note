@@ -2,7 +2,7 @@
 <html>
 <head>
 <title>Hibernate</title>
-<!-- 2017-09-22 Fri 10:49 -->
+<!-- 2017-09-28 Thu 11:22 -->
 <meta  charset="utf-8">
 <meta  name="generator" content="Org-mode">
 <meta  name="author" content="imfine">
@@ -30,6 +30,14 @@
 <li><a href="#sec-2-4">2.4. save/persist()</a></li>
 <li><a href="#sec-2-5">2.5. update/merge()</a></li>
 <li><a href="#sec-2-6">2.6. doWork</a></li>
+</ul>
+</li>
+<li><a href="#sec-3">3. Identifier</a></li>
+<li><a href="#sec-4">4. Association</a>
+<ul>
+<li><a href="#sec-4-1">4.1. 1-N</a></li>
+<li><a href="#sec-4-2">4.2. M-N</a></li>
+<li><a href="#sec-4-3">4.3. 1-1</a></li>
 </ul>
 </li>
 </ul>
@@ -188,10 +196,143 @@ save/persist 方法会立刻为实体类对象生成主键。
 </div>
 </div>
 </section>
+
+
+
+
+<section id="outline-container-sec-3" class="outline-2">
+<h2 id="sec-3"><span class="section-number-2">3</span> Identifier</h2>
+<div class="outline-text-2" id="text-3">
+<div class="org-src-container">
+
+<pre class="src src-sql"><span class="org-comment">-- JPA &#40664;&#35748;</span>
+@GeneratedValue<span class="org-rainbow-delimiters-depth-1">(</span>strategy = GenerationType.AUTO/<span class="org-keyword">IDENTITY</span>/<span class="org-keyword">SEQUENCE</span>/<span class="org-keyword">TABLE</span><span class="org-rainbow-delimiters-depth-1">)</span>
+
+<span class="org-comment">-- JPA &#23450;&#21046;&#24207;&#21015;/Table</span>
+@GeneratedValue<span class="org-rainbow-delimiters-depth-1">(</span>generator = "xxx"<span class="org-rainbow-delimiters-depth-1">)</span>
+@SequenceGenerator<span class="org-rainbow-delimiters-depth-1">(</span><span class="org-keyword">name</span> = "xxx", sequenceName = "seq_xxx", associateSize = 1<span class="org-rainbow-delimiters-depth-1">)</span>
+@TableGenerator<span class="org-rainbow-delimiters-depth-1">(</span><span class="org-keyword">name</span> = "xxx", <span class="org-keyword">table</span> = "tb_xxx"<span class="org-rainbow-delimiters-depth-1">)</span>
+
+<span class="org-comment">-- Hibernate &#26684;&#24335;&#30340; generator:</span>
+@GeneratedValue<span class="org-rainbow-delimiters-depth-1">(</span>generator = "yyy"<span class="org-rainbow-delimiters-depth-1">)</span>
+@GenericGenerator<span class="org-rainbow-delimiters-depth-1">(</span><span class="org-keyword">name</span> = "yyy", strategy = "native"<span class="org-rainbow-delimiters-depth-1">)</span>
+@GenericGenerator<span class="org-rainbow-delimiters-depth-1">(</span><span class="org-keyword">name</span> = "yyy", strategy = "uuid2"<span class="org-rainbow-delimiters-depth-1">)</span>
+@GenericGenerator<span class="org-rainbow-delimiters-depth-1">(</span><span class="org-keyword">name</span> = "yyy", strategy = "<span class="org-keyword">table</span>"<span class="org-rainbow-delimiters-depth-1">)</span>
+</pre>
+</div>
+</div>
+</section>
+
+<section id="outline-container-sec-4" class="outline-2">
+<h2 id="sec-4"><span class="section-number-2">4</span> Association</h2>
+<div class="outline-text-2" id="text-4">
+</div><div id="outline-container-sec-4-1" class="outline-3">
+<h3 id="sec-4-1"><span class="section-number-3">4.1</span> 1-N</h3>
+</div>
+<div id="outline-container-sec-4-2" class="outline-3">
+<h3 id="sec-4-2"><span class="section-number-3">4.2</span> M-N</h3>
+<div class="outline-text-3" id="text-4-2">
+<ul class="org-ul">
+<li>多对多的关系，需要使用中间表维护双方关系。对应的注解为 <code>@ManyToMany</code>
+</li>
+<li>必须为双方制定从属关系，也就是将维护关系的责任交给其中一个实体类(<code>mappedBy</code>)，从而避免重复或冲突。
+</li>
+<li>可以使用 <code>@JoinTable</code> 对中间表进行定制
+</li>
+</ul>
+
+<p>
+例子：
+</p>
+<div class="org-src-container">
+
+<pre class="src src-java"><span class="org-c-annotation">@Entity</span>
+<span class="org-keyword">public</span> <span class="org-keyword">class</span> <span class="org-type">Emp</span> <span class="org-rainbow-delimiters-depth-1">{</span>
+    <span class="org-c-annotation">@ManyToMany</span>   <span class="org-comment-delimiter">// </span><span class="org-comment">&#36127;&#36131;&#20851;&#31995;&#30340;&#32500;&#25252;</span>
+    <span class="org-c-annotation">@JoinTable</span><span class="org-rainbow-delimiters-depth-2">(</span>...<span class="org-rainbow-delimiters-depth-2">)</span>
+    <span class="org-keyword">private</span> <span class="org-type">Set</span><span class="org-rainbow-delimiters-depth-2">&lt;</span><span class="org-type">Project</span><span class="org-rainbow-delimiters-depth-2">&gt;</span> <span class="org-variable-name">projects</span> = <span class="org-keyword">new</span> <span class="org-type">HashSet</span><span class="org-rainbow-delimiters-depth-2">&lt;&gt;()</span>;
+<span class="org-rainbow-delimiters-depth-1">}</span>
+
+<span class="org-c-annotation">@Entity</span>
+<span class="org-keyword">public</span> <span class="org-keyword">class</span> <span class="org-type">Project</span> <span class="org-rainbow-delimiters-depth-1">{</span>
+    <span class="org-c-annotation">@ManyToMany</span><span class="org-rainbow-delimiters-depth-2">(</span>mappedBy = <span class="org-string">"projects"</span><span class="org-rainbow-delimiters-depth-2">)</span>  <span class="org-comment-delimiter">// </span><span class="org-comment">&#29993;&#25163;&#25484;&#26588;</span>
+    <span class="org-keyword">private</span> <span class="org-type">Set</span><span class="org-rainbow-delimiters-depth-2">&lt;</span><span class="org-type">Emp</span><span class="org-rainbow-delimiters-depth-2">&gt;</span> <span class="org-variable-name">emps</span> = <span class="org-keyword">new</span> <span class="org-type">HashSet</span><span class="org-rainbow-delimiters-depth-2">&lt;&gt;()</span>;
+<span class="org-rainbow-delimiters-depth-1">}</span>
+</pre>
+</div>
+</div>
+</div>
+
+<div id="outline-container-sec-4-3" class="outline-3">
+<h3 id="sec-4-3"><span class="section-number-3">4.3</span> 1-1</h3>
+<div class="outline-text-3" id="text-4-3">
+<p>
+两种方式：
+</p>
+<ol class="org-ol">
+<li>在其中一个表上创建一个列，保存另一个表的主键。即外键关联。
+</li>
+<li>两个表，有关联的数据，使用相同的主键。即主键关联。
+</li>
+</ol>
+
+<p>
+<b>外键关联:</b>
+</p>
+<div class="org-src-container">
+
+<pre class="src src-java"><span class="org-c-annotation">@Entity</span>
+<span class="org-keyword">public</span> <span class="org-keyword">class</span> <span class="org-type">Person</span> <span class="org-rainbow-delimiters-depth-1">{</span>
+    <span class="org-c-annotation">@Id</span> <span class="org-c-annotation">@GeneratedValue</span>  <span class="org-comment-delimiter">// </span><span class="org-comment">&#20027;&#38190;&#33258;&#21160;&#29983;&#25104;</span>
+    <span class="org-keyword">private</span> <span class="org-type">long</span> <span class="org-variable-name">id</span>;
+
+    <span class="org-c-annotation">@OneToOne</span> <span class="org-c-annotation">@JoinColumn</span>   <span class="org-comment-delimiter">// </span><span class="org-comment">&#36127;&#36131;&#32500;&#25252;&#22806;&#38190;</span>
+    <span class="org-keyword">private</span> <span class="org-type">IdCard</span> <span class="org-variable-name">idcard</span>;
+<span class="org-rainbow-delimiters-depth-1">}</span>
+
+<span class="org-c-annotation">@Entity</span>
+<span class="org-keyword">public</span> <span class="org-keyword">class</span> <span class="org-type">IdCard</span> <span class="org-rainbow-delimiters-depth-1">{</span>
+    <span class="org-c-annotation">@Id</span> <span class="org-c-annotation">@GeneratedValue</span> <span class="org-comment-delimiter">// </span><span class="org-comment">&#20027;&#38190;&#33258;&#21160;&#29983;&#25104;</span>
+    <span class="org-keyword">private</span> <span class="org-type">long</span> <span class="org-variable-name">id</span>;
+
+    <span class="org-c-annotation">@OneToOne</span><span class="org-rainbow-delimiters-depth-2">(</span>mappedBy=<span class="org-string">"idcard"</span><span class="org-rainbow-delimiters-depth-2">)</span>  <span class="org-comment-delimiter">// </span><span class="org-comment">&#29993;&#25163;&#25484;&#26588;</span>
+    <span class="org-keyword">private</span> <span class="org-type">Person</span> <span class="org-variable-name">person</span>;
+<span class="org-rainbow-delimiters-depth-1">}</span>
+</pre>
+</div>
+
+<p>
+<b>主键关联:</b>
+</p>
+<div class="org-src-container">
+
+<pre class="src src-java"><span class="org-c-annotation">@Entity</span>
+<span class="org-keyword">public</span> <span class="org-keyword">class</span> <span class="org-type">Person</span> <span class="org-rainbow-delimiters-depth-1">{</span>
+    <span class="org-c-annotation">@Id</span>       <span class="org-comment-delimiter">// </span><span class="org-comment">&#20027;&#38190;*&#19981;&#35201;*&#33258;&#21160;&#29983;&#25104;!!</span>
+    <span class="org-keyword">private</span> <span class="org-type">long</span> <span class="org-variable-name">id</span>;
+
+    <span class="org-c-annotation">@OneToOne</span> <span class="org-comment-delimiter">// </span><span class="org-comment">&#36127;&#36131;&#32500;&#25252;&#22806;&#38190;&#65292;&#23558;&#22806;&#38190;&#26144;&#23556;&#21040;&#20027;&#38190;&#12290;&#21363;&#23558;&#21478;&#19968;&#24352;&#34920;&#30340;&#22806;&#38190;&#26144;&#23556;&#21040;&#26412;&#34920;&#30340;&#20027;&#38190;&#12290;</span>
+    <span class="org-c-annotation">@MapsId</span> <span class="org-c-annotation">@JoinColumn</span><span class="org-rainbow-delimiters-depth-2">(</span>name = <span class="org-string">"id"</span><span class="org-rainbow-delimiters-depth-2">)</span> 
+    <span class="org-keyword">private</span> <span class="org-type">IdCard</span> <span class="org-variable-name">idcard</span>;
+<span class="org-rainbow-delimiters-depth-1">}</span>
+
+<span class="org-c-annotation">@Entity</span>
+<span class="org-keyword">public</span> <span class="org-keyword">class</span> <span class="org-type">IdCard</span> <span class="org-rainbow-delimiters-depth-1">{</span>
+    <span class="org-c-annotation">@Id</span> <span class="org-c-annotation">@GeneratedValue</span> <span class="org-comment-delimiter">// </span><span class="org-comment">&#20027;&#38190;&#33258;&#21160;&#29983;&#25104;</span>
+    <span class="org-keyword">private</span> <span class="org-type">long</span> <span class="org-variable-name">id</span>;
+
+    <span class="org-c-annotation">@OneToOne</span><span class="org-rainbow-delimiters-depth-2">(</span>mappedBy=<span class="org-string">"idcard"</span><span class="org-rainbow-delimiters-depth-2">)</span>  <span class="org-comment-delimiter">// </span><span class="org-comment">&#29993;&#25163;&#25484;&#26588;</span>
+    <span class="org-keyword">private</span> <span class="org-type">Person</span> <span class="org-variable-name">person</span>;
+<span class="org-rainbow-delimiters-depth-1">}</span>
+</pre>
+</div>
+</div>
+</div>
+</section>
 </div>
 <div id="postamble" class="status">
 <p class="author">Author: imfine</p>
-<p class="date">Created: 2017-09-22 Fri 10:49</p>
+<p class="date">Created: 2017-09-28 Thu 11:22</p>
 <p class="creator"><a href="http://www.gnu.org/software/emacs/">Emacs</a> 25.2.1 (<a href="http://orgmode.org">Org</a> mode 8.2.10)</p>
 <p class="validation">Go ahead, never stop.</p>
 </div>

@@ -2,7 +2,7 @@
 <html>
 <head>
 <title>Hibernate</title>
-<!-- 2017-09-28 Thu 11:22 -->
+<!-- 2017-09-29 Fri 11:17 -->
 <meta  charset="utf-8">
 <meta  name="generator" content="Org-mode">
 <meta  name="author" content="imfine">
@@ -38,6 +38,14 @@
 <li><a href="#sec-4-1">4.1. 1-N</a></li>
 <li><a href="#sec-4-2">4.2. M-N</a></li>
 <li><a href="#sec-4-3">4.3. 1-1</a></li>
+</ul>
+</li>
+<li><a href="#sec-5">5. Inheritance</a>
+<ul>
+<li><a href="#sec-5-1">5.1. SINGLE_TABLE</a></li>
+<li><a href="#sec-5-2">5.2. JOIN</a></li>
+<li><a href="#sec-5-3">5.3. PER_CLASS(union)</a></li>
+<li><a href="#sec-5-4">5.4. MappedSuperClass</a></li>
 </ul>
 </li>
 </ul>
@@ -329,10 +337,139 @@ save/persist 方法会立刻为实体类对象生成主键。
 </div>
 </div>
 </section>
+<section id="outline-container-sec-5" class="outline-2">
+<h2 id="sec-5"><span class="section-number-2">5</span> Inheritance</h2>
+<div class="outline-text-2" id="text-5">
+</div><div id="outline-container-sec-5-1" class="outline-3">
+<h3 id="sec-5-1"><span class="section-number-3">5.1</span> SINGLE_TABLE</h3>
+<div class="outline-text-3" id="text-5-1">
+<p>
+所有的子类跟父类使用一张表，用 dtype 来分辨各个子类。
+</p>
+
+<p>
+这是默认的继承策略。
+</p>
+<div class="org-src-container">
+
+<pre class="src src-java"><span class="org-c-annotation">@Entity</span>
+<span class="org-c-annotation">@Inheritance</span><span class="org-rainbow-delimiters-depth-1">(</span>strategy = <span class="org-constant">InheritanceType</span>.SINGLE_TABLE<span class="org-rainbow-delimiters-depth-1">)</span>
+<span class="org-c-annotation">@DiscriminatorColumn</span><span class="org-rainbow-delimiters-depth-1">(</span>name = <span class="org-string">"xxx"</span><span class="org-rainbow-delimiters-depth-1">)</span> <span class="org-comment-delimiter">// </span><span class="org-comment">&#21487;&#20197;&#23450;&#21046;&#20998;&#21106;&#21015;&#30340;&#21517;&#23383;</span>
+<span class="org-keyword">public</span> <span class="org-keyword">class</span> <span class="org-type">Animal</span> <span class="org-rainbow-delimiters-depth-1">{}</span>
+
+<span class="org-c-annotation">@Entity</span>
+<span class="org-c-annotation">@DiscriminatorValue</span><span class="org-rainbow-delimiters-depth-1">(</span><span class="org-string">"&#29399;"</span><span class="org-rainbow-delimiters-depth-1">)</span> <span class="org-comment-delimiter">// </span><span class="org-comment">&#21487;&#20197;&#23450;&#21046;</span>
+<span class="org-keyword">public</span> <span class="org-keyword">class</span> Dog <span class="org-type">extend</span> <span class="org-type">Animal</span> <span class="org-rainbow-delimiters-depth-1">{}</span>
+</pre>
+</div>
+
+<p>
+特点：
+</p>
+<ul class="org-ul">
+<li>使用了区别的列
+</li>
+<li>只使用了一张表，所以查询速度快
+</li>
+<li>缺点：子类的独有列，不能添加唯一/非空约束
+</li>
+<li>缺点：使用了太多的冗余字段
+</li>
+</ul>
+</div>
+</div>
+
+<div id="outline-container-sec-5-2" class="outline-3">
+<h3 id="sec-5-2"><span class="section-number-3">5.2</span> JOIN</h3>
+<div class="outline-text-3" id="text-5-2">
+<div class="org-src-container">
+
+<pre class="src src-java"><span class="org-c-annotation">@Entity</span>
+<span class="org-c-annotation">@Inheritance</span><span class="org-rainbow-delimiters-depth-1">(</span>strategy = <span class="org-constant">InheritanceType</span>.JOINED<span class="org-rainbow-delimiters-depth-1">)</span>
+<span class="org-keyword">public</span> <span class="org-keyword">class</span> <span class="org-type">Animal</span> <span class="org-rainbow-delimiters-depth-1">{</span> <span class="org-rainbow-delimiters-depth-1">}</span>
+
+<span class="org-c-annotation">@PrimaryKeyJoinColumn</span><span class="org-rainbow-delimiters-depth-1">(</span>name = <span class="org-string">"xxxxid"</span><span class="org-rainbow-delimiters-depth-1">)</span>  <span class="org-comment-delimiter">// </span><span class="org-comment">&#21487;&#20197;&#23450;&#21046;&#20851;&#32852;&#20027;&#38190;</span>
+<span class="org-keyword">public</span> <span class="org-keyword">class</span> Dog <span class="org-type">extend</span> <span class="org-type">Animal</span> <span class="org-rainbow-delimiters-depth-1">{</span> <span class="org-rainbow-delimiters-depth-1">}</span>
+</pre>
+</div>
+
+<p>
+总结：
+</p>
+<ul class="org-ul">
+<li>优点：数据没有任何冗余
+</li>
+<li>缺点：查询的效率低
+</li>
+</ul>
+</div>
+</div>
+
+<div id="outline-container-sec-5-3" class="outline-3">
+<h3 id="sec-5-3"><span class="section-number-3">5.3</span> PER_CLASS(union)</h3>
+<div class="outline-text-3" id="text-5-3">
+<p>
+每个类对应一张表，大家互相隔离，各自为政
+</p>
+
+<div class="org-src-container">
+
+<pre class="src src-java"><span class="org-c-annotation">@Entity</span>
+<span class="org-c-annotation">@Inheritance</span><span class="org-rainbow-delimiters-depth-1">(</span>strategy = <span class="org-constant">InheritanceType</span>.TABLE_PER_CLASS<span class="org-rainbow-delimiters-depth-1">)</span>
+<span class="org-keyword">public</span> <span class="org-keyword">class</span> <span class="org-type">Animal</span> <span class="org-rainbow-delimiters-depth-1">{</span> <span class="org-rainbow-delimiters-depth-1">}</span>
+
+<span class="org-c-annotation">@Entity</span>
+<span class="org-keyword">public</span> <span class="org-keyword">class</span> Dog <span class="org-type">extend</span> <span class="org-type">Animal</span> <span class="org-rainbow-delimiters-depth-1">{</span> <span class="org-rainbow-delimiters-depth-1">}</span>
+</pre>
+</div>
+
+<p>
+总结：
+</p>
+<ul class="org-ul">
+<li>缺点：存在冗余字段
+</li>
+<li>缺点：如果要更新父类中的字段，每个子表都需要去更新
+</li>
+<li>优点：独立，自由，查询快
+</li>
+<li>如果只查询子类，那么不需要任何关联；但如果查询父类的话，需要
+</li>
+</ul>
+</div>
+</div>
+<div id="outline-container-sec-5-4" class="outline-3">
+<h3 id="sec-5-4"><span class="section-number-3">5.4</span> MappedSuperClass</h3>
+<div class="outline-text-3" id="text-5-4">
+<p>
+如果父类不是 Entity，只是为了提供子类的属性，那么，将其注解为 <code>@Mappedsuperclass</code> 即可
+</p>
+
+<div class="org-src-container">
+
+<pre class="src src-java"><span class="org-c-annotation">@MappedSuperclass</span>
+<span class="org-keyword">abstract</span> <span class="org-keyword">public</span> <span class="org-keyword">class</span> <span class="org-type">Person</span> <span class="org-rainbow-delimiters-depth-1">{</span>
+    <span class="org-keyword">private</span> <span class="org-type">String</span> <span class="org-variable-name">name</span>;
+<span class="org-rainbow-delimiters-depth-1">}</span>
+
+<span class="org-c-annotation">@Entity</span>
+<span class="org-keyword">public</span> <span class="org-keyword">class</span> Girl <span class="org-type">extend</span> <span class="org-type">Person</span> <span class="org-rainbow-delimiters-depth-1">{</span>
+    <span class="org-keyword">private</span> <span class="org-type">String</span> <span class="org-variable-name">wechat</span>;
+<span class="org-rainbow-delimiters-depth-1">}</span>
+
+<span class="org-c-annotation">@Entity</span>
+<span class="org-keyword">public</span> <span class="org-keyword">class</span> Boy <span class="org-type">extend</span> <span class="org-type">Person</span> <span class="org-rainbow-delimiters-depth-1">{</span>
+    <span class="org-keyword">private</span> <span class="org-type">String</span> <span class="org-variable-name">address</span>;
+<span class="org-rainbow-delimiters-depth-1">}</span>
+</pre>
+</div>
+</div>
+</div>
+</section>
 </div>
 <div id="postamble" class="status">
 <p class="author">Author: imfine</p>
-<p class="date">Created: 2017-09-28 Thu 11:22</p>
+<p class="date">Created: 2017-09-29 Fri 11:17</p>
 <p class="creator"><a href="http://www.gnu.org/software/emacs/">Emacs</a> 25.2.1 (<a href="http://orgmode.org">Org</a> mode 8.2.10)</p>
 <p class="validation">Go ahead, never stop.</p>
 </div>

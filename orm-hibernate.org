@@ -150,3 +150,77 @@ save/persist 方法会立刻为实体类对象生成主键。
       private Person person;
   }
 #+END_SRC
+* Inheritance
+** SINGLE_TABLE
+所有的子类跟父类使用一张表，用 dtype 来分辨各个子类。
+
+这是默认的继承策略。
+#+BEGIN_SRC java
+  @Entity
+  @Inheritance(strategy = InheritanceType.SINGLE_TABLE)
+  @DiscriminatorColumn(name = "xxx") // 可以定制分割列的名字
+  public class Animal {}
+
+  @Entity
+  @DiscriminatorValue("狗") // 可以定制
+  public class Dog extend Animal {}
+#+END_SRC
+
+特点：
+- 使用了区别的列
+- 只使用了一张表，所以查询速度快
+- 缺点：子类的独有列，不能添加唯一/非空约束
+- 缺点：使用了太多的冗余字段
+
+** JOIN
+#+BEGIN_SRC java
+  @Entity
+  @Inheritance(strategy = InheritanceType.JOINED)
+  public class Animal { }
+
+  @PrimaryKeyJoinColumn(name = "xxxxid")  // 可以定制关联主键
+  public class Dog extend Animal { }
+#+END_SRC
+
+总结：
+- 优点：数据没有任何冗余
+- 缺点：查询的效率低
+
+** PER_CLASS(union)
+每个类对应一张表，大家互相隔离，各自为政
+
+#+BEGIN_SRC java
+  @Entity
+  @Inheritance(strategy = InheritanceType.TABLE_PER_CLASS)
+  public class Animal { }
+
+  @Entity
+  public class Dog extend Animal { }
+#+END_SRC
+
+总结：
+- 缺点：存在冗余字段
+- 缺点：如果要更新父类中的字段，每个子表都需要去更新
+- 优点：独立，自由，查询快
+- 如果只查询子类，那么不需要任何关联；但如果查询父类的话，需要
+** MappedSuperClass
+如果父类不是 Entity，只是为了提供子类的属性，那么，将其注解为 =@Mappedsuperclass= 即可
+
+#+BEGIN_SRC java
+  @MappedSuperclass
+  abstract public class Person {
+      private String name;
+  }
+
+  @Entity
+  public class Girl extend Person {
+      private String wechat;
+  }
+
+  @Entity
+  public class Boy extend Person {
+      private String address;
+  }
+      
+#+END_SRC
+

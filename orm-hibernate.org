@@ -82,6 +82,77 @@ save/persist 方法会立刻为实体类对象生成主键。
 
 * Association
 ** 1-N
+一对多的关系，在数据库的角度，需要使用外键维护这种关系。
+
+一般情况下，在多的一边的表上，建立一个外键映射到另一个表。
+
+比如，有两个表 author, book 一般而言，book 的定义类似是这样的：
+#+BEGIN_SRC sql
+  create table book {
+      bookid int primary key,
+      name varchar2(20) not null,
+      price float,
+      publish_date date default sysdate,
+
+      -- 下面字段用来维护跟作者的关系
+      -- 它是一个外键约束
+      authorid references author
+  }
+#+END_SRC
+
+book/author 分别对应实体类 Book/Author，我们可以在其中任意一个实体类中，设置他们的关系。
+
+如果只是在其中一个中设置关系，那么叫“单边关系”、“单向关联”，否则是“双向关联”。
+
+其中最常用的是 *多对一的单向关联* 和 *多对一的双向关联*。
+
+多对一的单向：
+#+BEGIN_SRC java
+  public class Author {
+      @Id @GeneratedValue private long id;
+      private String name;
+  }
+
+  public class Book {
+      @Id @GeneratedValue private long id;
+      private String name;
+      private FLoat price;
+
+      // 只是在多的一段设置关系。这是非常常用的一种方式。
+      // 用 @JoinColumn 定制外键字段的名字
+      @ManyToOne @JoinColumn
+      private Author author;
+  }
+#+END_SRC
+
+多对一的双向关系：
+#+BEGIN_SRC java
+  // 多的一端，即主端，需要负责维护关系
+  public class Book {
+      @Id @GeneratedValue private long id;
+      private String name;
+      private FLoat price;
+
+      // 只是在多的一端设置关系。这是非常常用的一种方式。
+      // 用 @JoinColumn 定制外键字段的名字
+      @ManyToOne @JoinColumn
+      private Author author;
+  }
+
+  // 一的一端，即从端，需要当甩手掌柜
+  public class Author {
+      @Id @GeneratedValue private long id;
+      private String name;
+
+      // 不要让双方都去维护关系，不然会有冲突或重复。
+      // 一般情况下，需要让多的一端维护关系即可。这里用 mappedBy 表名，自己当甩手掌柜。
+      @OneToMany(mappedBy = "author")
+      private Set<Books> books = new HashSet<>();
+  }
+#+END_SRC
+
+*在数据插入的时候，要先保存一的一端，再保存多的一端，否则，会有冗余的 SQL 语句。*
+
 ** M-N
 - 多对多的关系，需要使用中间表维护双方关系。对应的注解为 =@ManyToMany=
 - 必须为双方制定从属关系，也就是将维护关系的责任交给其中一个实体类(=mappedBy=)，从而避免重复或冲突。
@@ -152,7 +223,8 @@ save/persist 方法会立刻为实体类对象生成主键。
 #+END_SRC
 * Inheritance
 ** SINGLE_TABLE
-所有的子类跟父类使用一张表，用 dtype 来分辨各个子类。
+将所有的东西塞进 *一张表* 中，即所有的子类跟父类使用一张表，
+在这张表中使用“区别列”(DiscriminatorColumn)来区分各个类。
 
 这是默认的继承策略。
 #+BEGIN_SRC java
@@ -166,13 +238,19 @@ save/persist 方法会立刻为实体类对象生成主键。
   public class Dog extend Animal {}
 #+END_SRC
 
-特点：
+它并不符合范式，但也有自己的优点：
 - 使用了区别的列
 - 只使用了一张表，所以查询速度快
 - 缺点：子类的独有列，不能添加唯一/非空约束
-- 缺点：使用了太多的冗余字段
+- 缺点：太多冗余字段
 
-** JOIN
+** JOINED
+是一种完全“符合范式”的设计：
+- 将所有共有的属性提取到父表中
+- 仅将子类特有的属性保存到子表中
+- 父表跟子表通过外键的方式建立关系
+- 如果查询子表的详细数据，通过关联查询关联相关表即可
+
 #+BEGIN_SRC java
   @Entity
   @Inheritance(strategy = InheritanceType.JOINED)
@@ -183,11 +261,11 @@ save/persist 方法会立刻为实体类对象生成主键。
 #+END_SRC
 
 总结：
-- 优点：数据没有任何冗余
-- 缺点：查询的效率低
+- 优点：没有任何冗余
+- 缺点：查询的效率低，因为需要关联各张表
 
-** PER_CLASS(union)
-每个类对应一张表，大家互相隔离，各自为政
+** TABLE_PER_CLASS(union)
+每个类对应一张表，大家互相隔离，各自为政!
 
 #+BEGIN_SRC java
   @Entity
@@ -199,17 +277,19 @@ save/persist 方法会立刻为实体类对象生成主键。
 #+END_SRC
 
 总结：
+- 优点：独立，自由，查询快
+- 如果只查询子类，那么不需要任何关联；但如果查询父类的话，需要使用 Union 关联各表
 - 缺点：存在冗余字段
 - 缺点：如果要更新父类中的字段，每个子表都需要去更新
-- 优点：独立，自由，查询快
-- 如果只查询子类，那么不需要任何关联；但如果查询父类的话，需要
-** MappedSuperClass
-如果父类不是 Entity，只是为了提供子类的属性，那么，将其注解为 =@Mappedsuperclass= 即可
+
+** MappedSuperclass
+如果父类不是 Entity，只是为子类提供公共属性，那么，将其注解为 =@MappedSuperclass= 即可。
 
 #+BEGIN_SRC java
   @MappedSuperclass
   abstract public class Person {
-      private String name;
+      @Id private long id;
+      @Column private String name;
   }
 
   @Entity
@@ -221,6 +301,4 @@ save/persist 方法会立刻为实体类对象生成主键。
   public class Boy extend Person {
       private String address;
   }
-      
 #+END_SRC
-

@@ -1,8 +1,20 @@
 #+TITLE: MISCELLANEOUS
 
 
+
+* Junit
+| 注解         | 解释                               |
+|--------------+------------------------------------|
+| @Before      | 在每个测试方法运行前执行的方法     |
+| @After       | 在每个测试方法运行后执行的方法     |
+| @BeforeClass | 在类中所有测试运行之前运行的方法   |
+| @AfterClass  | 在类中所有测试运行完毕后运行的方法 |
+| @Test        | 测试方法                           |
+| @Ignore      | 忽略掉本测试方法                   |
+
+
 * 操作系统历史 (Operate System History)
-#+BEGIN_SRC dot :file assets/dot/os_history.jpg :exports results
+#+BEGIN_SRC dot :file assets/dot/os_history.svg :exports results
   digraph os_history {
       graph [rankdir=LR,ranksep=.25];
       node [shape=Mrecord,color=lightblue,fontname=SimSun,fontsize=10,style=filled,fillcolor=aliceblue];
@@ -45,6 +57,7 @@
 #+END_SRC
 
 #+RESULTS:
-[[file:assets/dot/os_history.jpg]]
+[[file:assets/dot/os_history.svg]]
+
 
 

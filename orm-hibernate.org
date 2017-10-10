@@ -6,6 +6,7 @@
 2. 创建配置文件 hibernate.cfg.xml, 配置数据库连接
 3. 编写实体类(=entity=), 标明注解, 然后配置在 hibernate.cfg.xml 中
 4. 创建 =SessionFactory=, 获取 =Session=, 通过操作实体类操作数据库。
+
 * Session
 对象的三种状态：
 1. =Transient=, 瞬时状态，指的是对象已经被初始化，但没有跟 hibernate 的 session 建立过联系，即数据库里没有数据对应。
@@ -79,7 +80,6 @@ save/persist 方法会立刻为实体类对象生成主键。
   @GenericGenerator(name = "yyy", strategy = "table")
 
 #+END_SRC
-
 * Association
 ** 1-N
 一对多的关系，在数据库的角度，需要使用外键维护这种关系。
@@ -221,6 +221,22 @@ book/author 分别对应实体类 Book/Author，我们可以在其中任意一�
       private Person person;
   }
 #+END_SRC
+** Embed
+这不属于关联关系，只是一种包含：
+#+BEGIN_SRC java
+  @Entity
+  class Person {
+      @Embedded
+      private Name name;
+  }
+
+  @Embeddable
+  class Name {
+      String firstName;
+      String lastName;
+  }
+#+END_SRC
+
 * Inheritance
 ** SINGLE_TABLE
 将所有的东西塞进 *一张表* 中，即所有的子类跟父类使用一张表，
@@ -302,3 +318,198 @@ book/author 分别对应实体类 Book/Author，我们可以在其中任意一�
       private String address;
   }
 #+END_SRC
+
+**
+* 级联(Cascade)
+比如说，一个部门有很多员工，它们是多对一的关系。如果我们要删除1号部门：
+#+BEGIN_SRC java
+  Dept d = session.load(Dept.class, 1L);
+  session.delete(d);
+#+END_SRC
+
+我们会删除失败并得到一个异常，因为部门被员工数据引用，所以要删除部门前，需要先将引用到部门的所有员工删掉。
+
+如果我们不想手动删除部门内部员工，那么可以采取 *级联操作*，即对 =Dept= 实体类中的 =emps= 属性这样设置：
+#+BEGIN_SRC java
+  @OneToMany(mappedBy="dept", cascade=CascadeType.REMOVE)
+  private List<Emp> emps = new ArrayList<>();
+#+END_SRC
+
+那么，再去执行删除操作的时候，部门、连带它所有的员工，都会被删除。一步到位，快速绝伦。
+
+除了删除操作，级联的类型还有：
+- CascadeType.PERSIST
+- CascadeType.MERGE
+- CascadeType.REFRESH
+- CascadeType.ALL (快捷方式，代指所有)
+
+虽然 cascade 会让我们的代码更简介，使用更方便。但是，在工业环境中，*不建议使用 cascade 设置*。
+
+** 删除数据的方式
+第一种方法：
+#+BEGIN_SRC java
+  // 优点：快速简洁
+  // 缺点：不能关联删除
+  Product product = new Product();
+  product.setId(44L);
+  session.delete(product);
+#+END_SRC
+
+第二种方法：
+#+BEGIN_SRC java
+  // 优点，能关联删除
+  // 缺点，不直接
+  Product product = session.load(Product.class, id); // load, not get
+  session.delete(product);
+#+END_SRC
+
+第三种方法：
+#+BEGIN_SRC java
+  // 优点，更灵活
+  // 缺点，跟第一种方式一样，不能删除关联
+  int result = session
+      .createQuery("delete Product where id = :id")
+      .setParameter("id", 44L)
+      .executeUpdate();
+#+END_SRC
+
+* 查询
+** get/load
+根据主键进行查询。这是最基本，最高效的一种查询手段。
+
+** Query
+#+BEGIN_SRC java
+  //// 基本语法
+  String hql = "from xxx where yyy";
+  Query query = session.createQuery(hql);
+  query.setParameter("aaa", "bbb");
+  query.uniqueResult();
+  // 可以用链式语法简化语句
+  session.createQuery("from xxx where yyy").setParameter("aaa", "bbb").uniqueResult();
+
+
+  //// select 语句 和 返回值
+  from Emp e where e.name = 'x';           // 默认不需要写 select, 那么会将结果封装到 Emp 对象中
+  select e from Emp e where e.name = 'x';  // 上面的语句，跟此句是一致的
+  select name from Emp;                    // 返回值：Object
+  select name, salary from Emp;            // 返回值：Object[]
+  select new list(name) from Emp;          // 返回值：ArrayList
+  select new map(name, salary) from Emp;   // 返回值：HashMap
+  select new map(name as name, salary as sal) from Emp; // 定制 key 值
+  select new Boy(name, salary) from Emp;   // 返回值：Boy 对象
+
+
+  //// 得到返回结果
+  session.createQuery("from Book", Book.class).uniqueResult();
+  session.createQuery("from Book", Book.class).list();
+  session.createQuery("from Book", Book.class).iterate().next();
+  // 过滤操作
+  session.createFilter(customer.getOrders(), "where price > 5000").list();
+
+
+  //// 聚合函数及其他运算符的使用
+  // 返回值：Object[]
+  select max(salary), avg(salary), sum(salary) from Emp;
+  // group by
+  select max(salary), avg(salary), sum(salary) from Emp e group by e.department;
+  // 将结果封装到 map 中
+  select new map(max(salary) as maxsal, avg(salary) as avgsal, sum(salary) as sumsal) from Emp e group by e.department;
+  // 运算符和函数
+  select sum(salary + nvl(commission, 0)) as res from Emp;
+
+
+  //// join
+  // Query 不能使用 JOIN 抓取策略。Query 默认使用 select 语句进行关联数据的加载。
+  // 如果想强制使用 join 语句，需要通过 hql 语句指定：
+  /// 1. 隐式设置
+  from Emp e where e.department.location = 'NEW YORK';
+  /// 2. 显式调用
+  // fetch 决定最后结果的形式：
+  //   - 有 fetch: [Emp, Emp, ...]
+  //   - 无 fetch: [[Emp, Dept], [Emp, Dept]]
+  from Emp e join e.dept where e.name = 'xxx';
+  from Emp e left join e.dept where e.name = 'xxx';
+  from Emp e left join fetch e.dept where e.name = 'xxx';
+
+
+  //// 分页、总行数
+  long count = session.createQuery("select count(*) from Emp", Long.class).uniqueResult();
+  long count = session.createQuery("select count(*) from Emp", Long.class).iterate().next();
+  // oracle: rownum/row_number()
+  // sqlserver: top/row_number()
+  // mysql/sqlite: limit x offset y
+  // hibernate 通过下面语句屏蔽了底层细节:
+  /// 从 80 行开始，取 5 行记录
+  session.createQuery("from xxx").setFirstResult(80).setMaxResults(5).list();
+
+  //// delete & update
+  delete Emp where name = :oldName;
+  update Emp set name = :newName where id = :id;
+  // 级联操作的设置，对 Query 也是无效的，比如，想删除一个部门，需要先删除员工，再删部门：
+  delete Emp e where e.department.deptno = '#DN';
+  delete Dept where deptno = '#DN';
+#+END_SRC
+
+** Criteria
+** NativeSQL
+** NameQuery
+
+* Query Strategy
+一个实体类对象，里面有各个属性，这些属性的值可能不是在同一张表中。
+
+为了效率，需要有一定加载策略，主要两个方面：
+1. when，属性数据的加载时机，是否在加载这个实体类的时候就立刻加载。
+2. how，通过什么样的语句加载，select/join/其他。
+
+比如，有一个实体类，叫 =Girl=:
+#+BEGIN_SRC java
+  @Entity
+  public class Girl {
+      // 基本数据，保存在 girl 表中的数据:
+      //   select id, name from girl;
+      // 这种数据的默认加载机制是：
+      //   1. when: 立刻加载(EAGER)
+      //   2. how:  SELECT 语句
+      @Id private long id;
+      private String name;
+
+
+      // 关联数据，单结果，保存在 boy 表中的:
+      //   select * from boy where id='我的老父亲，您的编号';
+      // 这种方式的默认加载机制是：
+      //   1. when: 立刻加载(EAGER)
+      //   2. how:  LEFT JOIN 连接
+      @ManyToOne
+      private Boy father;
+
+      // 关联数据，结果集，保存在 bag 表中的
+      //   select * from bag where big_owner='女孩的编号';
+      // 这种属性数据的默认加载机制是：
+      //   1. when: 延迟加载(LAZY)
+      //   2. how:  SELECT 语句
+      @OneToMany(mappedBy = "girl")
+      private Set<Bag> bags = new HashSet();
+  }
+#+END_SRC
+
+如果我们调用 =session.load(Girl.class, 1L)=, 会加载编号为 1 的女孩的数据。
+
+她的数据分为三种：
+1. 基本数据，包含在 girl 表中的，比如 =id/name=。
+2. 关联数据/XtoOne，比如 =father= 属性。
+3. 关联数据/XtoMany，比如 =bags= 属性。
+
+可以通过 =fetch 属性/@Fetch 注解= 定制加载策略，分别对应 =when/how=, 例：
+#+BEGIN_SRC java
+  @ManyToOne(fetch = FetchType.EAGER)// 定义加载的时机(when)
+  @Fetch(FetchMode.SELECT)           // 定义加载语句的样式(how)
+  private Boy boyfriend;
+#+END_SRC
+
+- 如果 when 为 =EAGER=，默认的 how 为 =FetchMode.JOIN=
+- 如果 when 为 =EAGER=，可以定制使 how 为 =FetchMode.SELECT/SUBSELECT=
+- 如果 how 为 =JOIN=, 那么 when 只能是 =EAGER=
+- 如果设置了 =hibernate.default_batch_fetch_size= 或在实体类/集合上标注了 =@BatchSize=, 会对 =LAZY= 属性加载采取批量优化。
+- =@Fetch(FetchMode.SUBSELECT)= 可以优化 HQL 返回的列表的关联数据查询语句
+- *JOIN 策略对 Query 查询无效*，如需关联查询，在语句中显式调用 join 语句!
+

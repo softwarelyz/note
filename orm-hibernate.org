@@ -533,7 +533,7 @@ Criteria，标准、规范，它是 Criterion 的复数形式。
       .addEntity(Emp.class).list();
 
   // with alias
-  session.createNativeQuery("select e.* from emp ep where sal > 2000")
+  session.createNativeQuery("select e.* from emp e where sal > 2000")
       .addEntity("e", Emp.class)
       .list();
 
@@ -546,7 +546,7 @@ Criteria，标准、规范，它是 Criterion 的复数形式。
 
 将结果封装到普通对象(非实体类)。注意，必须要使用 =addScalar()= 设置字段:
 #+BEGIN_SRC java
-  session.createSQLQuery("select * from emp")
+  List<Person> persons = session.createSQLQuery("select * from emp")
     .addScalar("ename", StandardBasicType.INTEGER)
     .addScalar("salary", StandardBasicType.FLOAT)
     .setResultTransformer(Transforms.aliasToBean(Person.class))
@@ -614,3 +614,36 @@ Criteria，标准、规范，它是 Criterion 的复数形式。
 - =@Fetch(FetchMode.SUBSELECT)= 可以优化 HQL 返回的列表的关联数据查询语句
 - *JOIN 策略对 Query 查询无效*，如需关联查询，在语句中显式调用 join 语句!
 
+
+* N+1 问题
+比如，如果：
+: 打印出编号大于10的部门中的所有员工姓名。
+
+那么，语句大致如此：
+#+BEGIN_SRC java
+  String hql = "from Dept where depto > :dn";
+  List<Dept> depts = session.createQuery(hql, Dept.class)
+      .setParameter("dn", 10)
+      .list();
+
+  for(Dept dept: depts) {
+      for(Emp emp : dept.getEmps()) {
+          System.out.printf("部门: %s, 姓名: %s\n",
+                            dept.getName(),
+                            emp.getName());
+      }
+  }
+#+END_SRC
+
+因为 =@OneToMany= 默认是 =Lazy + SELECT= 策略，所以，每个部门的员工只有使用的时候才去查询。
+
+这就导致了上面的语句发送很多条 select 语句(N+1)，严重影响效率。
+
+*这就是 N+1 问题*。
+
+
+解决方案有主要有下面几种：
+1. 在 hql 语句中，使用 join 语句进行关联查询。
+2. 将 Dept#emps 的策略设置为 =SUBSELECT= 方式。
+3. 采取批量抓取的优化方式(=BatchSize=)，即在 Dept#emps 上面加上注解: =@BatchSize(size=n)=。
+4. 使用二级缓存。

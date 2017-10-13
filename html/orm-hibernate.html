@@ -2,7 +2,7 @@
 <html>
 <head>
 <title>Hibernate</title>
-<!-- 2017-10-11 Wed 14:45 -->
+<!-- 2017-10-13 Fri 10:42 -->
 <meta  charset="utf-8">
 <meta  name="generator" content="Org-mode">
 <meta  name="author" content="imfine">
@@ -812,10 +812,148 @@ delete Dept <span class="org-type">where</span> <span class="org-variable-name">
 
 <div id="outline-container-sec-7-3" class="outline-3">
 <h3 id="sec-7-3"><span class="section-number-3">7.3</span> Criteria</h3>
+<div class="outline-text-3" id="text-7-3">
+<p>
+Criteria，标准、规范，它是 Criterion 的复数形式。
+</p>
+
+<p>
+优势: 
+</p>
+<ul class="org-ul">
+<li>面向对象
+</li>
+<li>不用拼接sql，方便扩展
+</li>
+<li>统一性，跨数据库
+</li>
+</ul>
+
+<p>
+<b>Criteria 接口: 表示特定类的一个查询</b>
+</p>
+
+<p>
+<b>Criterion 接口: 表示一个限定条件</b>
+</p>
+
+<p>
+示例：
+</p>
+<div class="org-src-container">
+
+<pre class="src src-java"><span class="org-comment-delimiter">// </span><span class="org-comment">Session &#26159; Criteria &#30340;&#24037;&#21378;</span>
+<span class="org-comment-delimiter">// </span><span class="org-comment">Criterion &#30340;&#20027;&#35201;&#23454;&#29616;&#30001; Example&#12289;Junction &#21644; SimpleExpression</span>
+<span class="org-comment-delimiter">// </span><span class="org-comment">Criterion &#19968;&#33324;&#36890;&#36807; Restrictions &#25552;&#20379;&#30340;&#24037;&#21378;&#26041;&#27861;&#33719;&#24471;</span>
+<span class="org-type">List</span><span class="org-rainbow-delimiters-depth-1">&lt;</span><span class="org-type">Emp</span><span class="org-rainbow-delimiters-depth-1">&gt;</span> <span class="org-variable-name">emps</span> = session.createCriteria<span class="org-rainbow-delimiters-depth-1">(</span>Emp.<span class="org-keyword">class</span><span class="org-rainbow-delimiters-depth-1">)</span> <span class="org-comment-delimiter">// </span><span class="org-comment">&#21019;&#24314;</span>
+    .add<span class="org-rainbow-delimiters-depth-1">(</span> Restrictions.like<span class="org-rainbow-delimiters-depth-2">(</span><span class="org-string">"name"</span>, <span class="org-string">"K%"</span><span class="org-rainbow-delimiters-depth-2">)</span> <span class="org-rainbow-delimiters-depth-1">)</span>        <span class="org-comment-delimiter">// </span><span class="org-comment">&#27169;&#31946;</span>
+    .add<span class="org-rainbow-delimiters-depth-1">(</span> Restrictions.gt<span class="org-rainbow-delimiters-depth-2">(</span> <span class="org-string">"salary"</span>, 2000F <span class="org-rainbow-delimiters-depth-2">)</span> <span class="org-rainbow-delimiters-depth-1">)</span>     <span class="org-comment-delimiter">// </span><span class="org-comment">&#22823;&#20110;</span>
+    .addOrder<span class="org-rainbow-delimiters-depth-1">(</span> Order.desc<span class="org-rainbow-delimiters-depth-2">(</span><span class="org-string">"salary"</span><span class="org-rainbow-delimiters-depth-2">)</span> <span class="org-rainbow-delimiters-depth-1">)</span>              <span class="org-comment-delimiter">// </span><span class="org-comment">&#25490;&#24207;-1</span>
+    .addOrder<span class="org-rainbow-delimiters-depth-1">(</span> Order.desc<span class="org-rainbow-delimiters-depth-2">(</span><span class="org-string">"commission"</span><span class="org-rainbow-delimiters-depth-2">)</span> <span class="org-rainbow-delimiters-depth-1">)</span>          <span class="org-comment-delimiter">// </span><span class="org-comment">&#25490;&#24207;-2</span>
+    .list<span class="org-rainbow-delimiters-depth-1">()</span>;
+
+<span class="org-comment-delimiter">// </span><span class="org-comment">&#32422;&#26463;&#21487;&#20197;&#25353;&#36923;&#36753;&#20998;&#32452;</span>
+<span class="org-type">List</span><span class="org-rainbow-delimiters-depth-1">&lt;</span><span class="org-type">Emp</span><span class="org-rainbow-delimiters-depth-1">&gt;</span> <span class="org-variable-name">emps</span> = sess.createCriteria<span class="org-rainbow-delimiters-depth-1">(</span>Emp.<span class="org-keyword">class</span><span class="org-rainbow-delimiters-depth-1">)</span>
+    .add<span class="org-rainbow-delimiters-depth-1">(</span> Restrictions.like<span class="org-rainbow-delimiters-depth-2">(</span><span class="org-string">"name"</span>, <span class="org-string">"K%"</span><span class="org-rainbow-delimiters-depth-2">)</span> <span class="org-rainbow-delimiters-depth-1">)</span>
+    .add<span class="org-rainbow-delimiters-depth-1">(</span> Restrictions.or<span class="org-rainbow-delimiters-depth-2">(</span> Restrictions.ge<span class="org-rainbow-delimiters-depth-3">(</span> <span class="org-string">"salary"</span>, 3000F <span class="org-rainbow-delimiters-depth-3">)</span>,
+                           Restrictions.isNotNull<span class="org-rainbow-delimiters-depth-3">(</span><span class="org-string">"commission"</span><span class="org-rainbow-delimiters-depth-3">)</span> <span class="org-rainbow-delimiters-depth-2">)</span> <span class="org-rainbow-delimiters-depth-1">)</span>
+    .list<span class="org-rainbow-delimiters-depth-1">()</span>;
+
+<span class="org-comment-delimiter">// </span><span class="org-comment">Property~Example &#26159;&#28155;&#21152;&#32422;&#26463;&#30340;&#21478;&#20004;&#31181;&#26041;&#27861;</span>
+<span class="org-type">List</span><span class="org-rainbow-delimiters-depth-1">&lt;</span><span class="org-type">Emp</span><span class="org-rainbow-delimiters-depth-1">&gt;</span> <span class="org-variable-name">emps</span> = session.createCriteria<span class="org-rainbow-delimiters-depth-1">(</span>Emp.<span class="org-keyword">class</span><span class="org-rainbow-delimiters-depth-1">)</span>
+    .add<span class="org-rainbow-delimiters-depth-1">(</span>Property.forName<span class="org-rainbow-delimiters-depth-2">(</span><span class="org-string">"name"</span><span class="org-rainbow-delimiters-depth-2">)</span>.eq<span class="org-rainbow-delimiters-depth-2">(</span><span class="org-string">"KING"</span><span class="org-rainbow-delimiters-depth-2">)</span><span class="org-rainbow-delimiters-depth-1">)</span> <span class="org-comment-delimiter">// </span><span class="org-comment">Property</span>
+    .add<span class="org-rainbow-delimiters-depth-1">(</span>Example.create<span class="org-rainbow-delimiters-depth-2">(</span>king<span class="org-rainbow-delimiters-depth-2">)</span><span class="org-rainbow-delimiters-depth-1">)</span>    <span class="org-comment-delimiter">// </span><span class="org-comment">&#23558; king &#19978;&#30340;&#25968;&#25454;&#23553;&#35013;&#25104;&#26465;&#20214;</span>
+    .list<span class="org-rainbow-delimiters-depth-1">()</span>;
+
+<span class="org-comment-delimiter">//// </span><span class="org-comment">&#20851;&#32852;&#26597;&#35810;</span>
+<span class="org-type">List</span><span class="org-rainbow-delimiters-depth-1">&lt;</span><span class="org-type">Emp</span><span class="org-rainbow-delimiters-depth-1">&gt;</span> <span class="org-variable-name">emps</span> = session.createCriteria<span class="org-rainbow-delimiters-depth-1">(</span>Emp.<span class="org-keyword">class</span><span class="org-rainbow-delimiters-depth-1">)</span>
+    .createCriteria<span class="org-rainbow-delimiters-depth-1">(</span><span class="org-string">"depts"</span><span class="org-rainbow-delimiters-depth-1">)</span>      <span class="org-comment-delimiter">// </span><span class="org-comment">vs. createAlias</span>
+    .add<span class="org-rainbow-delimiters-depth-1">(</span> Restrictions.eq<span class="org-rainbow-delimiters-depth-2">(</span><span class="org-string">"location"</span>, <span class="org-string">"NEW YORK"</span><span class="org-rainbow-delimiters-depth-2">)</span> <span class="org-rainbow-delimiters-depth-1">)</span>
+    .list<span class="org-rainbow-delimiters-depth-1">()</span>;
+
+<span class="org-comment-delimiter">//// </span><span class="org-comment">Projections &#25552;&#20379;&#25237;&#24433;&#26597;&#35810;&#65292;&#24182;&#33021;&#20998;&#32452;&#32858;&#21512;</span>
+<span class="org-comment-delimiter">// </span><span class="org-comment">&#25237;&#24433;&#26465;&#20214;</span>
+<span class="org-type">ProjectionList</span> <span class="org-variable-name">projectionList</span> = Projections.projectionList<span class="org-rainbow-delimiters-depth-1">()</span>
+    .add<span class="org-rainbow-delimiters-depth-1">(</span> Projections.property<span class="org-rainbow-delimiters-depth-2">(</span><span class="org-string">"dept"</span><span class="org-rainbow-delimiters-depth-2">)</span> <span class="org-rainbow-delimiters-depth-1">)</span>
+    .add<span class="org-rainbow-delimiters-depth-1">(</span> Projections.rowCount<span class="org-rainbow-delimiters-depth-2">()</span> <span class="org-rainbow-delimiters-depth-1">)</span>
+    .add<span class="org-rainbow-delimiters-depth-1">(</span> Projections.max<span class="org-rainbow-delimiters-depth-2">(</span><span class="org-string">"salary"</span><span class="org-rainbow-delimiters-depth-2">)</span> <span class="org-rainbow-delimiters-depth-1">)</span>
+    .add<span class="org-rainbow-delimiters-depth-1">(</span> Projections.sum<span class="org-rainbow-delimiters-depth-2">(</span><span class="org-string">"salary"</span>, <span class="org-string">"sum"</span> <span class="org-rainbow-delimiters-depth-2">)</span> <span class="org-rainbow-delimiters-depth-1">)</span>
+    .add<span class="org-rainbow-delimiters-depth-1">(</span> Projections.groupProperty<span class="org-rainbow-delimiters-depth-2">(</span><span class="org-string">"dept"</span><span class="org-rainbow-delimiters-depth-2">)</span> <span class="org-rainbow-delimiters-depth-1">)</span>;
+<span class="org-comment-delimiter">// </span><span class="org-comment">&#26597;&#35810;&#32467;&#26524;</span>
+<span class="org-type">List</span><span class="org-rainbow-delimiters-depth-1">&lt;</span><span class="org-type">Object</span><span class="org-rainbow-delimiters-depth-2">[]</span><span class="org-rainbow-delimiters-depth-1">&gt;</span> <span class="org-variable-name">rs</span> = session.createCriteria<span class="org-rainbow-delimiters-depth-1">(</span>Emp.<span class="org-keyword">class</span><span class="org-rainbow-delimiters-depth-1">)</span>
+    .setProjection<span class="org-rainbow-delimiters-depth-1">(</span> projectionList <span class="org-rainbow-delimiters-depth-1">)</span>
+    .addOrder<span class="org-rainbow-delimiters-depth-1">(</span> Order.asc<span class="org-rainbow-delimiters-depth-2">(</span><span class="org-string">"sum"</span><span class="org-rainbow-delimiters-depth-2">)</span> <span class="org-rainbow-delimiters-depth-1">)</span>
+    .list<span class="org-rainbow-delimiters-depth-1">()</span>;
+</pre>
+</div>
+</div>
 </div>
 <div id="outline-container-sec-7-4" class="outline-3">
 <h3 id="sec-7-4"><span class="section-number-3">7.4</span> NativeSQL</h3>
+<div class="outline-text-3" id="text-7-4">
+<p>
+基本语法，默认的返回的结果为 Object[]:
+</p>
+<div class="org-src-container">
+
+<pre class="src src-java">session.createNativeQuery<span class="org-rainbow-delimiters-depth-1">(</span><span class="org-string">"select ename, sal from emp"</span><span class="org-rainbow-delimiters-depth-1">)</span>.list<span class="org-rainbow-delimiters-depth-1">()</span>;
+session.createNativeQuery<span class="org-rainbow-delimiters-depth-1">(</span><span class="org-string">"select * from emp"</span><span class="org-rainbow-delimiters-depth-1">)</span>.list<span class="org-rainbow-delimiters-depth-1">()</span>;
+session.createNativeQuery<span class="org-rainbow-delimiters-depth-1">(</span><span class="org-string">"select * from emp e, dept d where e.deptno=d.deptno and d.loc=:loc"</span><span class="org-rainbow-delimiters-depth-1">)</span>
+    .setParameter<span class="org-rainbow-delimiters-depth-1">(</span><span class="org-string">"loc"</span>, <span class="org-string">"NEW YORK"</span><span class="org-rainbow-delimiters-depth-1">)</span>
+    .list<span class="org-rainbow-delimiters-depth-1">()</span>;
+</pre>
 </div>
+
+<p>
+可以通过 <code>addScalar()</code> 设置返回类型，并限定结果:
+</p>
+<div class="org-src-container">
+
+<pre class="src src-java"><span class="org-comment-delimiter">// </span><span class="org-comment">&#19979;&#38754;&#30340;&#26597;&#35810;&#65292;&#24471;&#21040;&#30340;&#32467;&#26524;&#20026; Object[], &#21253;&#21547;&#20004;&#20010;&#20803;&#32032;&#65306;0:id / 1:name</span>
+session.createNativeQuery<span class="org-rainbow-delimiters-depth-1">(</span><span class="org-string">"select * from emp where id=9999"</span><span class="org-rainbow-delimiters-depth-1">)</span>
+    .addScalar<span class="org-rainbow-delimiters-depth-1">(</span><span class="org-string">"empno"</span>, <span class="org-constant">StandardBasicType</span>.INTEGER<span class="org-rainbow-delimiters-depth-1">)</span>
+    .addScalar<span class="org-rainbow-delimiters-depth-1">(</span><span class="org-string">"ename"</span>, <span class="org-constant">StandardBasicType</span>.STRING<span class="org-rainbow-delimiters-depth-1">)</span>
+    .list<span class="org-rainbow-delimiters-depth-1">()</span>;
+</pre>
+</div>
+
+<p>
+也可以将结果封装到 Entity(实体类) 中:
+</p>
+<div class="org-src-container">
+
+<pre class="src src-java"><span class="org-comment-delimiter">// </span><span class="org-comment">simplest</span>
+session.createNativeQuery<span class="org-rainbow-delimiters-depth-1">(</span><span class="org-string">"select * from emp where sal &gt; 2000"</span><span class="org-rainbow-delimiters-depth-1">)</span>
+    .addEntity<span class="org-rainbow-delimiters-depth-1">(</span>Emp.<span class="org-keyword">class</span><span class="org-rainbow-delimiters-depth-1">)</span>.list<span class="org-rainbow-delimiters-depth-1">()</span>;
+
+<span class="org-comment-delimiter">// </span><span class="org-comment">with alias</span>
+session.createNativeQuery<span class="org-rainbow-delimiters-depth-1">(</span><span class="org-string">"select e.* from emp ep where sal &gt; 2000"</span><span class="org-rainbow-delimiters-depth-1">)</span>
+    .addEntity<span class="org-rainbow-delimiters-depth-1">(</span><span class="org-string">"e"</span>, Emp.<span class="org-keyword">class</span><span class="org-rainbow-delimiters-depth-1">)</span>
+    .list<span class="org-rainbow-delimiters-depth-1">()</span>;
+
+<span class="org-comment-delimiter">// </span><span class="org-comment">multiple</span>
+session.createNativeQuery<span class="org-rainbow-delimiters-depth-1">(</span><span class="org-string">"select e.*, d.* from emp e join dept d using (deptno) where e.sal &gt; 2000"</span><span class="org-rainbow-delimiters-depth-1">)</span>
+    .addEntity<span class="org-rainbow-delimiters-depth-1">(</span><span class="org-string">"e"</span>, Emp.<span class="org-keyword">class</span><span class="org-rainbow-delimiters-depth-1">)</span>
+    .addEntity<span class="org-rainbow-delimiters-depth-1">(</span><span class="org-string">"d"</span>, Dept.<span class="org-keyword">class</span><span class="org-rainbow-delimiters-depth-1">)</span>
+    .list<span class="org-rainbow-delimiters-depth-1">()</span>;
+</pre>
+</div>
+
+<p>
+将结果封装到普通对象(非实体类)。注意，必须要使用 <code>addScalar()</code> 设置字段:
+</p>
+<div class="org-src-container">
+
+<pre class="src src-java">session.createSQLQuery<span class="org-rainbow-delimiters-depth-1">(</span><span class="org-string">"select * from emp"</span><span class="org-rainbow-delimiters-depth-1">)</span>
+  .addScalar<span class="org-rainbow-delimiters-depth-1">(</span><span class="org-string">"ename"</span>, <span class="org-constant">StandardBasicType</span>.INTEGER<span class="org-rainbow-delimiters-depth-1">)</span>
+  .addScalar<span class="org-rainbow-delimiters-depth-1">(</span><span class="org-string">"salary"</span>, <span class="org-constant">StandardBasicType</span>.FLOAT<span class="org-rainbow-delimiters-depth-1">)</span>
+  .setResultTransformer<span class="org-rainbow-delimiters-depth-1">(</span>Transforms.aliasToBean<span class="org-rainbow-delimiters-depth-2">(</span>Person.<span class="org-keyword">class</span><span class="org-rainbow-delimiters-depth-2">)</span><span class="org-rainbow-delimiters-depth-1">)</span>
+  .list<span class="org-rainbow-delimiters-depth-1">()</span>;
+</pre>
+</div>
+</div>
+</div>
+
 <div id="outline-container-sec-7-5" class="outline-3">
 <h3 id="sec-7-5"><span class="section-number-3">7.5</span> NameQuery</h3>
 </div>
@@ -919,7 +1057,7 @@ delete Dept <span class="org-type">where</span> <span class="org-variable-name">
 </div>
 <div id="postamble" class="status">
 <p class="author">Author: imfine</p>
-<p class="date">Created: 2017-10-11 Wed 14:45</p>
+<p class="date">Created: 2017-10-13 Fri 10:42</p>
 <p class="creator"><a href="http://www.gnu.org/software/emacs/">Emacs</a> 25.2.1 (<a href="http://orgmode.org">Org</a> mode 8.2.10)</p>
 <p class="validation">Go ahead, never stop.</p>
 </div>

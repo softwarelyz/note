@@ -451,7 +451,108 @@ book/author 分别对应实体类 Book/Author，我们可以在其中任意一�
 #+END_SRC
 
 ** Criteria
+Criteria，标准、规范，它是 Criterion 的复数形式。
+
+优势: 
+- 面向对象
+- 不用拼接sql，方便扩展
+- 统一性，跨数据库
+
+*Criteria 接口: 表示特定类的一个查询*
+
+*Criterion 接口: 表示一个限定条件*
+
+示例：
+#+BEGIN_SRC java
+  // Session 是 Criteria 的工厂
+  // Criterion 的主要实现由 Example、Junction 和 SimpleExpression
+  // Criterion 一般通过 Restrictions 提供的工厂方法获得
+  List<Emp> emps = session.createCriteria(Emp.class) // 创建
+      .add( Restrictions.like("name", "K%") )        // 模糊
+      .add( Restrictions.gt( "salary", 2000F ) )     // 大于
+      .addOrder( Order.desc("salary") )              // 排序-1
+      .addOrder( Order.desc("commission") )          // 排序-2
+      .list();
+
+  // 约束可以按逻辑分组
+  List<Emp> emps = sess.createCriteria(Emp.class)
+      .add( Restrictions.like("name", "K%") )
+      .add( Restrictions.or( Restrictions.ge( "salary", 3000F ),
+                             Restrictions.isNotNull("commission") ) )
+      .list();
+
+  // Property~Example 是添加约束的另两种方法
+  List<Emp> emps = session.createCriteria(Emp.class)
+      .add(Property.forName("name").eq("KING")) // Property
+      .add(Example.create(king))    // 将 king 上的数据封装成条件
+      .list();
+
+  //// 关联查询
+  List<Emp> emps = session.createCriteria(Emp.class)
+      .createCriteria("depts")      // vs. createAlias
+      .add( Restrictions.eq("location", "NEW YORK") )
+      .list();
+
+  //// Projections 提供投影查询，并能分组聚合
+  // 投影条件
+  ProjectionList projectionList = Projections.projectionList()
+      .add( Projections.property("dept") )
+      .add( Projections.rowCount() )
+      .add( Projections.max("salary") )
+      .add( Projections.sum("salary", "sum" ) )
+      .add( Projections.groupProperty("dept") );
+  // 查询结果
+  List<Object[]> rs = session.createCriteria(Emp.class)
+      .setProjection( projectionList )
+      .addOrder( Order.asc("sum") )
+      .list();
+#+END_SRC
 ** NativeSQL
+基本语法，默认的返回的结果为 Object[]:
+#+BEGIN_SRC java
+  session.createNativeQuery("select ename, sal from emp").list();
+  session.createNativeQuery("select * from emp").list();
+  session.createNativeQuery("select * from emp e, dept d where e.deptno=d.deptno and d.loc=:loc")
+      .setParameter("loc", "NEW YORK")
+      .list();
+#+END_SRC
+
+可以通过 =addScalar()= 设置返回类型，并限定结果:
+#+BEGIN_SRC java
+  // 下面的查询，得到的结果为 Object[], 包含两个元素：0:id / 1:name
+  session.createNativeQuery("select * from emp where id=9999")
+      .addScalar("empno", StandardBasicType.INTEGER)
+      .addScalar("ename", StandardBasicType.STRING)
+      .list();
+#+END_SRC
+
+也可以将结果封装到 Entity(实体类) 中:
+#+BEGIN_SRC java
+  // simplest
+  session.createNativeQuery("select * from emp where sal > 2000")
+      .addEntity(Emp.class).list();
+
+  // with alias
+  session.createNativeQuery("select e.* from emp ep where sal > 2000")
+      .addEntity("e", Emp.class)
+      .list();
+
+  // multiple
+  session.createNativeQuery("select e.*, d.* from emp e join dept d using (deptno) where e.sal > 2000")
+      .addEntity("e", Emp.class)
+      .addEntity("d", Dept.class)
+      .list();
+#+END_SRC
+
+将结果封装到普通对象(非实体类)。注意，必须要使用 =addScalar()= 设置字段:
+#+BEGIN_SRC java
+  session.createSQLQuery("select * from emp")
+    .addScalar("ename", StandardBasicType.INTEGER)
+    .addScalar("salary", StandardBasicType.FLOAT)
+    .setResultTransformer(Transforms.aliasToBean(Person.class))
+    .list();
+#+END_SRC
+
 ** NameQuery
 
 * Query Strategy

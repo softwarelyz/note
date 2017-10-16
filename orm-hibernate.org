@@ -647,3 +647,54 @@ Criteria，标准、规范，它是 Criterion 的复数形式。
 2. 将 Dept#emps 的策略设置为 =SUBSELECT= 方式。
 3. 采取批量抓取的优化方式(=BatchSize=)，即在 Dept#emps 上面加上注解: =@BatchSize(size=n)=。
 4. 使用二级缓存。
+* 缓存(Cache)
+缓存分为三种：事务范围；应用范围；集群范围。
+
+二级缓存是应用范围的缓存机制。适合放入二级缓存的数据：
+- 很少修改，不会修改，或不允许被更改的数据（常量数据）
+- 不是很重要，允许偶尔出错的数据
+
+而一些重要的数据或者修改频繁的数据，是不适合放到缓存里的。
+
+*配置使用二级缓存过程：*
+1. 加入 JAR 包支持：
+   : "org.hibernate:hibernate-ehcache:5.2.11.Final"
+2. 配置 /ehcache.xml [可选]
+3. 在 hibernate.cfg.xml 中启用:
+   : <prop key="hibernate.cache.use_second_level_cache">true</prop>
+   : <prop key="hibernate.cache.use_query_cache">true</prop>
+   : <prop key="hibernate.cache.region.factory_class">org.hibernate.cache.ehcache.SingletonEhCacheRegionFactory</prop>
+4. 配置要被缓存的类或集合
+   #+BEGIN_SRC java
+     @Cachable
+     @Cache(usage = CacheConcurrencyStrategy.NONSTRICT_READ_WRITE)
+   #+END_SRC
+5. 使用示例
+   #+BEGIN_SRC java
+     session.createQuery("from Employee where id=7782").setCacheable(true).list();
+     session.createQuery("from Employee where id=7782").setCacheable(true).list();
+     session.createQuery("from Employee where id=7782").setCacheable(true).list();
+   #+END_SRC
+* 锁(Lock)
+Hibernate 中，设置锁定有下面三种方式：
+#+BEGIN_SRC java
+  session.load(Male.class, 1L, LockMode.WRITE)
+  session.lock(m, LockModeType.WRITE);
+  session.createQuery(hql).setLockMode(LockModeType.PESSIMISTIC_WRITE);
+#+END_SRC
+
+Hibernate 中锁的类型，分为两种：
+1. 悲观锁。使用数据库底层的 =for update= 语句。数据会被锁定，直到事务结束。
+2. 乐观锁。使用实体类中的额外字段( =@Version= )。
+   #+BEGIN_SRC sql
+     -- 它会在初次读取数据时将 version 一起读出，得到【版本号】，比如 10
+     -- 等到提交数据的时候，发送下面语句：
+     update xxx set version = 10 + 1, ... where id = 2 and version = 10;
+
+     -- 如果数据被别人修改过，那么 version 已经不是 10，所以上面语句不会更新到任何数据。
+     -- 同样，hibernate 会抛出下面异常：
+     ---- javax.persistence.OptimisticLockException: Batch update returned unexpected row count from update [0]; actual row count: 0; expected: 1
+     -- 从而防止了数据的修改冲突。
+   #+END_SRC
+
+悲观锁更适用于修改频率大，读取不多的数据。乐观锁适用于修改非常少，但读取特别多的数据。悲观锁需要耗费更多资源。

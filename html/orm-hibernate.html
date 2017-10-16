@@ -2,7 +2,7 @@
 <html>
 <head>
 <title>Hibernate</title>
-<!-- 2017-10-16 Mon 16:18 -->
+<!-- 2017-10-16 Mon 16:21 -->
 <meta  charset="utf-8">
 <meta  name="generator" content="Org-mode">
 <meta  name="author" content="imfine">
@@ -1196,7 +1196,7 @@ Hibernate 中锁的类型，分为两种：
 <ol class="org-ol">
 <li>悲观锁。使用数据库底层的 <code>for update</code> 语句。数据会被锁定，直到事务结束。
 </li>
-<li>乐观锁。使用实体类中的额外字段( <code>@Version</code> )。
+<li>乐观锁。使用实体类中的额外字段( <code>@Version</code> )。它不会真正在数据上加锁，而是用版本号区别记录的不同。
 <div class="org-src-container">
 
 <pre class="src src-sql"><span class="org-comment">-- &#23427;&#20250;&#22312;&#21021;&#27425;&#35835;&#21462;&#25968;&#25454;&#26102;&#23558; version &#19968;&#36215;&#35835;&#20986;&#65292;&#24471;&#21040;&#12304;&#29256;&#26412;&#21495;&#12305;&#65292;&#27604;&#22914; 10</span>
@@ -1220,7 +1220,7 @@ Hibernate 中锁的类型，分为两种：
 </div>
 <div id="postamble" class="status">
 <p class="author">Author: imfine</p>
-<p class="date">Created: 2017-10-16 Mon 16:18</p>
+<p class="date">Created: 2017-10-16 Mon 16:21</p>
 <p class="creator"><a href="http://www.gnu.org/software/emacs/">Emacs</a> 25.2.1 (<a href="http://orgmode.org">Org</a> mode 8.2.10)</p>
 <p class="validation">Go ahead, never stop.</p>
 </div>

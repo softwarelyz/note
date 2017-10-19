@@ -579,3 +579,7 @@ p.verse {
 .org-widget-field { /* widget-field */ background-color: #d9d9d9; }
 .org-widget-inactive { /* widget-inactive */ color: #7f7f7f; }
 .org-widget-single-line-field { /* widget-single-line-field */ background-color: #d9d9d9; }
+.org-nxml-comment-delimiter, .org-nxml-comment-content { color: #999988; font-style: italic; }
+.org-nxml-element-local-name { color: teal; }
+.org-nxml-attribute-local-name { color: #228d22; }
+.org-nxml-namespace-attribute-value, .org-nxml-attribute-value { color: #dd1144; }

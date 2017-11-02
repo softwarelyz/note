@@ -2,107 +2,900 @@
 
 
 * 序
-步骤：
-1. 创建 Gradle 项目
-2. 增加 jar 包支持：
-   : org.apache.struts:struts2-core:2.5.11
-3. 配置 web.xml，让struts 拦截并处理所有来自客户端的请求
+Struts 是一个 MVC 框架，它的核心是 *拦截器* 和 *值栈*:
+- 每个拦截器实现单一功能，拦截器的组合实现了整个流程处理。
+- 值栈承载数据，通过值栈统一了数据的处理逻辑，简单而且高效。
+
+创建 struts 项目的大致顺序如下:
+1. 创建工程，引入 jar 包
+   : org.apache.struts:struts2-core:+
+2. 配置 web.xml，拦截所有请求
    #+BEGIN_SRC xml
      <filter>
        <filter-name>abc</filter-name>
-       <filter-class>org.apache.struts2.dispatcher.filter.StrutsPrepareAndExecuteFilter</filter-class>
+       <filter-class>StrutsPrepareAndExecuteFilter</filter-class>
      </filter>
      <filter-mapping>
        <filter-name>abc</filter-name>
-       <url-pattern>/*</url-pattern>
-     </filter-mapping>   
+       <url-partern>/*</url-partern>
+     </filter-mapping>
    #+END_SRC
-4. classpath 下添加 struts.xml 文件，定义变量，定义包，定义 Action
+3. 配置 struts.xml, 实现 action，实现 jsp (=MVC=)
+
+   C:
    #+BEGIN_SRC xml
-     <?xml version="1.0" encoding="UTF-8"?>
-     <!DOCTYPE struts PUBLIC "-//Apache Software Foundation//DTD Struts Configuration 2.5//EN" "http://struts.apache.org/dtds/struts-2.5.dtd">
-     <struts>
-         <!-- 开启开发模式，这样可以在 jsp 中使用 s:debug 查看变量 -->
-         <constant name="struts.devMode" value="true" />
-         <!--默认的扩展名为 .action，但是我们可以定制它-->
-         <constant name="struts.action.extension" value="html" />
-         
-         <!-- 用 package 来划分各个模块，主要用来方便维护管理 -->
-         <!-- 需要继承默认的 struts-default, 这是 struts 内置定义的一个 package, 里面预先定义了很多东西 -->
-         <package name="default" namespace="/" extends="struts-default">
-             <!--
-               url: /emplist
-               由哪个类 的哪个方法 去处理，
-               如果请求成功，应该由哪个JSP去渲染页面
-                   如果 result 不带 name，默认指的是 success
-                   如果请求中有验证错误，默认返回名字为 input 的 result
-             -->
-             <action name="emplist" class="com.nf.empst.action.EmpAction" method="emplist">
-                 <result>/view/emplist.jsp</result>
-                 <result name="input">/view/emplist.jsp</result>
-             </action>        
-         </package>
-     </struts>
+     <contant name="devMode" value="true" />
+
+     <package name="emp" namespace="/emp" extends="struts-default">
+       <action name="list" class="EmpAction" method="emplist">
+         <result name="success" type="dispatcher">/emplist.jsp</result>
+       </action>
+     </package>
    #+END_SRC
-5. 实现 =Action#emplist= 方法, 用来响应 =/emplist.action= 的请求
+
+   M:
    #+BEGIN_SRC java
-     // *最好*要继承 ActionSupport，这个类定义了一些常用变量，并且简单实现了一些常用接口
-     // 尤其它为数据验证和国际化提供了一些支持
-     public class EmpAction extends ActionSupport {
-         // 变量定义
-         //   1. 可以用来接收来自请求中的 parameter
-         //   2. 也可以用来保存用来在 JSP 页面渲染的数据
+     public class EmpAction extends ActionSpport {
          private String name;
          private List<Emp> emps = new ArrayList<>();
 
-         // 本类中所有 action 方法公有的验证方法
-         // 如果在这个环节出错，那么相应 action 方法将不会执行
-         public void validate() {
-             if(name == null || name.isEmpty()) {
-                 addFieldError("name", "姓名出错!");  // 增加错误的方法。错误有 fieldError/actionError 等类型。
-             }
-         }
-
-         // 格式为 validateXXX, 名字为 XXX 的 action 方法的独有验证方法
-         public void validateEmplist() {
-             // 继续增加其他验证
-             // ...
-             if(hasErrors()) {
-                 // 产生了某些验证错误，将不会继续执行 action 方法，而是转到 input 页面
-             }
-         }
-
-         // action 方法，对应 ‘/emplist.action’ 请求
          public String emplist() {
-             emps = new EmpDAO().getAll();
+             emps = empDAO.findByName(name);
              return SUCCESS;
          }
-     }
+      }
    #+END_SRC
-6. 实现视图层(view)，即实现页面渲染，即 jsp:
-   #+BEGIN_SRC html
-     <head>
-       <!-- 用来提供一些内置的样式 -->
-       <s:head />
-     </head>
 
+   V:
+   #+BEGIN_SRC html
      <ul>
-       <!-- 循环迭代显示数据 -->
        <s:iterator value="emps" var="e" status="s">
-         <li>${s.index} / ${e.name} / ${e.salary}> </li>
+         <li>${s.index}: ${e.name} | ${e.salary}</li>
        </s:iterator>
      </ul>
-
-     <!-- 利用标签快速生成格式化的表单 -->
-     <s:form action="empsave">
-       <s:textfield name="ename" />
-       <s:select name="deptno" list="depts" />
-       <s:submit value="s" />
-     </s:form>
-
-     <footer>
-       <!-- 用来显示可用数据 -->
-       <s:debug />
-     </footer>
    #+END_SRC
- 
+5. 部署，启动，看效果。
+
+* 流程
+#+DOWNLOADED: http://images.51cto.com/files/uploadimg/20120830/0958370.gif @ 2017-11-02 11:42:27
+[[file:assets/image/mvc-struts/0958370_2017-11-02_11-42-27.gif]]
+
+1. 请求发送给 StrutsPrepareAndExecuteFilter
+2. StrutsPrepareAndExecuteFilter 询问 ActionMapper：请求是否 Action(是的话返回非空的 ActionMapping)
+3. 如果上一步确定请求时 Action，则把请求交给 ActionProxy 处理。 ActionProxy 是 xwork 和 struts 的连接层。
+4. ActionProxy 通过 ConfigurationManager 加载配置文件，确定相关 Action 类和方法。
+5. ActionProxy 创建一个 ActionInvocation 实例并初始化。
+6. ActionInvocation 负责调用 Action，在调用的前后，需要执行 Interceptor 链(默认是 =defaultStack=)。在调用完 Action 后要执行 result 的结果。
+7. 把结果发送到客户端。
+
+** defaultStack
++ =exception= - 异常处理，包在最外面
++ =servletConfig= - 处理 xxxAware 接口
++ =i18n= - 处理国际化
++ =prepare= - 如果实现了 preparable 接口，则寻找并执行 pepareXxx/repareDoXxx
++ =chain= - 如果 type 是 chain 则复制值栈
++ =scopedModelDriven= - 在 request/session 范围内查找并初始化 model
++ =modelDriven= - 调用 getModel 方法，初始化 model 并压栈
++ =fileUpload= - 处理文件上传(MultiPartRequestWrapper 请求)
++ =checkbox= - 将隐藏域的 checkbox 赋值为 false
++ =datetime= - 格式化 text 域中的时间
++ =multiselect= - 为 __multiselect_ 赋值 null
++ =staticParams= - 把配置中的静态参数填装到 Action 中
++ =actionMappingParams= - 把 actionMapping 里的参数压栈
++ =params= - 封装请求参数到值栈
++ =conversionError= - 处理转型错误
++ =validation= - 进行编程验证
++ =workflow= - 处理验证错误，跳转 input 页面
++ =debugging= - 处理 devMode 等
+
+** StrutsPrepareAndExecuteFilter
+如果需要用到其他过滤器，为了不影响 Struts 功能，需要把 StrutsPrepareAndExecuteFilter 拆分，再将自己的过滤器插入中间:
+: StrutsPrepareAndExecuteFilter = StrutsPrepareFilter + StrutsExecuteFilter
+
+比如，如果使用 SiteMesh 进行页面装饰：
+#+BEGIN_SRC xml
+  <filter-mapping>
+     <filter-name>StrutsPrepareFilter</filter-name>
+     <url-pattern>/*</url-pattern>
+  </filter-mapping>
+  <filter-mapping>
+     <filter-name>sitemesh</filter-name>
+     <url-pattern>/*</url-pattern>
+  </filter-mapping>
+  <filter-mapping>
+     <filter-name>StrutsExecuteFilter</filter-name>
+     <url-pattern>/*</url-pattern>
+  </filter-mapping>
+#+END_SRC
+
+* 值栈
+值栈是 struts 中数据传递处理的核心，它的基础是 OGNL，是一种 EL 表达式。
+
+** OGNL
+OGNL 是 Struts2 中值栈的基础:
+1. 三要素： Expression, Root, Context.
+2. 核心： getValue.. setValue..
+
+As:
+#+BEGIN_SRC java
+  // Prepare Data
+  Person p1 = new Person("sharry");
+  Person p2 = new Person("shatom");
+  Person p3 = new Person("shahat");
+
+
+  /* Get Value from Single Object */
+  String name = Ognl.getValue("name", p1);
+  String name = Ognl.getValue("name", p1, String.class);
+
+
+  /* Multiple Objects, with a Map Container */
+  Map<String, Object> context = new HashMap<>();
+  context.put("req", p1);
+  context.put("ses", p2);
+  context.put("app", p3);
+  // expression
+  Ognl.getValue("name", p2);
+  Ognl.getValue("name", context, p2);
+  Ognl.getValue("#app.name", context, p2);
+
+
+  /* Map -> OgnlContext */
+  OgnlContext context = new OgnlContext();
+  context.put("req", p1);
+  context.put("ses", p2);
+  context.put("app", p3);
+  context.setRoot(p1);
+  // params: [expression, context, root]
+  Ognl.getValue("name.length()", context, context.getRoot());           // default, from root
+  Ognl.getValue("#app.name.toUpperCase()", context, context.getRoot()); // from #app
+  Ognl.getValue("@java.lang.Math@E", context, context.getRoot());       // static method invoke.
+  // with '$()' method, anything can be easier:
+  public Object $(String exp) { return Ognl.getValue(exp, context, context.getRoot()); }
+  $("name");
+  $("#ses.name");
+  $("#app.name.toUpperCase()");
+  $("@java.lang.Math@E");
+
+
+
+  /* Operate on Collection */
+  // Make list/map
+  $("{111, 222, 333, 444}");
+  $("#{aaa: aaa, bbb: bbb}");
+  // Get Value
+  $("#tom.address['city']");
+  // 投影集合：collection.{expression}
+  $("friends.{name}");
+  // 过滤集合：collection.{?/^/$ expression}
+  $("friends.{? #name.length() > 7}");
+#+END_SRC
+
+** ActionConext/ValueStack
+每次 action 调用都会创建一个运行环境 ActionContext。它保存在 ThreadLocal 中，线程安全。
+
+ActionContext 的主体是一个 Map 结构：
+#+BEGIN_SRC java
+  public class ActionContext {
+      private Map<String, Object> context;
+  }
+#+END_SRC
+
+在预处理过程，=ActionContext#context= 里会被放入 request/session/application/ValueStack/etc，它本质是个以 =ValueStack= 为 root 的 =OgnlContext=，是 struts 运行过程中的数据中心。
+#+BEGIN_EXAMPLE
+OgnlContext (ActionContext#context)
+  +--- attr
+  +--- request
+  +--- CompoundRoot (ValueStack, ArryList with pop/push)
+  +--- session
+  +--- others
+#+END_EXAMPLE
+
+CompoundRoot(=ValueStack=) 是个堆栈结构，最先被压入的是 Action 的实例，实例属性将会在后面的 params 拦截器中被赋值。它的物理位置是:
+: request.getAttribute("struts.valueStack")
+
+在 jsp 中，可以通过 struts 提供的标签使用值栈中的数据：
+: <property value="salary" />
+: <iterator value="emps" var="e" status="s">...</iterator>
+:
+: ${salary}    // 因为 struts 重写了 Request#getAttribute 方法，所以 ${salary} 会先从 request 里取，取不到再去值栈中取
+:
+: <property value="#session.cart" />  // 非 root 内的数据的获取
+:
+: <property value="emp.salary" />     // 属性的属性
+: <property value="emp['salary']" />
+:
+: <s:property value="message" />      // 输出第一个拥有 message 属性对象的属性值
+: <s:property value="[2].message" />  // 从第二个开始搜索
+
+** ServletContext
+继承自 ActionContext, 扩展了获取处理 Servlet 原生对象的一些方法。
+
+取得HttpSession对象:
+: HttpSession session = ServletActionContext. getRequest().getSession();
+
+* 参数封装
+** 请求参数
+client
+#+BEGIN_SRC html
+  <!-- 1. to Property -->
+  <s:form action="empsave" method="post">
+    <s:textfield name="ename1" label="Employee Name" />
+    <s:select name="deptno1" list="depts" label="Department" />
+    <s:submit />
+  </s:form>
+
+  <!-- 2. to Model -->
+  <s:form action="empsave" method="post">
+    <s:textfield name="emp.name" label="Employee Name" />
+    <s:select name="emp.dept.deptno" list="depts" label="Department" />
+    <s:submit />
+  </s:form>
+
+  <!-- 3. i18n -->
+  <s:form action="empsave" method="post">
+    <s:textfield key="ename2" />
+    <s:select key="deptno2" list="depts" />
+    <s:submit />
+  </s:form>
+
+  <!-- 4. ModelDriven -->
+#+END_SRC
+
+server
+#+BEGIN_SRC java
+  // for 1
+  String ename1;
+  Long deptno1;
+  public String empsave() {
+      Emp e = new Emp(ename1, new Dept(deptno1));
+      empDAO.save(e);
+      return SUCCESS;
+  }
+
+  // for 2
+  Emp emp;
+  public String empsave() {
+      empDAO.save(emp);
+      return SUCCESS;
+  }
+#+END_SRC
+
+*ModelDriven*:\\
+如果要把请求的参数封装到 Model 类中，最好使用 =ModelDriven=。只需要继承并实现 ModelDriven 接口即可:
+#+BEGIN_SRC java
+  public EmpAction implements ModelDriven<Emp> {
+      private Emp emp = new Emp();  // 可被各个 action 复用
+      
+      @Override Emp getModel() {
+          return emp;
+      }
+
+      public String empsave() {
+          empDAO.save(emp);
+      }
+
+      public String empdel() {
+          empDAO.delete(emp.getId());
+      }
+  }
+#+END_SRC
+
+
+
+
+
+------------------
+
+*[补充内容]*
+
+*比较特殊的是 update 操作*，参数的封装逻辑应该分为两步：
+1. 先根据参数中的 id 从数据库中读取实体类
+2. 再将其他请求参数覆盖到实体类
+
+使用 ModelDriven 方式，我们需要这样定义 getModel 方法：
+#+BEGIN_SRC java
+  private Emp emp;
+
+  // 经过 ModelDriven 拦截器时从数据库中加载完整 emp
+  // 之后经过 Params 拦截器，再将请求参数覆盖其中
+  @Override Emp getModel() {
+      emp = empDAO.findById(emp.getId());
+      return emp;
+  }
+#+END_SRC
+
+可以看到，我们需要在 ModelDriven 拦截器前后分别执行一次 Params 拦截器，一次用于获取 Id，一次用于覆盖数据。
+这就必须使用 =paramsPrepareParamsStack= 拦截器栈。
+
+
+上述 getModel 定义会作用于所有 Action 请求，但对 save/delete 等请求是没必要的，因为他们不需要从数据库中再加载一次 emp。
+所以需要区分，只为特定 action 请求加载 emp。这就需要用到 =Prepare= 拦截器。
+使用 =paramsPrepareParamsStack= + =Prepare= 后，整个执行顺序为：
+: <params> -> prepareDo -> prepare -> getModel -> <params> -> action
+
+All in All：
+#+BEGIN_SRC java
+  // 需要先配置使用 paramsPrepareParamsStack
+  // 再让 Action 实现 Prepareable 接口
+  private Emp emp;
+
+  void prepareUpdate() {
+      emp = empDAO.findById(emp.getId());
+  }
+
+  Emp getModel() {
+      if(emp == null)
+          emp = new Emp();
+      return emp;
+  }
+#+END_SRC
+
+当然，有时侯也没必要这么麻烦，为 update 请求多定义几个接收 property，再手动加载，手动赋值。即可。
+
+** 响应数据
+跟请求参数的处理是一致的，都是在 Action 中定义，随着 action 被压入值栈，就可以在 jsp 中使用能从值栈中获取数据的标签去获取并渲染数据了。
+
+当然，也可以将数据放到 request/session 中。
+
+获取 Request/Response 的方式有:
+- ActionContext.getContext().getSession();
+- ServletActionContext.getRequest();
+- implements xxxAware
+
+* 类型转换
+html 提交的数据全都是字符串类型，所以在 server 端要转换为合适的 Java 类型
+- 在 struts 中，由 Parameters 拦截器负责转换，它是 defaultStack 中的一员
+- Parameters 拦截器只能对 *字符串->基本类型* 进行转换。复杂转换需要自定义转换器:
+  1. 创建转换器，即实现 ognl.TypeConverter 接口。实际上继承 StrutsTypeConverter 即可。
+  2. 配置使用。基于字段(model/ModelClassName-conversion.properties)或基于类型(src/xwork-conversion.properties)，添加:
+     : java.util.Date=imfine.convert.DataConverter
+- 如果转换失败，由 ConversionError 拦截器负责添加出错消息。
+- 如果存在转换或验证错误，由 Workflow 拦截器决定是否转到名为 input 的 result
+- 可添加 =ActionName.properties#invalid.filedvalue.fieldName=xxx= 定制错误信息。
+- 页面上中，错误信息可以通过下面方式显示：
+  : ${fieldErrors.age[0] }
+  : <s:fieldError fieldName="age" />  // 默认主题会生成 ul 列表
+
+* 输入验证
+验证是由 ValidationInterceptor 拦截器实现的。
+
+验证分为两种:
+1. 声明式验证，需要在action类的包下面创建一个验证使用的 xml 文件，里面定义我们要验证的内容。
+2. 编程式验证，为 Action 类实现 Validatable 接口，然后，实现 validate 方法。
+
+** 声明式验证
+比如，要为 LoginAction 做验证，需要在相同目录下面新建一个 LoginAction-validation.xml，内容类似下面：
+
+#+BEGIN_SRC xml
+  <?xml version="1.0" encoding="UTF-8"?>
+  <!DOCTYPE validators PUBLIC "-//Apache Struts//XWork Validator 1.0//EN" "http://struts.apache.org/dtds/xwork-validator-1.0.dtd">
+  <validators>
+    <!-- 验证我们的字段 -->
+    <field name="username">
+      <field-validator type="requiredstring">
+        <param name="trim">true</param>
+        <message>请填写您的用户名</message>
+      </field-validator>
+    </field>
+    <field name="password">
+      <field-validator type="requiredstring">
+        <param name="trim">true</param>
+        <message>请填写您的密码</message>
+      </field-validator>
+    </field>
+  </validators>
+#+END_SRC
+
+内建的验证有 15 中，可以参加文档。例：
+1. required
+2. requiredstring
+3. stringlength
+4. email
+5. url
+6. regex
+7. int
+8. conversion
+9. expression/fieldexpression
+
+例如，要验证数字范围:
+#+BEGIN_SRC xml
+  <!-- 字段验证，IntRange验证器 -->
+  <field-validator type="int">
+    <param name="min">20</param>
+    <param name="min">20</param>
+    <message key="error.int" />
+  </field-validator>
+#+END_SRC
+
+如果要验证两次输入的密码是否不一致
+#+BEGIN_SRC xml
+  <!-- 测试非字段验证 -->
+  <validator type="expression">
+    <param name="expression"><![CDATA[password1=password2]]></param>
+    <message> 两次输入的密码不一致，请重试。 </message>
+  </validator>
+#+END_SRC
+
+** 编程式验证
+首先， Action 要实现 Validateable 接口。当然，ActionSupport 类是实现了这个接口的，所以如果我们也可以直接继承 ActionSupport 类。
+
+其次，我们需要实现 validate() 方法。如果针对特定方法进行验证，我们需要实现相关的 validateMethodName() 方法。下面是一个栗子，对登录进行验证。要求
+1. 用户名不为空
+2. 密码不为空
+
+#+BEGIN_SRC java
+  /**
+   ,* 验证登录输入
+   ,*/
+  public void validateLogin() {
+      if (username == null || username.isEmpty())
+          addFieldError("username", "请填写用户名");
+      if (password == null || password.isEmpty())
+          addFieldError("password", "请填写密码");
+  }
+#+END_SRC
+
+最后，我们要为 action 写一个名字为 input 的 result。即如果验证失败后，显示哪个页面。如果不写 input，会抛出异常。
+
+* 异常处理
+声明式异常处理
+: <exception-mapping result="input" exception="xxxException" />
+也可以通过 global-exception-mappings 设置全局异常处理。
+
+声明式异常处理由拦截器 ExceptionMappingInterceptor 处理。当出现异常时， ExceptionMappingInterceptor 会向 ValueStack 中添加两个对象：
+- exception 表示被捕获异常的 Exception 对象
+- exceptionStack 包含着被捕获异常的栈
+
+所以可以通过 <s:property /> 来显示异常信息。通过查看 ExceptionMappingInterceptor 源码，一清二楚。
+
+在页面上显示：
+: <s:actionErrors />
+: <p> ${actionErrors[0]} </p>
+
+可以在 head 标签里使用 <s:header /> 生成一些内置的错误样式。
+
+* 渲染视图
+Result type:
+- dispatcher, 转发到 jsp/html，默认类型
+- chain，转发到另一个 action
+- redirect, 重定向到 jsp/html
+- redirectAction, 重定向到另一个 action
+- plainText，返回文件内容，text/plain
+- freemarker/velocity, 转发到 freemarker/velocity 视图
+- stream, 处理二进制数据，比如上传下载，还可以处理 JSON 返回
+- json, 将对象序列化为 json 字符串并返回，需要 struts-json-plugin.jar 支持
+
+* i18n
+处理国际化的是 i18n 拦截器。
+
+使用资源文件的方式有：
+- <s:text />
+- <s:i18n />
+- 标签里的 key 属性
+- 验证文件中的 <message key="xxx">
+- Action 中的 getText() 方法
+
+
+比如：
+: <s:textfield label="xxx" />    // xxx 按照原样输出
+: <s:property value="yyy" />     // yyy 是值栈中对应名字的数据
+: <s:text name="zzz" />          // zzz 表示从系统的资源文件(xxx.properties)加载数据
+: <s:textfield key="xyz" />      // xyz 使用资源文件里的数据
+
+
+struts 是按照下面顺序判断区域的:
+1. getParameter("request_locale")
+2. session.getAttribute("WW_TRANS_I18N")
+3. 如果以上都没有取到的话，那么从系统中获取 (=java.util.Locale.getDefault()=)
+
+
+资源文件的搜索顺序:
+1. ActionClass.properties
+2. Interface.properties (every interface and sub-interface)
+3. BaseClass.properties (all the way to Object.properties)
+4. ModelDriven's model (if implements ModelDriven), for the model object repeat from 1
+5. package.properties (of the directory where class is located and every parent directory all the way to the root directory)
+6. search up the i18n message key hierarchy itself
+7. global resource properties 
+   : <constant name="struts.custom.i18n.resources" value="global" />
+
+* 标签
+** property/date
+property 是最基本的标签，用来输出 ValueStack 中属性值，date 用来格式化日期
+: <s:property value="#sesseion.date" />
+: ${#session.date}
+: <s:date name="#session.date" format="yyyy-MM-dd hh:mm:ss" />
+
+** url/param
+url 用来创建一个 url 字符串，可以自动添加 ContextPath
+: <s:url value="/testUrl" var="url"><s:param name="id" value="name" /></s:url>     // name.值栈中的属性
+: <s:url value="/testUrl" var="url"><s:param name="id" value="'name'" /></s:url>   // 'name'.字符串name
+: <s:url action="testAction" method="save" var="url" />     // 生成的是action请求
+:
+: <a href="${url}">使用 s:url 定义的 url</a>
+
+param 用于给它的父标签传递参数
+- 默认会对 value 进行 ognl 求值
+- 如果想使用字面字符串，用单引号括起来
+- 也可以不使用 value 属性，而把值写在标签里面。这样可以传递一个 El 表达式的值。
+
+** set/push
+set 用来向 page/request/session/application 中压入值
+: <s:set name="price" value="price" scope="request" />
+: <div>价格： ${requestScope.price}</div>
+
+push 用来临时将某些值压到 ValueStack 顶部，便于操作
+: <s:push value="#request.hello">
+:     姓名： ${name}    
+: </s:push>
+
+** if/elif/else
+: <s:if test="price > 1000">高档</s:if>
+: <s:elseif test="price > 500">中档</s:elseif>
+: <s:else>低端</s:else>
+
+** iterator/sort
+iterator 遍历集合，把可遍历对象的每个元素依次压入弹出值栈
+: <s:iterator value="#request.persons" status="s">
+:     <div>${s.index}: ${name}  -  ${age}</div>
+: </s:iterator>
+
+sort 对可遍历对象的元素排序
+
+** form/textfield/select/checkbox/radio
+form 结合其他可以自动排版，自动自动回显。
+
+radio/select/checkboxlist 等标签需要使用 =list= 属性提供数据。
+: <s:radio name="genda" list="#{'1':'Male', '0':'Female'}" label="性别" />
+: <!-- 服务端需要使用集合类型 -->
+: <s:select name="age" list="{11,12,13,14,15}" headerKey="" headerValue="请选择" label="年龄">
+:     <s:optgroup label="21-30" list="#{21:21,22:22 }" />
+:     <s:optgroup label="30-40" list="#{31:31,32:32 }" />
+: </s:select>
+: <s:checkboxlist name="cities" list="#request.cities" listKey="cityId" listValue="cityName" label="城市" />
+
+* 拦截器
+实现了 Interceptor 接口的类，叫拦截器。
+
+在 Struts 中，是利用拦截器进行功能实现的，比如值的自动封装，类型的转换，值栈的维护，验证，国际化等方面。
+
+每一个拦截器都实现用来完成单一的功能。多个拦截器，按照顺序放在一个列表中，按照顺序执行，可以达到完成一系列功能的目的。
+这多个的拦截器放在一起，像一根链条一样，称为拦截器栈（栈是一种非常基本的数据结构，它遵守先进后出的原则。简单理解，它是有顺序的一个链表）。
+
+比如，在 struts 中，对值进行自动封装的拦截器叫 ParameterFilterInterceptor；对异常处理的拦截器叫 ExceptionMappingInterceptor；FileUploadInterceptor 负责处理文件的上传等。其他功能，在 struts 中都有相应的拦截器实现。
+
+所以一个请求在到达 Action 对象前会经过一系列的拦截器。
+: 拦截器a -> 拦截器 B -> 拦截器 C -> 拦截器 D ... -> Action.Method -> 后续的一些处理，包括返回显示页面等。
+
+在 struts.xml 中，可以通过 interceptor-ref 为每个 action 设置相应的拦截器链。如果我们不去设置，那么如果我们继承了 struts-default， action 会默认使用 defaultStack 拦截器栈。
+
+defaultStack 拦截器栈定义了一组有序的拦截器，它包含的每个拦截器都是 struts 内置的。我们可以通过在 struts-default.xml 中查看详情。
+
+配置拦截器的方式为，在 action 下面，增加 interceptor-ref 节点：
+#+BEGIN_SRC xml
+  <action name="xxx" class="yyy.ZzzAction" method="xxx">
+    <result>/aaa.jsp</result>
+    <interceptor-ref name="A拦截器" />
+    <interceptor-ref name="B拦截器" />
+  </action>
+#+END_SRC
+
+在 struts 处理请求的过程中，会分析你的配置，把你为 action 配置的所有拦截器引用按照先后顺序整理成一个新的链表。然后按照顺序去执行。
+
+当然，你也可以在 package 里面声明新的拦截器和拦截器栈。上面的代码可以改写，并改进为：
+#+BEGIN_SRC xml
+  <!-- 拦截器的声明 -->
+  <interceptors>
+    <!-- 下面声明是我们自己实现的两个拦截器 -->
+    <interceptor name="A拦截器" class="xxx.AI" />
+    <interceptor name="B拦截器" class="xxx.BI" />
+
+    <!-- 这里定义的是一个拦截器栈，就是把一系列的拦截器放在一起起个名字，方便在 action 中使用 -->
+    <!-- 注意， interceptor-ref 的先后顺序不同，效果是不一样的。 -->
+    <interceptor-stack name="我的拦截器">
+      <interceptor-ref name="A拦截器" />
+      <interceptor-ref name="B拦截器" />
+      <!-- 在使用自定义拦截器的时候，一定要注意，如果不写下面的一部，将会用我们自己的拦截器把 struts 自己的拦截器给覆盖掉。这样会导致struts完成不了一些事情。 -->
+      <!-- 所以，在我们声明的这个拦截器栈中，把 defaultStack 放在里面 -->
+      <interceptor-ref name="defaultStack" />
+    </interceptor-stack>
+  </interceptors>
+
+  <!-- 在 action 中使用我们声明的拦截器 -->
+  <action name="xxx" class="yyy.ZzzAction" method="xxx">
+    <result>/aaa.jsp</result>
+    <interceptor-ref name="我的拦截器" />
+  </action>
+
+  <!-- 上面的一段，跟下面的定义是相同的效果 -->
+  <!--
+      <action name="xxx" class="yyy.ZzzAction" method="xxx">
+        <result>/aaa.jsp</result>
+        <interceptor-ref name="A拦截器" />
+        <interceptor-ref name="B拦截器" />
+        <interceptor-ref name="defaultStack" />
+      </action>
+  -->
+#+END_SRC
+
+当然，如果想自定义拦截器，只需要实现 Interceptor 接口即可。为了方便，也可以直接继承 AbstractInterceptor 类，这样，我们只需要重写 intercept 方法就可以了。
+
+
+例子：
+
+第一步，实现自己的拦截器。
+#+BEGIN_SRC java
+  /**
+   ,* 这是一个简单的用来判断登录的拦截器栗子。
+   ,*/
+  public class VertifyInterceptor extends AbstractInterceptor {
+
+      // 日志系统，你们需要了解一下
+      Log logger = LogFactory.getLog(VertifyInterceptor.class);
+
+      @Override
+      public String intercept(ActionInvocation invocation) throws Exception {
+
+          // 获取 action 的名字
+          String actionName = invocation.getProxy().getActionName();
+
+          // 这只是一个小例子，通过这样设置，我们可以让这些请求跳过下面的验证。
+          Set<String> excludes = new HashSet<>();
+          excludes.add("login");
+          excludes.add("index");
+          if (excludes.contains(actionName)) {
+              // 如果请求在我们的白名单中，将不执行之后的判断逻辑。
+              return invocation.invoke();
+          }
+
+
+          // 下面开始进行相关验证。
+          HttpSession session = ServletActionContext.getRequest().getSession();
+      
+          // 未登录检测。如果session为空，或者 session 没有保存相关状态，则判断，这个人没有登录。那么让他去登录页面。
+          if (session == null || session.getAttribute(Globals.USER_KEY) == null) {
+              // 记录或打印日志
+              logger.info(ServletActionContext.getRequest().getRequestURI() + "   尚未登录，返回首页");
+              // 如果直接返回一个字符的话，那么下一步将直接进入这里指定的 index 页面，而不会执行到 action 里面去。
+              return "loginPage";
+          }
+
+          // 权限控制。防止绕过验证，直接进入管理员的页面。
+          // 如果请求的 namespace 是 /admin，但 session 里保存的用户类型不是 1，那么我们可以判断，这是非管理员要访问我们的管理员页面。所以毫无疑问，要禁止他的操作。
+          if (invocation.getProxy().getNamespace().equalsIgnoreCase("/admin") && ((User) session.getAttribute(Globals.USER_KEY)).getUsertypeid() != 1) {
+              logger.info(ServletActionContext.getRequest().getRequestURI() + "   不具备相应权限，返回登录");
+              // 将 session　设置为无效
+              session.invalidate();
+              // 返回相关警告页面，或者跳转到登录页面
+              return "errorPage";
+          }
+
+          // 默认情况，继续运行。
+          return invocation.invoke();
+      }
+  }
+#+END_SRC
+
+第二步，在 struts.xml 中配置自定义的拦截器
+#+BEGIN_SRC xml
+  <interceptors>
+    <interceptor name="vertify" class="xxx.interceptor.VertifyInterceptor" />
+
+    <interceptor-stack name="myVertifyStack">
+      <interceptor-ref name="vertify" />              <!-- 注意，把我们的验证放在第一个位置，那么如果验证失败，将不执行下面的拦截器，会节约一些资源。 -->
+      <interceptor-ref name="defaultStack" />
+    </interceptor-stack>
+  </interceptors>
+
+  <!-- 在 action 中使用我们声明的拦截器 -->
+  <action name="listAll" class="xxx.action.EmpAction" method="listAll">
+    <result>/aaa.jsp</result>
+    <interceptor-ref name="myVertifyStack" />
+  </action>
+
+  <!--
+
+  当前，除了像上面一样，给每个 action 添加 interceptor-ref，我们也可以通过一下语句，为整个包下的 action 设置默认的 interceptor，如下：
+
+  <default-interceptor-ref name="myVertifyStack" />
+
+  -->
+
+#+END_SRC
+
+就这么简单。
+
+* Ajax/Json
+在 struts2 中使用 ajax 获取 json 数据主要以下三种方法：
+** Servlet 原生写法
+struts.xml:
+#+BEGIN_SRC xml
+  <package name="a" extends="struts-default">
+    <action name="einfo" class="EmpAction" method="einfo">
+      <!-- 不需要 result -->
+    </action>
+  </package>
+#+END_SRC
+
+action:
+#+BEGIN_SRC java
+  public String einfo () throws Exception {
+      // Writer
+      PrintWriter writer = ServletActionContext.getResponse().getWriter();
+
+      // Data
+      String result = "{\"name\": \"Alice\", \"age\": 22}";
+
+      // Output
+      writer.write(result);
+      writer.flush();
+
+      // Return
+      return null;
+  }
+#+END_SRC
+
+front-page:
+#+BEGIN_SRC js
+  $.post("/einfo.action", null, r => alert(r));
+#+END_SRC
+
+** 使用 stream 类型
+struts.xml：
+#+BEGIN_SRC xml
+  <package name="a" extends="struts-default">
+    <action name="einfo" class="EmpAction" method="einfo">
+      <result type="stream">
+        <!-- optional -->
+        <param name="contentType">text/html; charset=UTF-8</param>
+        <param name="inputName">inputStream</param>
+      </result>
+    </action>
+  </package>
+#+END_SRC
+
+action:
+#+BEGIN_SRC java
+  // Define
+  private InputStream inputStream;
+
+  public String einfo () {
+      // Data
+      String result = "{\"name\": \"Alice\", \"age\": 22}";
+      // Assign
+      inputStream = new ByteArrayInputStream(result.getBytes("UTF-8"));
+      
+      return "success";
+  }
+#+END_SRC
+
+front-page:
+#+BEGIN_SRC js
+  $.post("/einfo.action", null, r => console.log(r));
+#+END_SRC
+
+** 使用 struts-json 插件
+json 插件会自动将指定对象序列化为 json 字符串并返回。
+
+首先添加依赖:
+: compile "org.apache.struts:struts2-json-plugin:+"
+
+struts.xml:
+#+BEGIN_SRC xml
+  <package name="a" extends="json-default">
+    <action name="elist" class="EmpAction" method="elist">
+      <!-- 默认情况，序列化值栈最顶端的对象 -->
+      <result name="r1" type="json"></result>
+      
+      <!-- 通过 root 指定要序列化的对象 (OGNL 表达式) -->
+      <result name="r2" type="json">
+        <param name="root">#request.emps</param>
+      </result>
+
+      <!-- 使用 includeProperties/excludeProperties 过滤要序列化的字段 -->
+      <result name="r3" type="json">
+        <param name="excludeProperties">\[\d+\].department, \[\d+\].manager</param>
+      </result>
+
+      <!-- 使用 OGNL 的投影集合功能，定制序列化的字段 -->
+      <result name="r4" type="json">
+        <param name="root">#request.emps.{#{"n": name, "s": salary}}</param>
+      </result>
+    </action>
+  </package>
+#+END_SRC
+
+action:
+#+BEGIN_SRC java
+  public String elist () {
+      request.put("emps", empDAO.getAll());
+      return "r3";
+  }
+#+END_SRC
+
+front-page:
+#+BEGIN_SRC js
+  var xhr = new XMLHttpRequest();
+  xhr.onreadystatechange = () => {
+      if(xhr.readyState === 4) {
+          const emps = JSON.parse(xhr.responseText);
+          document.querySelector("#xxx").innerHTML = emps.map(e => {
+              `<tr><td>${e.n}</td>${e.s}<td></td></tr>`
+          }).join("\n");
+      }
+  };
+  xhr.open("GET", "/elist.action", true);
+  xhr.send();
+#+END_SRC
+
+* Files
+** upload
+form:
+#+BEGIN_SRC html
+  <s:form action="upload" enctype="multipart/form-data">
+    <s:file name="aaa" label="选择" />
+    <s:textfield name="describe" label="描述" />
+    <s:submit value="保存"></s:submit>
+  </s:form>
+#+END_SRC
+
+action:
+#+BEGIN_SRC java
+  private File aaa;
+  private String aaaFileName;
+  private String aaaContentType;
+  private String describe;
+
+  public String upload () {
+      // Save with Stream
+      FileUtils.copyFile(aaa, new File("d:/xxx/" + aaaFileName));
+      return "success";
+  }
+#+END_SRC
+
+需要注意:
+- struts2 的文件上传实际上用的是 =Commons FileUpload= 组件，所以要导入相关 jar 包
+- 处理文件上传的是 FileUpload 拦截器。可通过配置拦截器参数(maximumSize/allowedExtensions)限制上传文件的大小、格式等
+- 在 Action 中定义上述 3 个属性(param+XXX)，配合 IO 流完成数据写入。多文件上传则需要将上述属性定义成 List 类型
+- 上面的三个属性可以随意定义，但是相应的 setter 方法一定是 paramXXX 格式
+
+** download
+超链接的形式是静态文件下载。但如果要动态下载，需要使用 type=stream。
+
+struts.xml:
+#+BEGIN_SRC xml
+  <action name="download" class="xxx.FileAction">
+    <result type="stream">
+      <param name="bufferSize">2048</param>
+      <param name="contentDisposition">attachment;filename=${file.name}</param>
+    </result>
+  </action>
+#+END_SRC
+
+action:
+#+BEGIN_SRC java
+  // Define
+  private File file;
+  private InputStream inputStream;
+
+  public String download() {
+      // Data
+      file = new File("D:/aaa/abc.jpg");
+      inputStream = new FileInputstream(file);
+      return "success";
+  }
+#+END_SRC
+
+* 防止重复提交
+三种情况会引发重复提交：
+1. 多次点击
+2. 回退，再提交
+2. 转发时 F5 刷新
+
+解决方案：使用 token/tokenSession 拦截器
+1. 在配置文件中添加 =token/tokenSession= 拦截器 (它不包含在 defaultStack 中)
+2. 在 form 中添加标签 =<s:token />= (会在页面生成一个 hidden 域并将值保存在 session 中)
+3. 若使用 token 拦截器: 出错后会有页面跳转，所以需要配置一个名为 =token.valid= 的 result
+4. 若使用 tokenSession 拦截器：出错后页面不会发生变化，所以不需要其他配置
+
